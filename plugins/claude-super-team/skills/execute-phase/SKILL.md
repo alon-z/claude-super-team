@@ -1,8 +1,8 @@
 ---
 name: execute-phase
 description: Execute planned phase by routing tasks to specialized agents. Reads PLAN.md files, infers the best agent type per task (security, TDD, general-purpose, etc.), executes in wave order with parallel plans, then verifies phase goal achievement. Use after /plan-phase to execute a specific phase. Supports --gaps-only for executing only gap closure plans and --skip-verify to skip verification.
-argument-hint: "[phase number] [--gaps-only] [--skip-verify]"
-allowed-tools: Read, Bash, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskList
+argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team]"
+allowed-tools: Read, Bash, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage
 ---
 
 ## Objective
@@ -34,6 +34,21 @@ Extract from $ARGUMENTS:
 - Phase number (integer). If not provided, detect next unexecuted phase from roadmap.
 - `--gaps-only` flag: Execute only plans with `gap_closure: true` in frontmatter
 - `--skip-verify` flag: Skip the verifier after wave completion
+- `--team` flag: Force teams mode for wave execution
+
+**Execution mode detection:**
+
+```
+if --team flag is set:
+  EXEC_MODE=team
+elif CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 in environment:
+  EXEC_MODE=team
+else:
+  EXEC_MODE=task
+fi
+```
+
+When `EXEC_MODE=team`, waves use Agent Teams (TeamCreate + teammates) instead of parallel Task calls. This provides inter-agent messaging, shared task list coordination, and better progress visibility within waves.
 
 Normalize:
 
@@ -93,6 +108,21 @@ Wave structure:
 | 2 | 03 | {brief from objective} |
 ```
 
+### Phase 4.5: Team Setup (Teams Mode Only)
+
+Skip if `EXEC_MODE=task`.
+
+Create a team scoped to this phase execution:
+
+```
+TeamCreate(
+  team_name: "phase-{PHASE}-exec"
+  description: "Executing phase {PHASE} - {phase_name}"
+)
+```
+
+The team persists across all waves in this phase. Teammates spawned in wave 1 go idle after completing their plan and can be re-messaged with new work in wave 2 (avoids context startup overhead).
+
 ### Phase 5: Execute Waves
 
 For each wave (sequential):
@@ -122,8 +152,6 @@ For each task, infer the best agent type using these heuristics (first match win
 **Within a plan:** Tasks execute sequentially (task 2 depends on task 1's output).
 **Across plans in same wave:** Plans execute in parallel.
 
-For each plan in the wave, process its tasks sequentially. Use Task tool to spawn agents for tasks across different plans in parallel when possible.
-
 Read `references/task-execution-guide.md`. Build the agent prompt by embedding:
 
 1. The task execution guide
@@ -132,6 +160,10 @@ Read `references/task-execution-guide.md`. Build the agent prompt by embedding:
 4. Prior task results from same plan (if task 2+, include task 1's report)
 5. Project context: PROJECT.md content (abbreviated if large)
 6. Codebase context: relevant files from `.planning/codebase/` (if exist)
+
+##### Task Mode (EXEC_MODE=task)
+
+For each plan in the wave, process its tasks sequentially. Use Task tool to spawn agents for tasks across different plans in parallel when possible.
 
 ```
 Task(
@@ -169,6 +201,91 @@ Task(
 )
 ```
 
+##### Teams Mode (EXEC_MODE=team)
+
+Spawn one teammate per plan in the wave. Each teammate owns all tasks in its plan (executed sequentially within the teammate's context). Cross-plan parallelism happens naturally because teammates run concurrently.
+
+For each plan in the wave, spawn a teammate:
+
+```
+Task(
+  subagent_type: "{routed_agent_type}"
+  model: "{routed_model}"
+  team_name: "phase-{PHASE}-exec"
+  name: "plan-{plan}"
+  description: "Execute {phase}-{plan}"
+  prompt: """
+  You are a teammate executing plan {phase}-{plan}. Execute ALL tasks in this plan sequentially.
+
+  {task_execution_guide_content}
+
+  ---
+
+  Plan: {phase}-{plan}
+  Plan objective: {objective}
+  Plan must_haves: {must_haves}
+
+  Tasks to execute (in order):
+  {all_tasks_in_plan_xml}
+
+  Project context:
+  {project_md_content}
+
+  Codebase context:
+  {codebase_docs_content}
+
+  ---
+
+  Instructions:
+  - Execute each task in order. Task 2 may depend on task 1's output.
+  - After completing ALL tasks, write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
+  - Use the summary template: {summary_template_content}
+  - If any task is blocked, report ## TASK BLOCKED with the reason and stop.
+  - When done, report ## PLAN COMPLETE with a brief summary of what was built.
+  """
+)
+```
+
+**Key differences from Task mode:**
+
+- Each teammate gets ALL tasks for its plan at once (not one task at a time from the orchestrator). This eliminates round-trips between the orchestrator and agents for sequential tasks within a plan.
+- Teammates write their own SUMMARY.md (skip Phase 5e for teams -- teammates handle it).
+- The team lead monitors progress via `SendMessage` broadcasts:
+
+```
+SendMessage(
+  team_name: "phase-{PHASE}-exec"
+  type: "broadcast"
+  message: "Status check: report your current task and any blockers."
+)
+```
+
+- If a teammate reports `## TASK BLOCKED`, the team lead handles it the same as Phase 5d (AskUserQuestion), then messages the teammate with guidance:
+
+```
+SendMessage(
+  team_name: "phase-{PHASE}-exec"
+  type: "message"
+  to: "plan-{plan}"
+  message: "User guidance for blocked task: {user_response}"
+)
+```
+
+**Reusing teammates across waves:**
+
+After wave N completes, idle teammates from wave N can be re-messaged with wave N+1 plans instead of spawning new teammates. This preserves their context (codebase understanding, prior decisions) and avoids cold-start overhead:
+
+```
+SendMessage(
+  team_name: "phase-{PHASE}-exec"
+  type: "message"
+  to: "plan-{prev_plan}"  // idle teammate from prior wave
+  message: "New assignment: execute plan {new_plan}. {new_plan_prompt}"
+)
+```
+
+If the wave has more plans than available idle teammates, spawn additional teammates. If fewer, let extras stay idle until cleanup.
+
 #### 5d. Handle Task Results
 
 Parse each agent's return:
@@ -191,9 +308,11 @@ Parse each agent's return:
 - Wait for user response
 - Feed user's response as context to the next task
 
-#### 5e. Create SUMMARY.md Per Plan
+#### 5e. Create SUMMARY.md Per Plan (Task Mode Only)
 
-After all tasks in a plan complete, read `assets/summary-template.md` and create:
+In teams mode, teammates write their own SUMMARY.md as part of their prompt. Skip this step.
+
+In task mode, after all tasks in a plan complete, read `assets/summary-template.md` and create:
 
 ```
 ${PHASE_DIR}/${PHASE}-${PLAN}-SUMMARY.md
@@ -213,6 +332,28 @@ After all plans in wave complete:
 3. Check for `SELF_CHECK: FAILED` in any task report
 
 If any spot-check fails, report and ask user whether to continue.
+
+#### 5g. Team Cleanup (Teams Mode Only)
+
+After all waves complete, shut down the team:
+
+1. Send graceful shutdown to all teammates:
+
+```
+SendMessage(
+  team_name: "phase-{PHASE}-exec"
+  type: "shutdown_request"
+  message: "All waves complete. Shutting down."
+)
+```
+
+2. Wait for shutdown responses, then delete the team:
+
+```
+TeamDelete(
+  team_name: "phase-{PHASE}-exec"
+)
+```
 
 ### Phase 6: Verify Phase Goal
 
@@ -279,7 +420,7 @@ Do NOT auto-commit. Do NOT update ROADMAP.md (that's for /complete-milestone).
 Present completion summary:
 
 ```
-Phase {N} executed.
+Phase {N} executed ({task mode | teams mode}).
 
 Plans completed: {M}/{total}
 Tasks executed: {T} total across {M} plans
@@ -300,6 +441,11 @@ Verification: {Passed | Gaps found | Skipped}
 - Run /plan-phase {N} --gaps to create fix plans
 - Then /execute-phase {N} --gaps-only to execute fixes
 
+**Want changes?**
+- Run /phase-feedback {N} to give feedback, plan, and execute changes in one step
+- Clarifies your feedback iteratively, then spawns opus agents to apply modifications
+- Addresses visual, behavioral, or quality adjustments to delivered work
+
 **If passed:**
 - Run /verify-work {N} for manual UAT (if needed)
 - Or proceed to next phase: /plan-phase {N+1}
@@ -317,6 +463,8 @@ The routing in Phase 5b is intentionally simple. The value is in **prompt specia
 For security-sensitive tasks (auth, encryption, input validation), use opus for higher reasoning quality. For straightforward implementation tasks, sonnet is sufficient and faster.
 
 If the user has specific agent preferences, they can be communicated before execution and the orchestrator adjusts routing accordingly.
+
+In teams mode, model selection still applies per-teammate. The `model` parameter on the Task call determines the teammate's model, using the same routing heuristics from Phase 5b.
 
 ## Resumption
 
@@ -342,3 +490,7 @@ If execution is interrupted and restarted:
 - [ ] User sees clear completion summary
 - [ ] User told how to commit (never auto-commit)
 - [ ] User knows next steps
+- [ ] (Teams mode) Team created before first wave
+- [ ] (Teams mode) Teammates spawned per plan with team_name parameter
+- [ ] (Teams mode) Idle teammates reused across waves when possible
+- [ ] (Teams mode) Team deleted after all waves complete

@@ -9,7 +9,7 @@ A Claude Code plugin marketplace containing two plugins that provide a structure
 ## Repository Structure
 
 - `.claude-plugin/marketplace.json` -- marketplace manifest registering all plugins
-- `plugins/claude-super-team/` -- core planning and execution plugin (8 skills)
+- `plugins/claude-super-team/` -- core planning and execution plugin (9 skills)
 - `plugins/marketplace-utils/` -- marketplace management utility plugin (1 skill)
 
 Each plugin has `.claude-plugin/plugin.json` for metadata and `skills/` containing SKILL.md files that define slash commands.
@@ -26,6 +26,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /execute-phase [N]    --> .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
 /progress             --> status report + smart routing to next action
 /quick-plan           --> lightweight inserted phase with decimal numbering (e.g., 4.1)
+/phase-feedback       --> feedback-driven subphase: plans + executes modifications with opus agents (e.g., 4.1)
 /add-security-findings --> .planning/SECURITY-AUDIT.md + roadmap integration
 ```
 
