@@ -1,0 +1,5 @@
+{
+  "name": "claude-suer-team",
+  "description": "A plugin to integrate with the Claude Super Team platform, allowing users to access and manage their team resources directly from the chat interface.",
+  "version": "1.0.0"
+}
