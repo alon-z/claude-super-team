@@ -1,6 +1,6 @@
 {
   "name": "claude-super-team",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "owner": {
     "name": "Alon Zusman"
   },
@@ -9,6 +9,15 @@
       "name": "claude-super-team",
       "description": "A plugin that provides information about the members of the super team.",
       "source": "./plugins/claude-super-team",
+      "version": "1.0.0",
+      "category": "development"
+    },
+    {
+      "name": "marketplace-utils",
+      "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests.",
+      "source": "./plugins/marketplace-utils",
+      "version": "1.0.0",
+      "keywords": ["marketplace", "plugins", "registry", "audit"],
       "category": "development"
     }
   ]
