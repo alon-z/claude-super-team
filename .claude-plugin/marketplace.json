@@ -14,10 +14,16 @@
     },
     {
       "name": "marketplace-utils",
-      "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests.",
+      "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests. Includes skill scaffolding.",
       "source": "./plugins/marketplace-utils",
-      "version": "1.0.0",
-      "keywords": ["marketplace", "plugins", "registry", "audit"],
+      "version": "1.0.1",
+      "keywords": [
+        "marketplace",
+        "plugins",
+        "registry",
+        "audit",
+        "skill-creator"
+      ],
       "category": "development"
     }
   ]

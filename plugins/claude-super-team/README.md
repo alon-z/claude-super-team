@@ -4,7 +4,7 @@ A comprehensive project planning and execution framework for Claude Code users. 
 
 ## Overview
 
-The Claude Super Team plugin is a set of 8 slash commands that form a sequential workflow for managing software projects. It combines **project initialization**, **roadmap creation**, **phase planning**, and **execution guidance** into a cohesive system designed to help you ship better software more predictably.
+The Claude Super Team plugin is a set of 9 slash commands that form a sequential workflow for managing software projects. It combines **project initialization**, **roadmap creation**, **phase planning**, and **execution guidance** into a cohesive system designed to help you ship better software more predictably.
 
 The plugin works by creating and maintaining a `.planning/` directory in your project that stores:
 
@@ -189,7 +189,31 @@ Insert and plan a small urgent task (bug fix, small feature) without full phase 
 
 ---
 
-### 7. `/progress` — Check Project Status
+### 7. `/phase-feedback` — Iterate on Delivered Work
+
+Collect feedback on a just-executed phase and immediately plan + execute targeted modifications.
+
+**Usage:**
+
+```
+/phase-feedback 3
+/phase-feedback 2 fix the navbar alignment and add loading states
+```
+
+**What it does:**
+
+- Reads execution summaries and verification results from the parent phase
+- Guides you through iterative feedback collection (visual/design, behavior, missing features, quality)
+- Scopes feedback and creates a decimal subphase (e.g., 3.1)
+- Spawns a feedback-aware planner that modifies existing work rather than building from scratch
+- Executes all tasks immediately with opus agents
+- Writes a summary and annotates the roadmap
+
+**When to use:** After `/execute-phase` when you want changes to the delivered work -- visual tweaks, behavioral fixes, missing polish, or quality improvements.
+
+---
+
+### 8. `/progress` — Check Project Status
 
 Get a comprehensive status report and smart routing to next action.
 
@@ -214,7 +238,7 @@ Get a comprehensive status report and smart routing to next action.
 
 ---
 
-### 8. `/add-security-findings` — Document Security Audit Results
+### 9. `/add-security-findings` — Document Security Audit Results
 
 Integrate security audit findings into your roadmap as security-hardening phases.
 
@@ -260,16 +284,20 @@ Here's a typical end-to-end flow:
 4. /execute-phase 1
    → Routes tasks to agents, executes waves, verifies phase goal
 
-5. /progress
-   → Shows Phase 1 complete, recommends /execute-phase 2
+5. /phase-feedback 1
+   → "The login form needs better error messages and a loading spinner"
+   → Creates Phase 1.1, plans modifications, executes with opus agents
 
-6. /quick-plan "fix OAuth token refresh bug"
-   → Inserts Phase 1.1 with urgent fix
+6. /progress
+   → Shows Phase 1 + 1.1 complete, recommends /execute-phase 2
 
-7. /execute-phase 1.1
+7. /quick-plan "fix OAuth token refresh bug"
+   → Inserts Phase 1.2 with urgent fix
+
+8. /execute-phase 1.2
    → Executes the urgent fix
 
-8. /execute-phase 2
+9. /execute-phase 2
    → Moves forward with Phase 2
 ```
 

@@ -1,9 +1,9 @@
 {
   "name": "marketplace-utils",
   "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Alon Zusman"
   },
-  "keywords": ["marketplace", "plugins", "registry", "audit"]
+  "keywords": ["marketplace", "plugins", "registry", "audit", "skill-creator"]
 }

@@ -1,7 +1,7 @@
 ---
 name: marketplace-manager
 model: haiku
-description: Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests. Use when working with marketplace catalogs, plugin entries, team distribution settings, or fixing marketplace inconsistencies.
+description: Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove/create plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests. Use when working with marketplace catalogs, plugin entries, team distribution settings, or fixing marketplace inconsistencies.
 ---
 
 # CC Marketplace Manager
@@ -112,6 +112,7 @@ List all directories under the plugins root (e.g., `plugins/`). Compare against 
 ### 2. Detect Name Mismatches
 
 For each registered plugin, read its `plugin.json` and compare the `name` field to:
+
 - The marketplace entry `name`
 - The plugin directory name
 
@@ -207,8 +208,8 @@ Configure automatic marketplace availability via `.claude/settings.json`:
 
 ## Reference Docs
 
-| Reference | Content |
-|-----------|---------|
-| `references/plugin-structure.md` | Directory structure, manifest schema, components |
+| Reference                          | Content                                          |
+| ---------------------------------- | ------------------------------------------------ |
+| `references/plugin-structure.md`   | Directory structure, manifest schema, components |
 | `references/marketplace-schema.md` | Marketplace format, plugin entries, distribution |
-| `references/workflows.md` | Marketplace workflows, testing, publishing |
+| `references/workflows.md`          | Marketplace workflows, testing, publishing       |

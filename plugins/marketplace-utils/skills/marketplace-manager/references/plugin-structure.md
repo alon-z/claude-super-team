@@ -44,6 +44,10 @@ plugin-name/
 - `hooks`: Path to hooks configuration
 - `mcpServers`: Path to MCP configuration
 
+**NOT valid in plugin.json** (marketplace.json entry only):
+
+- `category`, `tags`, `source` -- these belong in marketplace plugin entries, not in plugin.json. Including them causes install validation errors.
+
 ### Example plugin.json
 
 ```json
