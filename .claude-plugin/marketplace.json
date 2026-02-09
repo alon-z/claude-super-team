@@ -25,6 +25,14 @@
         "skill-creator"
       ],
       "category": "development"
+    },
+    {
+      "name": "task-management",
+      "description": "Task management integration for Linear and GitHub. Sync planning artifacts to Linear and manage GitHub issues with consistency standards.",
+      "source": "./plugins/task-management",
+      "version": "1.0.0",
+      "keywords": ["task-management", "linear", "github", "issues", "sync"],
+      "category": "development"
     }
   ]
 }
