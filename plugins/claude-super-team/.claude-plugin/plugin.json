@@ -1,6 +1,6 @@
 {
   "name": "claude-super-team",
-  "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, phase planning with discussion/planning/execution loops, progress tracking, quick phase insertion, and security findings integration.",
-  "version": "1.0.3",
-  "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management"]
+  "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, phase planning with discussion/planning/execution loops, progress tracking, quick phase insertion, security findings integration, and interactive help system.",
+  "version": "1.0.4",
+  "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management", "help", "guidance"]
 }

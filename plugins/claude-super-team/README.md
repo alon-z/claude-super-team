@@ -4,7 +4,7 @@ A comprehensive project planning and execution framework for Claude Code users. 
 
 ## Overview
 
-The Claude Super Team plugin is a set of 9 slash commands that form a sequential workflow for managing software projects. It combines **project initialization**, **roadmap creation**, **phase planning**, and **execution guidance** into a cohesive system designed to help you ship better software more predictably.
+The Claude Super Team plugin is a set of 11 slash commands that form a sequential workflow for managing software projects. It combines **project initialization**, **roadmap creation**, **phase discussion and planning**, **execution guidance**, and **interactive help** into a cohesive system designed to help you ship better software more predictably.
 
 The plugin works by creating and maintaining a `.planning/` directory in your project that stores:
 
@@ -95,7 +95,29 @@ Transform your project vision into a phased roadmap with observable success crit
 
 ---
 
-### 4. `/plan-phase` — Create Executable Plans
+### 4. `/discuss-phase` — Clarify Implementation Decisions
+
+Gather user decisions and context before planning a phase.
+
+**Usage:**
+
+```
+/discuss-phase 1
+/discuss-phase 3
+```
+
+**What it does:**
+
+- Reads the phase goal and requirements from ROADMAP.md
+- Asks targeted questions about implementation approach, trade-offs, and preferences
+- Creates `.planning/phases/{NN}-{name}/{NN}-CONTEXT.md` with captured decisions
+- Provides context to `/plan-phase` for better plans
+
+**When to use:** Before `/plan-phase` when a phase has multiple valid approaches or implementation decisions that need user input. Optional but recommended for complex phases.
+
+---
+
+### 5. `/plan-phase` — Create Executable Plans
 
 Decompose a roadmap phase into executable tasks and dependencies.
 
@@ -131,7 +153,7 @@ Decompose a roadmap phase into executable tasks and dependencies.
 
 ---
 
-### 5. `/execute-phase` — Run Phase Tasks
+### 6. `/execute-phase` — Run Phase Tasks
 
 Execute phase plans by routing tasks to specialized agents and verifying completion.
 
@@ -167,7 +189,7 @@ Execute phase plans by routing tasks to specialized agents and verifying complet
 
 ---
 
-### 6. `/quick-plan` — Lightweight Ad-hoc Planning
+### 7. `/quick-plan` — Lightweight Ad-hoc Planning
 
 Insert and plan a small urgent task (bug fix, small feature) without full phase ceremony.
 
@@ -189,7 +211,7 @@ Insert and plan a small urgent task (bug fix, small feature) without full phase 
 
 ---
 
-### 7. `/phase-feedback` — Iterate on Delivered Work
+### 8. `/phase-feedback` — Iterate on Delivered Work
 
 Collect feedback on a just-executed phase and immediately plan + execute targeted modifications.
 
@@ -213,7 +235,7 @@ Collect feedback on a just-executed phase and immediately plan + execute targete
 
 ---
 
-### 8. `/progress` — Check Project Status
+### 9. `/progress` — Check Project Status
 
 Get a comprehensive status report and smart routing to next action.
 
@@ -238,7 +260,7 @@ Get a comprehensive status report and smart routing to next action.
 
 ---
 
-### 9. `/add-security-findings` — Document Security Audit Results
+### 10. `/add-security-findings` — Document Security Audit Results
 
 Integrate security audit findings into your roadmap as security-hardening phases.
 
@@ -259,6 +281,31 @@ Integrate security audit findings into your roadmap as security-hardening phases
 
 ---
 
+### 11. `/cst-help` — Interactive Workflow Help
+
+Get context-aware help on the Claude Super Team workflow.
+
+**Usage:**
+
+```
+/cst-help
+/cst-help after creating a phase, what should I do?
+/cst-help what are waves?
+/cst-help I'm stuck
+```
+
+**What it does:**
+
+- Answers general workflow questions directly (no project analysis needed)
+- Provides project-specific guidance by analyzing `.planning/` state when needed
+- Explains concepts (phases, waves, plans, success criteria)
+- Troubleshoots issues (missing files, state inconsistencies)
+- Lists all available skills with descriptions
+
+**When to use:** When you have questions about how CST works, need help understanding a concept, or want troubleshooting assistance.
+
+---
+
 ## Workflow in Action
 
 Here's a typical end-to-end flow:
@@ -275,30 +322,33 @@ Here's a typical end-to-end flow:
      - Phase 4: Admin Dashboard
      - Phase 5: Analytics & Reporting
 
-3. /plan-phase --all
+3. /discuss-phase 1
+   → Clarifies implementation decisions for Phase 1
+
+4. /plan-phase --all
    → Plans all 5 phases:
      - Phase 1: 4 tasks in 2 waves
      - Phase 2: 6 tasks in 3 waves
      - Etc.
 
-4. /execute-phase 1
+5. /execute-phase 1
    → Routes tasks to agents, executes waves, verifies phase goal
 
-5. /phase-feedback 1
+6. /phase-feedback 1
    → "The login form needs better error messages and a loading spinner"
    → Creates Phase 1.1, plans modifications, executes with opus agents
 
-6. /progress
+7. /progress
    → Shows Phase 1 + 1.1 complete, recommends /execute-phase 2
 
-7. /quick-plan "fix OAuth token refresh bug"
+8. /quick-plan "fix OAuth token refresh bug"
    → Inserts Phase 1.2 with urgent fix
 
-8. /execute-phase 1.2
+9. /execute-phase 1.2
    → Executes the urgent fix
 
-9. /execute-phase 2
-   → Moves forward with Phase 2
+10. /execute-phase 2
+    → Moves forward with Phase 2
 ```
 
 ## Key Concepts
@@ -394,9 +444,13 @@ The Claude Super Team plugin is built on these principles:
 
 # 2. Follow the guided workflow
 /create-roadmap
-/plan-phase --all
+/discuss-phase 1
+/plan-phase 1
 /execute-phase 1
 /progress
+
+# Need help at any point?
+/cst-help
 ```
 
 For existing projects, start with `/map-codebase` to understand the architecture before creating a roadmap, then follow the same workflow.

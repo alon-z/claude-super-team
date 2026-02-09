@@ -9,7 +9,7 @@ A Claude Code plugin marketplace containing three plugins that provide a structu
 ## Repository Structure
 
 - `.claude-plugin/marketplace.json` -- marketplace manifest registering all plugins
-- `plugins/claude-super-team/` -- core planning and execution plugin (10 skills)
+- `plugins/claude-super-team/` -- core planning and execution plugin (11 skills)
 - `plugins/marketplace-utils/` -- marketplace management utility plugin (2 skills)
 - `plugins/task-management/` -- Linear sync and GitHub issue management plugin (2 skills)
 
@@ -30,6 +30,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /quick-plan           --> lightweight inserted phase with decimal numbering (e.g., 4.1), includes discussion
 /phase-feedback       --> feedback-driven subphase: plans + executes modifications with opus agents (e.g., 4.1)
 /add-security-findings --> .planning/SECURITY-AUDIT.md + roadmap integration
+/cst-help [question]  --> context-aware help, troubleshooting, skill reference
 ```
 
 ## Key Conventions
@@ -75,6 +76,20 @@ When modifying SKILL.md files:
 - Skills reference `assets/` templates and `references/` guides that get embedded into agent prompts
 - Skills use `$ARGUMENTS` for user-provided arguments after the slash command
 - AskUserQuestion is the primary user interaction mechanism (not free-form text)
+
+## Maintaining the /cst-help Skill
+
+When adding, removing, or changing skills in the claude-super-team plugin, update the `/cst-help` skill to stay in sync:
+
+- **SKILL.md**: Update the "Skill Reference" output section with the new/changed skill listing
+- **references/workflow-guide.md**: Update the pipeline overview, workflow patterns, and file structure reference
+- **references/troubleshooting.md**: Add troubleshooting entries for new skills; update "When to Use Each Skill" section
+
+Also update `/cst-help` when changing core conventions (phase numbering, file naming, state tracking) since it explains these concepts to users.
+
+## Changelog
+
+When making changes to any plugin (adding/removing skills, version bumps, bug fixes, refactors), update `CHANGELOG.md` at the project root. Follow the existing format: group entries under `## [version] - date` with `### plugin-name` subheadings.
 
 ## Maintaining This File
 
