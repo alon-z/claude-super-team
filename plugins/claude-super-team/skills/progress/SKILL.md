@@ -97,6 +97,12 @@ fi
 PHASE_DIR=$(ls -d .planning/phases/${PADDED}-* 2>/dev/null | head -1)
 ```
 
+**Check for CONTEXT.md in current phase directory:**
+
+```bash
+[ -n "$PHASE_DIR" ] && ls "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null && echo "HAS_CONTEXT=true" || echo "HAS_CONTEXT=false"
+```
+
 ### Phase 5: Build Phase Map
 
 Parse ROADMAP.md to extract ALL phases. For each phase, zero-pad the number before looking up directories:
@@ -121,6 +127,7 @@ For each phase directory found, check:
 PLAN_COUNT=$(ls -1 "${PHASE_DIR}"/*-PLAN.md 2>/dev/null | wc -l)
 SUMMARY_COUNT=$(ls -1 "${PHASE_DIR}"/*-SUMMARY.md 2>/dev/null | wc -l)
 grep -l "status: gaps_found" "${PHASE_DIR}"/*-VERIFICATION.md 2>/dev/null
+CONTEXT_EXISTS=$(ls "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null | wc -l)
 ```
 
 Assign each phase a status label:
@@ -225,6 +232,23 @@ Find first PLAN.md without matching SUMMARY.md. Read its objective.
 ```
 
 ### Route B: Plan Phase
+
+Check if CONTEXT.md exists for the upcoming phase (from Phase 5 map).
+
+**If CONTEXT_EXISTS=false (no context gathered):**
+
+```
+### Next
+
+▸ **Discuss Phase {N}: {Name}** -- clarify implementation decisions before planning
+
+  /discuss-phase {N}
+
+Alternative (plan without context):
+  /plan-phase {N}
+```
+
+**If CONTEXT_EXISTS=true (context already gathered):**
 
 ```
 ### Next

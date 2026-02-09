@@ -11,10 +11,10 @@ Insert a lightweight phase into the roadmap for an ad-hoc task, plan it with 1-3
 
 Quick phases use decimal numbering (e.g., 4.1) and slot before the current phase. They are real phases -- they live in `.planning/phases/`, appear in ROADMAP.md, and execute via `/execute-phase` -- but skip the heavy planning pipeline.
 
-**Flow:** Validate -> Get description -> Determine phase number -> Create phase directory -> Annotate ROADMAP.md -> Spawn planner -> Done (user runs /execute-phase)
+**Flow:** Validate -> Get description -> Determine phase number -> Create phase directory -> Annotate ROADMAP.md -> Discuss implementation -> Spawn planner -> Done (user runs /execute-phase)
 
 **Reads:** `.planning/PROJECT.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, `.planning/codebase/` (if exists)
-**Creates:** `.planning/phases/{NN.X}-{slug}/{NN.X}-01-PLAN.md`, annotates `ROADMAP.md`
+**Creates:** `.planning/phases/{NN.X}-{slug}/{NN.X}-CONTEXT.md` + `{NN.X}-01-PLAN.md`, annotates `ROADMAP.md`
 
 ## Process
 
@@ -125,7 +125,39 @@ Use the Edit tool to insert these at the correct positions. Do NOT renumber or m
 
 Find and update the current phase reference in STATE.md to point to the quick phase. After the quick phase completes and the user runs `/execute-phase` for the original current phase, it will naturally resume.
 
-### Step 6: Spawn Planner Agent
+### Step 6: Discuss Implementation
+
+Run a lightweight version of the discuss-phase workflow to capture decisions before planning.
+
+**6a. Identify 2-3 gray areas** specific to `$DESCRIPTION` and the phase goal. Follow the same domain-aware analysis as `/discuss-phase`:
+- Derive gray areas from the specific task, not generic categories
+- Focus on HOW to implement, not WHETHER
+
+**6b. Present gray areas** via AskUserQuestion:
+
+- header: "Discuss"
+- question: "Before planning, which areas should we clarify? (Select all that apply)"
+- multiSelect: true
+- options: Each gray area as an option (2-3 options)
+  - label: "{Brief area name}" (12 chars max)
+  - description: "{Why this matters}"
+- Plus one option:
+  - label: "Skip"
+    description: "Plan without discussing -- Claude decides everything"
+
+**If "Skip" selected:** Set `HAS_CONTEXT=false`, continue to Step 7.
+
+**6c. Deep-dive each selected area** with 2-3 questions per area (lighter than full discuss-phase's 4 questions). Use AskUserQuestion with concrete options per question. Always include a "You decide" option.
+
+**6d. Write CONTEXT.md** to `${PHASE_DIR}/${QUICK_PHASE_PADDED}-CONTEXT.md` using the discuss-phase template structure (read from `../discuss-phase/assets/context-template.md`):
+- Phase Boundary (from the ROADMAP.md annotation)
+- Implementation Decisions (from the discussion)
+- Claude's Discretion (from "You decide" answers)
+- Deferred Ideas (from any scope creep caught during discussion)
+
+Set `HAS_CONTEXT=true`.
+
+### Step 7: Spawn Planner Agent
 
 Read `references/planner-quick-mode.md` and `assets/quick-plan-template.md`. Load project context.
 
@@ -133,6 +165,7 @@ Read `references/planner-quick-mode.md` and `assets/quick-plan-template.md`. Loa
 - `.planning/PROJECT.md` (required)
 - `.planning/ROADMAP.md` (required -- includes the annotation just added)
 - `.planning/STATE.md` (if exists)
+- `${PHASE_DIR}/${QUICK_PHASE_PADDED}-CONTEXT.md` (if HAS_CONTEXT=true -- constrains planning)
 - `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` (if exist)
 
 Spawn via Task tool:
@@ -168,6 +201,9 @@ Task(
   State:
   {state_content}
 
+  Phase context (user decisions -- MUST honor locked decisions):
+  {context_md_content_or_"No CONTEXT.md -- use your best judgment"}
+
   Codebase docs:
   {codebase_docs_content}
 
@@ -183,7 +219,7 @@ After planner returns:
 1. Verify plan exists at `${PHASE_DIR}/${QUICK_PHASE_PADDED}-01-PLAN.md`
 2. If plan not found, show error and exit
 
-### Step 7: Done
+### Step 8: Done
 
 Present completion summary:
 
@@ -192,6 +228,7 @@ Phase ${QUICK_PHASE} planned (quick).
 
 Description: ${DESCRIPTION}
 Directory: ${PHASE_DIR}
+Context: ${PHASE_DIR}/${QUICK_PHASE_PADDED}-CONTEXT.md (if written, else "Skipped")
 Plan: ${PHASE_DIR}/${QUICK_PHASE_PADDED}-01-PLAN.md
 Roadmap: Updated with Phase ${QUICK_PHASE} annotation
 
@@ -222,7 +259,9 @@ Never auto-commit. Suggest `--skip-verify` on execute-phase since quick phases s
 - [ ] Phase directory created at `.planning/phases/{NN.X}-{slug}/`
 - [ ] ROADMAP.md annotated with quick phase entry (no restructuring)
 - [ ] STATE.md updated to point to quick phase
-- [ ] Planner spawned, `{NN.X}-01-PLAN.md` created with 1-3 tasks
+- [ ] Implementation discussed: 2-3 gray areas identified, user decisions captured (or skipped)
+- [ ] CONTEXT.md written to phase directory (unless user chose "Skip")
+- [ ] Planner spawned with CONTEXT.md embedded, `{NN.X}-01-PLAN.md` created with 1-3 tasks
 - [ ] Standard PLAN.md format used (compatible with /execute-phase)
 - [ ] User told to run `/execute-phase {N.X} --skip-verify`
 - [ ] User told how to commit (never auto-commit)

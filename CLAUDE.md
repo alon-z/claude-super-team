@@ -4,13 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A Claude Code plugin marketplace containing two plugins that provide a structured project planning and execution workflow. The marketplace distributes skills (slash commands) that guide users through a full software delivery lifecycle.
+A Claude Code plugin marketplace containing three plugins that provide a structured project planning and execution workflow. The marketplace distributes skills (slash commands) that guide users through a full software delivery lifecycle.
 
 ## Repository Structure
 
 - `.claude-plugin/marketplace.json` -- marketplace manifest registering all plugins
-- `plugins/claude-super-team/` -- core planning and execution plugin (9 skills)
-- `plugins/marketplace-utils/` -- marketplace management utility plugin (1 skill)
+- `plugins/claude-super-team/` -- core planning and execution plugin (10 skills)
+- `plugins/marketplace-utils/` -- marketplace management utility plugin (2 skills)
+- `plugins/task-management/` -- Linear sync and GitHub issue management plugin (2 skills)
 
 Each plugin has `.claude-plugin/plugin.json` for metadata and `skills/` containing SKILL.md files that define slash commands.
 
@@ -22,10 +23,11 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /new-project          --> .planning/PROJECT.md
 /map-codebase         --> .planning/codebase/ (7 docs: STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS)
 /create-roadmap       --> .planning/ROADMAP.md + STATE.md
+/discuss-phase [N]    --> .planning/phases/{NN}-{name}/{NN}-CONTEXT.md (user decisions)
 /plan-phase [N]       --> .planning/phases/{NN}-{name}/*-PLAN.md
 /execute-phase [N]    --> .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
 /progress             --> status report + smart routing to next action
-/quick-plan           --> lightweight inserted phase with decimal numbering (e.g., 4.1)
+/quick-plan           --> lightweight inserted phase with decimal numbering (e.g., 4.1), includes discussion
 /phase-feedback       --> feedback-driven subphase: plans + executes modifications with opus agents (e.g., 4.1)
 /add-security-findings --> .planning/SECURITY-AUDIT.md + roadmap integration
 ```

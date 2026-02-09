@@ -137,6 +137,15 @@ Read and store these files for embedding in agent prompts:
 - `.planning/REQUIREMENTS.md` -- formal requirements
 - `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` -- codebase context
 
+**If CONTEXT.md does not exist,** show a brief informational note (not a blocker):
+
+```
+Note: No CONTEXT.md found. Run /discuss-phase {N} first to capture implementation
+decisions, or continue planning without it.
+```
+
+This is informational only -- plan-phase works fine without CONTEXT.md.
+
 **For gap closure (--gaps only):**
 
 - `${PHASE_DIR}/*-VERIFICATION.md` -- verification failures to fix

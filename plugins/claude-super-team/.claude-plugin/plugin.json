@@ -1,5 +1,6 @@
 {
   "name": "claude-super-team",
-  "description": "A plugin to integrate with the Claude Super Team platform, allowing users to access and manage their team resources directly from the chat interface.",
-  "version": "1.0.2"
+  "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, phase planning with discussion/planning/execution loops, progress tracking, quick phase insertion, and security findings integration.",
+  "version": "1.0.3",
+  "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management"]
 }
