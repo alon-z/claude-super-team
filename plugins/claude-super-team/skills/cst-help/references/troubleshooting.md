@@ -281,6 +281,42 @@
 - Revert specific changes that affected behavior
 - Re-run `/execute-phase N` -- the simplifier is instructed to preserve all functionality
 
+### Brainstorming
+
+#### "No project found" when running /brainstorm
+
+**Symptom:** `/brainstorm` fails saying no PROJECT.md exists
+
+**Cause:** Project not initialized yet
+
+**Solution:**
+```
+/new-project <project idea>
+```
+Then run `/brainstorm` after project is defined.
+
+#### "Autonomous mode agents return empty results"
+
+**Symptom:** One or more analysis agents produce no useful output
+
+**Cause:** Codebase is very small or project context is minimal
+
+**Solution:**
+- Ensure `.planning/PROJECT.md` has substantive content
+- Run `/map-codebase` first for brownfield projects
+- Try Interactive mode instead for early-stage projects
+
+#### "IDEAS.md keeps growing with duplicate sessions"
+
+**Symptom:** Multiple brainstorming sessions add overlapping ideas
+
+**Cause:** Each session prepends to IDEAS.md without deduplication
+
+**Solution:**
+- Edit `.planning/IDEAS.md` manually to consolidate
+- Remove older sessions that have been superseded
+- Approved ideas should be tracked in ROADMAP.md, not just IDEAS.md
+
 ### Quick Plan and Phase Feedback
 
 #### "/quick-plan inserts phase at wrong position"
@@ -390,6 +426,13 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Just finished executing a phase
 - Want changes to delivered work
 - Need to iterate on completed phase
+
+### Use `/brainstorm` when:
+- Exploring what to build next
+- Evaluating new features, improvements, or architectural changes
+- Want Claude to autonomously analyze the project for opportunities
+- Need a structured way to capture and decide on ideas
+- Want to feed approved ideas directly into the roadmap
 
 ### Use `/add-security-findings` when:
 - Have security audit results

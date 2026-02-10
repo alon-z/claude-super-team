@@ -19,6 +19,15 @@ Claude Super Team is a structured project planning and execution workflow for so
 /progress             → Check status and get smart routing to next action
 ```
 
+### Brainstorming
+
+```
+/brainstorm [topic]   → Explore features, improvements, architecture ideas (.planning/IDEAS.md)
+                        Interactive mode: collaborative discussion with iterative exploration
+                        Autonomous mode: 3 parallel agents generate bold ideas ranked by impact
+                        Optionally invokes /create-roadmap for approved ideas
+```
+
 ### Ad-Hoc Extensions
 
 ```
@@ -111,6 +120,31 @@ Plans are grouped into waves:
 4. Continue with /create-roadmap...
 ```
 
+### Brainstorming Features and Changes
+
+```
+# Want to explore ideas for the project
+
+1. /brainstorm
+   → Asks: Interactive or Autonomous mode?
+
+   Interactive:
+   → Asks focus area (new features, improvements, architecture)
+   → Generates 3-5 ideas, user selects which to explore
+   → Deep-dives each idea with 3-4 questions
+   → Each idea gets a decision: approve, defer, reject
+
+   Autonomous:
+   → Asks optional focus area (or explores everything)
+   → Spawns 3 parallel agents: Codebase Explorer, Creative Strategist, Architecture Reviewer
+   → Synthesizes results into categorized, ranked ideas
+   → User reviews and decides on each idea
+
+2. Both modes:
+   → Writes .planning/IDEAS.md
+   → If ideas approved, offers to invoke /create-roadmap to add as phases
+```
+
 ### Inserting Urgent Work
 
 ```
@@ -186,6 +220,7 @@ Phases define **observable, user-verifiable outcomes**, not task lists:
 ├── PROJECT.md                           # Project vision
 ├── ROADMAP.md                           # All phases with goals
 ├── STATE.md                             # Current position, decisions
+├── IDEAS.md                             # Brainstormed ideas (from /brainstorm)
 ├── SECURITY-AUDIT.md                    # Security findings (optional)
 ├── codebase/                            # Codebase map (brownfield only)
 │   ├── STACK.md

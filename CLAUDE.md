@@ -9,7 +9,7 @@ A Claude Code plugin marketplace containing three plugins that provide a structu
 ## Repository Structure
 
 - `.claude-plugin/marketplace.json` -- marketplace manifest registering all plugins
-- `plugins/claude-super-team/` -- core planning and execution plugin (12 skills)
+- `plugins/claude-super-team/` -- core planning and execution plugin (13 skills)
 - `plugins/claude-super-team/agents/` -- custom subagent definitions (e.g., `phase-researcher`)
 - `plugins/marketplace-utils/` -- marketplace management utility plugin (2 skills)
 - `plugins/task-management/` -- Linear sync and GitHub issue management plugin (2 skills)
@@ -24,6 +24,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /new-project          --> .planning/PROJECT.md
 /map-codebase         --> .planning/codebase/ (7 docs: STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS)
 /create-roadmap       --> .planning/ROADMAP.md + STATE.md
+/brainstorm [topic]   --> .planning/IDEAS.md (interactive brainstorming, optionally updates roadmap)
 /discuss-phase [N]    --> .planning/phases/{NN}-{name}/{NN}-CONTEXT.md (user decisions)
 /research-phase [N]   --> .planning/phases/{NN}-{name}/{NN}-RESEARCH.md (ecosystem research)
 /plan-phase [N]       --> .planning/phases/{NN}-{name}/*-PLAN.md

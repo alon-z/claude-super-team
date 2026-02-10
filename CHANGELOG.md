@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.10] - 2026-02-10
+
+### claude-super-team
+- Added `/brainstorm` skill with two modes: Interactive (collaborative discussion) and Autonomous (parallel agent analysis with bold recommendations)
+- Interactive mode: iterative idea exploration with AskUserQuestion, deep-dives, and per-idea decisions
+- Autonomous mode: spawns 3 parallel agents (Codebase Explorer, Creative Strategist, Architecture Reviewer) to generate comprehensive ideas ranked by impact-to-effort ratio
+- Both modes write to `.planning/IDEAS.md` and optionally invoke `/create-roadmap` to add approved ideas as new phases
+- Updated `/cst-help`, workflow-guide, and troubleshooting to document brainstorming workflow
+
 ## [1.0.9] - 2026-02-10
 
 ### claude-super-team

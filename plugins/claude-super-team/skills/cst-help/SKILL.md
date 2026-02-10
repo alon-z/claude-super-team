@@ -131,7 +131,7 @@ Use your knowledge of the CST pipeline to answer. Read `references/workflow-guid
 
 **Discuss-research loop:** `/discuss-phase` recommends running `/research-phase` if no RESEARCH.md exists. `/research-phase` compares findings against CONTEXT.md and recommends re-running `/discuss-phase` if it finds conflicts (deprecated packages, better alternatives, etc.). This loop refines decisions before planning.
 
-**Ad-hoc skills:** `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
+**Ad-hoc skills:** `/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
 
 Example answers:
 - "After creating a new phase?" → Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
@@ -403,6 +403,16 @@ For more: see references/troubleshooting.md
 /progress
   Check status and get smart routing
   → Shows current position, recent work, next action
+
+## Brainstorming
+
+/brainstorm [topic]
+  Explore features, improvements, and architecture ideas
+  Two modes:
+    Interactive -- collaborative discussion with iterative exploration
+    Autonomous -- 3 parallel agents (codebase, strategy, architecture) generate bold ideas
+  → Creates/updates .planning/IDEAS.md
+  → Optionally invokes /create-roadmap to add approved ideas as phases
 
 ## Ad-Hoc Extensions
 
