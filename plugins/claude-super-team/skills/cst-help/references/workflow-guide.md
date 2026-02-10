@@ -160,8 +160,10 @@ Plans are grouped into waves:
 ### Execution
 
 - Plans route to specialized agents (security, TDD, general-purpose)
+- After each plan's tasks complete, `code-simplifier:code-simplifier` refines the output for clarity, consistency, and maintainability
 - Wave structure enables parallel execution
 - Verification ensures phase goals achieved
+- Requires `code-simplifier` plugin: `/plugin install code-simplifier@claude-plugins-official`
 
 ## Success Criteria Philosophy
 

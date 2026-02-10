@@ -2,6 +2,14 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.8] - 2026-02-10
+
+### claude-super-team
+- Added code-simplifier step to `/execute-phase`: after all tasks in a plan complete, spawns `code-simplifier:code-simplifier` agent to refine written code for clarity, consistency, and maintainability before summary creation
+- Updated teams mode to embed simplifier call in teammate prompt (runs after task execution, before SUMMARY.md)
+- Requires `code-simplifier` plugin: install via `/plugin install code-simplifier@claude-plugins-official`
+- Updated `/cst-help`, workflow-guide, and troubleshooting to document the simplification step
+
 ## [1.0.7] - 2026-02-10
 
 ### claude-super-team

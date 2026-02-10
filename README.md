@@ -65,7 +65,15 @@ claude mcp add-plugin /path/to/claude-super-team/plugins/claude-super-team
 4. **For each phase**: discuss decisions, research the ecosystem (may loop back to update decisions if conflicts found), plan the work, then execute
 5. **Track progress** with `/progress`, which routes you to the next step
 
-Execution uses wave-based parallelism -- plans within a wave run concurrently via subagents, while waves run sequentially. Planners use Claude Opus; checkers use Claude Sonnet.
+Execution uses wave-based parallelism -- plans within a wave run concurrently via subagents, while waves run sequentially. After each plan's tasks complete, a code-simplifier pass refines the output for clarity and consistency. Planners use Claude Opus; checkers use Claude Sonnet.
+
+## Dependencies
+
+The `/execute-phase` skill uses the `code-simplifier` plugin for post-execution code refinement. Install it from the official marketplace:
+
+```
+/plugin install code-simplifier@claude-plugins-official
+```
 
 ## Acknowledgments
 

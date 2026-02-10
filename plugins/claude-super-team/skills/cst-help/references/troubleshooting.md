@@ -257,6 +257,30 @@
 - Manually verify work was done
 - If work incomplete: re-run `/execute-phase N`
 
+### Code Simplification
+
+#### "code-simplifier agent not found"
+
+**Symptom:** `/execute-phase` fails when spawning code-simplifier agent
+
+**Cause:** `code-simplifier` plugin not installed
+
+**Solution:**
+```
+/plugin install code-simplifier@claude-plugins-official
+```
+
+#### "Simplifier changed behavior"
+
+**Symptom:** Code works differently after simplification pass
+
+**Cause:** Simplifier made changes beyond cosmetic refinement (rare)
+
+**Solution:**
+- Check git diff for the simplifier's commit
+- Revert specific changes that affected behavior
+- Re-run `/execute-phase N` -- the simplifier is instructed to preserve all functionality
+
 ### Quick Plan and Phase Feedback
 
 #### "/quick-plan inserts phase at wrong position"
@@ -355,6 +379,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Plans exist for the phase
 - Ready to execute work
 - Optionally: use `--skip-verify` to skip verification
+- Note: requires `code-simplifier` plugin for post-task code refinement
 
 ### Use `/quick-plan` when:
 - Need to insert urgent work (bug fix, small feature)
@@ -386,8 +411,9 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 
 ### During Execution
 1. Let skills run to completion (don't interrupt)
-2. Review SUMMARY.md files after execution
-3. Check VERIFICATION.md for gaps
+2. Code-simplifier runs automatically after each plan's tasks complete
+3. Review SUMMARY.md files after execution (reflects post-simplification state)
+4. Check VERIFICATION.md for gaps
 
 ### After Phases
 1. Always run `/progress` to see where you are

@@ -9,7 +9,7 @@ allowed-tools: Read, Bash, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate,
 
 Execute PLAN.md files for a roadmap phase by routing each task to the best available agent, then verifying the phase goal was achieved.
 
-**Flow:** Validate -> Discover plans -> Group by wave -> For each wave: route tasks to agents -> verify wave -> Next wave -> Done
+**Flow:** Validate -> Discover plans -> Group by wave -> For each wave: route tasks to agents -> simplify code -> verify wave -> Next wave -> Done
 
 **Key difference from typical execution:** Each task is routed to a specialized agent (security-reviewer, tdd-guide, etc.) based on content analysis. Agents can use skills.
 
@@ -238,7 +238,9 @@ Task(
 
   Instructions:
   - Execute each task in order. Task 2 may depend on task 1's output.
-  - After completing ALL tasks, write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
+  - After completing ALL tasks, run the code-simplifier agent on all created/modified files:
+    Task(subagent_type: "code-simplifier:code-simplifier", model: "sonnet", description: "Simplify {phase}-{plan} code", prompt: "Simplify and refine the recently modified files for clarity, consistency, and maintainability. Preserve ALL functionality. Files: {all created/modified files from task results}")
+  - After simplification, write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
   - Use the summary template: {summary_template_content}
   - If any task is blocked, report ## TASK BLOCKED with the reason and stop.
   - When done, report ## PLAN COMPLETE with a brief summary of what was built.
@@ -249,7 +251,7 @@ Task(
 **Key differences from Task mode:**
 
 - Each teammate gets ALL tasks for its plan at once (not one task at a time from the orchestrator). This eliminates round-trips between the orchestrator and agents for sequential tasks within a plan.
-- Teammates write their own SUMMARY.md (skip Phase 5e for teams -- teammates handle it).
+- Teammates run code-simplifier and write their own SUMMARY.md (skip Phase 5e/5f for teams -- teammates handle both).
 - The team lead monitors progress via `SendMessage` broadcasts:
 
 ```
@@ -308,7 +310,41 @@ Parse each agent's return:
 - Wait for user response
 - Feed user's response as context to the next task
 
-#### 5e. Create SUMMARY.md Per Plan (Task Mode Only)
+#### 5e. Simplify Code
+
+After all tasks in a plan complete, spawn the code-simplifier agent to refine the code that was just written. The simplifier focuses on recently modified files for clarity, consistency, and maintainability while preserving all functionality.
+
+**Collect files from task reports:** Gather all created/modified file paths from the task reports for the completed plan.
+
+**Task Mode:**
+
+```
+Task(
+  subagent_type: "code-simplifier:code-simplifier"
+  model: "sonnet"
+  description: "Simplify {phase}-{plan} code"
+  prompt: """
+  Simplify and refine the code in the following files that were just written as part of plan {phase}-{plan}.
+
+  Focus on:
+  - Clarity and readability
+  - Consistency with existing codebase patterns
+  - Removing unnecessary complexity
+  - Clean naming and structure
+
+  Preserve ALL functionality -- do not change behavior, only improve code quality.
+
+  Files to review:
+  {created_and_modified_files_from_task_reports}
+  """
+)
+```
+
+Run simplifiers for plans in the same wave in parallel.
+
+**Teams Mode:** The simplifier call is embedded in the teammate prompt (see Phase 5c teams mode). Each teammate spawns the simplifier after executing all tasks but before writing SUMMARY.md.
+
+#### 5f. Create SUMMARY.md Per Plan (Task Mode Only)
 
 In teams mode, teammates write their own SUMMARY.md as part of their prompt. Skip this step.
 
@@ -323,7 +359,7 @@ Populate with:
 - Aggregate from all task reports
 - Decisions made during execution
 
-#### 5f. Spot-Check Wave Results
+#### 5g. Spot-Check Wave Results
 
 After all plans in wave complete:
 
@@ -333,7 +369,7 @@ After all plans in wave complete:
 
 If any spot-check fails, report and ask user whether to continue.
 
-#### 5g. Team Cleanup (Teams Mode Only)
+#### 5h. Team Cleanup (Teams Mode Only)
 
 After all waves complete, shut down the team:
 
@@ -482,7 +518,8 @@ If execution is interrupted and restarted:
 - [ ] Each task routed to appropriate agent with full context
 - [ ] Tasks within plans execute sequentially
 - [ ] Plans within waves execute in parallel
-- [ ] SUMMARY.md created for each completed plan
+- [ ] Code-simplifier spawned after each plan's tasks complete
+- [ ] SUMMARY.md created for each completed plan (reflects post-simplification state)
 - [ ] Spot-checks pass after each wave
 - [ ] Verifier spawned (unless --skip-verify)
 - [ ] Verification result handled (gaps -> suggest fixes, passed -> next steps)

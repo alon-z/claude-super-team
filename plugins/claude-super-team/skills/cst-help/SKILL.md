@@ -394,9 +394,11 @@ For more: see references/troubleshooting.md
   Options: --gaps (create gap closure plans), --all (plan all phases)
 
 /execute-phase [N]
-  Execute plans and verify phase goals
+  Execute plans, simplify code, and verify phase goals
+  → Runs code-simplifier on each plan's output before summary
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
   Options: --gaps-only (execute only gap plans), --skip-verify (skip verification)
+  Requires: code-simplifier plugin (/plugin install code-simplifier@claude-plugins-official)
 
 /progress
   Check status and get smart routing
