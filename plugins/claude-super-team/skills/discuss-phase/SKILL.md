@@ -380,6 +380,26 @@ Write to `${PHASE_DIR}/${PHASE}-CONTEXT.md`.
 
 ### Phase 8: Present Summary
 
+Check if RESEARCH.md exists for this phase:
+
+```bash
+RESEARCH_FILE=$(ls "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null | head -1)
+[ -n "$RESEARCH_FILE" ] && echo "RESEARCH_EXISTS=true" || echo "RESEARCH_EXISTS=false"
+```
+
+**If RESEARCH_EXISTS=false**, use AskUserQuestion to recommend research:
+
+- header: "Research"
+- question: "No research exists for this phase yet. Would you like to research ecosystem options, libraries, and patterns before planning? (Recommended)"
+- multiSelect: false
+- options:
+  - label: "Research first (Recommended)"
+    description: "Run /research-phase to investigate libraries, patterns, and pitfalls before planning"
+  - label: "Skip to planning"
+    description: "Go straight to /plan-phase with current context"
+
+Then display the summary with the appropriate next step based on their choice:
+
 ```
 Context captured for Phase {N}: {Name}
 
@@ -402,16 +422,17 @@ To commit when ready:
 
 ---
 
-## Next Steps
+## Next Step
+
+{If user chose "Research first" OR RESEARCH_EXISTS=false and user was not asked (shouldn't happen, but fallback):}
+
+**Research the ecosystem before planning:**
+- /research-phase {N}
+
+{If user chose "Skip to planning" OR RESEARCH_EXISTS=true:}
 
 **Plan the phase with locked context:**
 - /plan-phase {N}
-
-**Review context first:**
-- Read .planning/phases/{phase-dir}/{phase}-CONTEXT.md
-
-**Edit before planning:**
-- Update CONTEXT.md if anything needs refinement
 
 ---
 ```
@@ -429,7 +450,8 @@ To commit when ready:
 - [ ] Decisions, discretion, and deferred ideas tracked
 - [ ] CONTEXT.md written to phase directory using template
 - [ ] User told how to commit (never auto-commit)
-- [ ] User knows next steps (/plan-phase with context)
+- [ ] User prompted to research if no RESEARCH.md exists (recommended before planning)
+- [ ] User knows next step (/research-phase or /plan-phase based on choice)
 
 ## Scope Guardrails
 

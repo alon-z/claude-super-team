@@ -81,6 +81,17 @@
 - Run `/research-phase N` to investigate ecosystem
 - Then run `/plan-phase N` again
 
+#### "Research found conflicts with CONTEXT.md decisions"
+
+**Symptom:** `/research-phase` reports that chosen libraries are deprecated or better alternatives exist
+
+**Cause:** Decisions made during `/discuss-phase` were based on incomplete or outdated information
+
+**Solution:**
+- Re-run `/discuss-phase N` to update decisions with research insights
+- The updated CONTEXT.md will have research-informed choices
+- Then run `/plan-phase N` with both CONTEXT.md and RESEARCH.md
+
 #### "Plans reference wrong files or paths"
 
 **Symptom:** Generated plans mention non-existent files
@@ -326,12 +337,14 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Implementation decisions need user input
 - Want to clarify technical choices before planning
 - Want codebase-grounded gray areas instead of generic questions
+- `/research-phase` found conflicts with prior decisions (re-discuss to update)
 
 ### Use `/research-phase` when:
 - Phase involves unfamiliar technology or domain
 - Need to choose between libraries/frameworks
 - Want to understand current best practices and pitfalls
 - Building something with multiple valid architecture approaches
+- `/discuss-phase` recommended it (after creating CONTEXT.md)
 
 ### Use `/plan-phase` when:
 - Phase is defined in roadmap
@@ -367,8 +380,9 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 
 ### During Planning
 1. Use `/discuss-phase` for complex phases
-2. Don't skip context gathering
-3. Review PLAN.md files before execution
+2. Run `/research-phase` after discussion -- if research finds conflicts with decisions, re-run `/discuss-phase` to update
+3. Don't skip context gathering
+4. Review PLAN.md files before execution
 
 ### During Execution
 1. Let skills run to completion (don't interrupt)

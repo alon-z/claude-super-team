@@ -96,3 +96,7 @@ When making changes to any plugin (adding/removing skills, version bumps, bug fi
 ## Maintaining This File
 
 Always keep this `CLAUDE.md` up to date with changes made to the project. When modifying conventions, changing structure, or making any notable decision, update this file so future sessions have accurate context.
+
+## README
+
+Always keep `README.md` up to date with the latest project description, setup instructions, and usage guidelines. It serves as the primary entry point for new users and should reflect the current state of the repository.

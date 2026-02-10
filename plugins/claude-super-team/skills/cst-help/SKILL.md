@@ -123,18 +123,21 @@ Use your knowledge of the CST pipeline to answer. Read `references/workflow-guid
 **The standard flow:**
 1. `/new-project` → define vision
 2. `/create-roadmap` → define phases with goals
-3. `/discuss-phase N` → gather user decisions (optional but recommended)
-4. `/research-phase N` → research ecosystem and patterns (optional)
+3. `/discuss-phase N` → gather user decisions (optional but recommended; suggests research next)
+4. `/research-phase N` → research ecosystem and patterns (optional but recommended; may suggest re-discussing if findings conflict with decisions)
 5. `/plan-phase N` → create execution plans
 6. `/execute-phase N` → execute and verify
 7. `/progress` → check status, route to next
 
+**Discuss-research loop:** `/discuss-phase` recommends running `/research-phase` if no RESEARCH.md exists. `/research-phase` compares findings against CONTEXT.md and recommends re-running `/discuss-phase` if it finds conflicts (deprecated packages, better alternatives, etc.). This loop refines decisions before planning.
+
 **Ad-hoc skills:** `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
 
 Example answers:
-- "After creating a new phase?" → Run `/discuss-phase N` to clarify decisions, then `/plan-phase N`.
+- "After creating a new phase?" → Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
 - "What's the difference between discuss-phase and plan-phase?" → `/discuss-phase` gathers user decisions and context before planning. `/plan-phase` creates executable plans with tasks and waves.
 - "When should I use quick-plan?" → When you need to insert urgent work (bug fix, small feature) without full phase ceremony. Creates a decimal phase (e.g., 2.1).
+- "Should I research after discussing?" → Yes, `/discuss-phase` will suggest it. Research can find that a chosen library is deprecated or a better tool exists, and will suggest re-discussing if so.
 
 ---
 
@@ -211,7 +214,8 @@ Plans: {summary_count} of {plan_count} executed
 | All plans executed, no verification | `/execute-phase {N}` (will auto-verify) |
 | All complete, more phases remain | `/plan-phase {N+1}` or `/discuss-phase {N+1}` |
 | All complete, last phase | `/create-roadmap` to add more phases |
-| Context exists, no research, no plans | `/research-phase {N}` or `/plan-phase {N}` |
+| Context exists, no research, no plans | `/research-phase {N}` (recommended) or `/plan-phase {N}` |
+| Research exists with decision conflicts noted | `/discuss-phase {N}` to update decisions |
 | No plans for current phase | `/plan-phase {N}` |
 
 Append:

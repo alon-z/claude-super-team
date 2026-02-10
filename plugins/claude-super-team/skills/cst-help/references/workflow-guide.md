@@ -11,7 +11,9 @@ Claude Super Team is a structured project planning and execution workflow for so
 /map-codebase         → Understand existing codebase (optional, brownfield only)
 /create-roadmap       → Define phases and goals (.planning/ROADMAP.md + STATE.md)
 /discuss-phase [N]    → Explore codebase + gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
+                        Recommends /research-phase next if no RESEARCH.md exists
 /research-phase [N]   → Research ecosystem and patterns (.planning/phases/NN-name/NN-RESEARCH.md)
+                        Checks findings against CONTEXT.md; suggests /discuss-phase if conflicts found
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)
 /progress             → Check status and get smart routing to next action
@@ -71,10 +73,13 @@ Plans are grouped into waves:
 3. /discuss-phase 1
    → Creates .planning/phases/01-{name}/01-CONTEXT.md
    → Explores codebase for phase-relevant context, then gathers user decisions
+   → Recommends /research-phase 1 next
 
 4. /research-phase 1
    → Creates .planning/phases/01-{name}/01-RESEARCH.md
    → Investigates libraries, patterns, pitfalls
+   → If findings conflict with CONTEXT.md decisions (deprecated packages,
+     better alternatives): recommends re-running /discuss-phase 1 to update
 
 5. /plan-phase 1
    → Creates .planning/phases/01-{name}/*-PLAN.md files
@@ -256,11 +261,13 @@ For trusted phases or iteration speed:
 - Run `/execute-phase` before `/plan-phase`
 - Manually edit STATE.md (skills manage this)
 - Use non-zero-padded directories (use 01 not 1)
+- Ignore research conflicts with prior decisions -- re-discuss instead
 
 **Do:**
 - Define clear observable outcomes per phase
 - Use `/discuss-phase` to clarify decisions before planning
-- Use `/research-phase` for phases involving unfamiliar tech or library selection
+- Use `/research-phase` after discussion -- let it validate decisions against real ecosystem data
+- Re-run `/discuss-phase` if research finds conflicts (deprecated packages, better alternatives)
 - Skip `/research-phase` for phases using well-known patterns you're confident about
 - Let `/progress` route you to next actions
 - Trust the state files managed by skills

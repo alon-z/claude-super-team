@@ -2,6 +2,14 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.7] - 2026-02-10
+
+### claude-super-team
+- Added discuss-research feedback loop: `/discuss-phase` now recommends `/research-phase` when no RESEARCH.md exists, and `/research-phase` cross-references findings against CONTEXT.md decisions to detect conflicts (deprecated packages, better alternatives) and recommend re-discussion
+- Updated `/discuss-phase` Phase 8 to check for RESEARCH.md and prompt user to research before planning
+- Updated `/research-phase` with new Phase 6 (decision conflict detection) that compares research against CONTEXT.md and routes user back to `/discuss-phase` if conflicts found
+- Updated README, `/cst-help`, workflow-guide, and troubleshooting to document the discuss-research-discuss flow
+
 ## [1.0.6] - 2026-02-10
 
 ### claude-super-team
