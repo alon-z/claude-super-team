@@ -15,6 +15,37 @@
 
 ---
 
+## Codebase Context
+
+{Summary of relevant codebase findings from exploration}
+
+**Existing related code:**
+- {file/module}: {what it does and how it relates to this phase}
+
+**Established patterns:**
+- {pattern}: {description of convention or tech choice}
+
+**Integration points:**
+- {component}: {how this phase will interact with it}
+
+**Constraints from existing code:**
+- {constraint}: {what limits implementation choices}
+
+---
+
+## Cross-Phase Dependencies
+
+{What this phase inherits from or builds on from earlier phases. Omit this section for Phase 1.}
+
+**From Phase {M} ({name})** [{executed|planned|discussed}]:
+- {deliverable}: {what it provides and how this phase uses it}
+- {deliverable}: {what it provides and how this phase uses it}
+
+**Assumptions about prior phases:**
+- {assumption}: {what must be true for this phase to succeed}
+
+---
+
 ## Implementation Decisions
 
 {For each gray area discussed, document the user's decisions}

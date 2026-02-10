@@ -10,7 +10,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 /new-project          → Initialize project vision (.planning/PROJECT.md)
 /map-codebase         → Understand existing codebase (optional, brownfield only)
 /create-roadmap       → Define phases and goals (.planning/ROADMAP.md + STATE.md)
-/discuss-phase [N]    → Gather user decisions for a phase (.planning/phases/NN-name/NN-CONTEXT.md)
+/discuss-phase [N]    → Explore codebase + gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
 /research-phase [N]   → Research ecosystem and patterns (.planning/phases/NN-name/NN-RESEARCH.md)
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)
@@ -70,7 +70,7 @@ Plans are grouped into waves:
 
 3. /discuss-phase 1
    → Creates .planning/phases/01-{name}/01-CONTEXT.md
-   → Gathers user decisions before planning
+   → Explores codebase for phase-relevant context, then gathers user decisions
 
 4. /research-phase 1
    → Creates .planning/phases/01-{name}/01-RESEARCH.md

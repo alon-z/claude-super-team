@@ -2,7 +2,7 @@
 name: discuss-phase
 description: Gather implementation decisions through adaptive questioning before planning. Identifies gray areas in a phase, deep-dives each with the user, and creates CONTEXT.md that constrains downstream planning. Use after /create-roadmap and before /plan-phase to lock decisions and clarify ambiguities.
 argument-hint: "<phase number>"
-allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion
+allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion, Task
 ---
 
 ## Objective
@@ -11,7 +11,7 @@ Capture user implementation decisions before planning begins. Creates CONTEXT.md
 
 **Why this matters:** Planning agents work better with constraints. "Build auth" is ambiguous. "OAuth2 with Google/GitHub providers, JWT tokens in httpOnly cookies" is executable.
 
-**Reads:** `.planning/ROADMAP.md`, `.planning/PROJECT.md`, phase `CONTEXT.md` (if exists)
+**Reads:** `.planning/ROADMAP.md`, `.planning/PROJECT.md`, phase `CONTEXT.md` (if exists), earlier phase artifacts (`SUMMARY.md`, `PLAN.md`, `CONTEXT.md`)
 **Creates:** `.planning/phases/{phase}-{name}/CONTEXT.md`
 
 ## Process
@@ -115,15 +115,134 @@ Read and extract:
 
 Extract the phase name for use in templates.
 
-### Phase 4: Identify Gray Areas
+### Phase 3.5: Load Cross-Phase Context
 
-**Domain-aware analysis.** Don't use generic categories. Analyze this specific phase to find 3-4 actual ambiguities.
+Before exploring the codebase, understand what earlier phases will create. This phase may depend on infrastructure, APIs, models, or patterns that don't exist yet but are planned.
+
+**Why:** Phase 5 might use an auth system being built in phase 3. Without cross-phase context, the discussion asks questions that were already answered or plans features that ignore what's coming.
 
 **Process:**
 
-1. Read the phase goal and success criteria
+1. List all phase directories with a lower phase number than the current one:
+
+```bash
+ls -d .planning/phases/*/ 2>/dev/null | sort
+```
+
+2. For each earlier phase, load the most informative artifact available (in priority order):
+   - **SUMMARY.md** (phase already executed -- shows what was actually built)
+   - **PLAN.md files** (phase planned but not executed -- shows what will be built, including specific APIs, models, endpoints, patterns)
+   - **CONTEXT.md** (phase discussed but not planned -- shows locked decisions)
+   - **ROADMAP.md entry** (fallback -- just the goal and success criteria)
+
+3. Build a concise "Prior Phase Summary" focusing on what each earlier phase provides that this phase might consume:
+   - APIs, endpoints, or services being created
+   - Data models, schemas, or database tables
+   - Shared utilities, middleware, or patterns
+   - Auth flows, permissions, or access control mechanisms
+   - Configuration, environment variables, or infrastructure
+
+```
+PRIOR PHASES FOR PHASE {N}:
+
+Phase 1 ({name}) [executed]:
+- Built: {key deliverables}
+- Provides: {what this phase can use}
+
+Phase 2 ({name}) [planned]:
+- Will build: {key deliverables from PLAN.md}
+- Will provide: {what this phase can piggyback on}
+
+Phase 3 ({name}) [discussed]:
+- Decided: {key decisions from CONTEXT.md}
+- Will provide: {expected deliverables based on decisions}
+```
+
+4. Identify **cross-phase dependencies** -- specific things this phase needs that an earlier phase creates. These feed directly into gray area generation (Phase 4) and deep-dive questions (Phase 6).
+
+**Skip this step** if the current phase is Phase 1 (no prior phases).
+
+### Phase 3.7: Gather Codebase Context
+
+Before identifying gray areas, explore the actual codebase to ground the discussion in reality.
+
+**Why:** Generic gray areas ("JWT vs sessions?") waste the user's time. Codebase-aware gray areas ("There's an existing `middleware/auth.ts` using Passport.js -- extend it or replace?") surface real decisions.
+
+**Step 1: Check for codebase mapping**
+
+```bash
+ls .planning/codebase/ 2>/dev/null
+```
+
+If `.planning/codebase/` exists, read the docs most relevant to this phase's domain:
+- Always read: `ARCHITECTURE.md`, `STACK.md`
+- Read `CONVENTIONS.md` if the phase involves writing new code patterns
+- Read `INTEGRATIONS.md` if the phase involves external services or APIs
+- Read `TESTING.md` if the phase has testing-related success criteria
+
+Store key findings (existing patterns, relevant files, tech choices) for use in Phase 4.
+
+**Step 2: Spawn Explore agent for targeted codebase analysis**
+
+Regardless of whether codebase mapping exists, spawn an Explore agent (subagent_type: "Explore") to find code directly relevant to this phase. The agent should:
+
+- Search for files, functions, and patterns related to the phase domain keywords
+- Identify existing implementations that the phase will extend, modify, or interact with
+- Note conventions, patterns, and tech choices already established in the codebase
+- Flag potential conflicts or constraints the user should know about
+
+**Prompt template for the Explore agent:**
+
+```
+Explore this codebase to find code relevant to implementing: "{phase_goal}"
+
+Phase success criteria:
+{list success criteria from roadmap}
+
+Find and report:
+1. Existing files/modules directly related to this phase's domain
+2. Patterns and conventions already established (naming, structure, error handling)
+3. Dependencies and tech choices relevant to this phase
+4. Integration points -- code this phase will need to interact with
+5. Potential constraints or conflicts (e.g., existing implementations that overlap)
+
+Be thorough but focused on what matters for planning this specific phase.
+Report findings as a structured summary, not raw file contents.
+```
+
+Use `subagent_type: "Explore"` and set thoroughness to "medium" in the prompt.
+
+**Step 3: Synthesize findings**
+
+Combine codebase mapping docs (if available) and Explore agent results into a concise "Codebase Context" summary:
+
+```
+CODEBASE CONTEXT FOR PHASE {N}:
+- Existing related code: {list key files/modules found}
+- Established patterns: {relevant conventions, tech choices}
+- Integration points: {code this phase will interact with}
+- Constraints: {things that limit implementation choices}
+```
+
+This summary feeds directly into Phase 4 to produce grounded gray areas.
+
+### Phase 4: Identify Gray Areas
+
+**Domain-aware, codebase-aware, and cross-phase-aware analysis.** Don't use generic categories. Analyze this specific phase -- informed by codebase context (Phase 3.7) and prior phase plans (Phase 3.5) -- to find 3-4 actual ambiguities.
+
+**Process:**
+
+1. Read the phase goal, success criteria, codebase context (Phase 3.7), AND prior phase summary (Phase 3.5)
 2. Identify the domain (auth, payments, API design, data modeling, etc.)
-3. Derive 3-4 specific gray areas where reasonable people would disagree
+3. Derive 3-4 specific gray areas where reasonable people would disagree, grounded in what the codebase already has AND what earlier phases will create
+
+**Cross-phase-aware gray areas** leverage prior phase plans:
+- "Phase 3 plans a `PermissionService` with role-based access -- should this phase extend it with resource-level permissions or keep it role-only?" (cross-phase-aware)
+- "How should we handle permissions?" (generic, ignores prior phases, bad)
+
+**Codebase-grounded gray areas** reference actual code:
+- "The codebase uses Prisma with a `User` model but no role field -- how should we model permissions?" (grounded)
+- "How should we handle permissions?" (generic, bad)
 
 **Good gray areas** (domain-specific, phase-specific):
 - "Should password reset tokens expire after first use or after time limit?"
@@ -231,17 +350,28 @@ Read `assets/context-template.md`. Populate it with:
    - Brief summary of scope (derived from goal + discussed areas)
    - Out of scope items (from deferred list)
 
-2. **Implementation Decisions section:**
+2. **Codebase Context section:**
+   - Existing related code (key files/modules found by Explore agent)
+   - Established patterns (conventions, tech choices)
+   - Integration points (code this phase interacts with)
+   - Constraints from existing code
+
+3. **Cross-Phase Dependencies section** (omit for Phase 1):
+   - What each relevant prior phase provides (from SUMMARY/PLAN/CONTEXT.md)
+   - Specific deliverables this phase will consume or extend
+   - Assumptions about prior phases that must hold
+
+4. **Implementation Decisions section:**
    - One subsection per area discussed
    - Each subsection: Decision, Rationale, Constraints
 
-3. **Claude's Discretion section:**
+5. **Claude's Discretion section:**
    - List of areas where user answered "You decide"
 
-4. **Specific Ideas section:**
+6. **Specific Ideas section:**
    - User-provided references, examples, or specific guidance mentioned during discussion
 
-5. **Deferred Ideas section:**
+7. **Deferred Ideas section:**
    - Ideas captured but explicitly out of scope
 
 Write to `${PHASE_DIR}/${PHASE}-CONTEXT.md`.
@@ -291,7 +421,9 @@ To commit when ready:
 - [ ] Phase number validated against ROADMAP.md
 - [ ] Existing CONTEXT.md handled (update/view/replace offered)
 - [ ] Phase context loaded (goal, success criteria, requirements)
-- [ ] 3-4 domain-specific gray areas identified (not generic categories)
+- [ ] Earlier phase artifacts loaded (SUMMARY/PLAN/CONTEXT.md) for cross-phase awareness
+- [ ] Codebase explored via Explore agent for phase-relevant patterns and constraints
+- [ ] 3-4 domain-specific gray areas identified, grounded in codebase AND prior phase plans
 - [ ] User selected which areas to discuss via AskUserQuestion
 - [ ] Each selected area deep-dived with 4+ targeted questions
 - [ ] Decisions, discretion, and deferred ideas tracked
@@ -305,6 +437,6 @@ To commit when ready:
 
 If user wants to change the phase goal itself, exit this skill and tell them to edit ROADMAP.md first.
 
-**No research spawning.** This skill is interactive (AskUserQuestion-based), not agent-driven. Don't spawn Task agents.
+**Only Explore agents for codebase context.** The Explore agent in Phase 3.7 is the only subagent this skill spawns. Don't spawn research, planning, or execution agents.
 
 **Progressive refinement OK.** User can run `/discuss-phase {N}` multiple times to refine context before planning.

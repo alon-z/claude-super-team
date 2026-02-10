@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.6] - 2026-02-10
+
+### claude-super-team
+- Enhanced `/discuss-phase` with cross-phase context loading (Phase 3.5) -- reads earlier phase SUMMARY/PLAN/CONTEXT.md to understand what prior phases will create, enabling dependency-aware gray areas
+- Enhanced `/discuss-phase` with codebase exploration (Phase 3.7) -- spawns Explore agent to find phase-relevant code patterns and constraints before generating gray areas
+- Added `Task` to discuss-phase allowed-tools for agent spawning
+- Updated context-template.md with new "Codebase Context" and "Cross-Phase Dependencies" sections for downstream planners
+- Updated `/cst-help` skill reference, workflow-guide, and troubleshooting to reflect codebase-aware discuss-phase
+
 ## [1.0.5] - 2026-02-10
 
 ### claude-super-team

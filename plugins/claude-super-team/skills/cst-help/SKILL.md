@@ -377,7 +377,7 @@ For more: see references/troubleshooting.md
   → Creates .planning/ROADMAP.md + STATE.md
 
 /discuss-phase [N]
-  Gather user decisions before planning
+  Explore codebase for phase-relevant context, then gather user decisions before planning
   → Creates .planning/phases/{NN}-{name}/{NN}-CONTEXT.md
 
 /research-phase [N]

@@ -325,6 +325,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - About to plan a phase with multiple valid approaches
 - Implementation decisions need user input
 - Want to clarify technical choices before planning
+- Want codebase-grounded gray areas instead of generic questions
 
 ### Use `/research-phase` when:
 - Phase involves unfamiliar technology or domain
