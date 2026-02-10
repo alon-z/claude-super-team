@@ -29,6 +29,19 @@ If CONTEXT.md exists from /discuss-phase, it contains user decisions:
 
 Self-check before returning: Every locked decision has a task. No task implements a deferred idea.
 
+## Research Fidelity (RESEARCH.md)
+
+If RESEARCH.md exists from /research-phase, it contains investigated findings:
+
+- **Standard Stack section** = USE THESE libraries/versions. Don't substitute without strong reason.
+- **Architecture Patterns section** = FOLLOW THESE structures. Task `<files>` should match.
+- **Don't Hand-Roll section** = NEVER build custom solutions for listed problems. Use recommended libraries.
+- **Common Pitfalls section** = ADD verification steps checking for these in task `<verify>` blocks.
+- **Code Examples section** = REFERENCE these patterns in task `<action>` blocks.
+- **User Constraints section** = Same as CONTEXT.md decisions -- already LOCKED.
+
+Research findings are advisory (not locked like CONTEXT.md decisions), but deviation should be justified in the plan.
+
 ## Task Anatomy
 
 Every task has four required fields:

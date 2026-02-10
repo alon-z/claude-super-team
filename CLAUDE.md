@@ -9,11 +9,12 @@ A Claude Code plugin marketplace containing three plugins that provide a structu
 ## Repository Structure
 
 - `.claude-plugin/marketplace.json` -- marketplace manifest registering all plugins
-- `plugins/claude-super-team/` -- core planning and execution plugin (11 skills)
+- `plugins/claude-super-team/` -- core planning and execution plugin (12 skills)
+- `plugins/claude-super-team/agents/` -- custom subagent definitions (e.g., `phase-researcher`)
 - `plugins/marketplace-utils/` -- marketplace management utility plugin (2 skills)
 - `plugins/task-management/` -- Linear sync and GitHub issue management plugin (2 skills)
 
-Each plugin has `.claude-plugin/plugin.json` for metadata and `skills/` containing SKILL.md files that define slash commands.
+Each plugin has `.claude-plugin/plugin.json` for metadata, `skills/` containing SKILL.md files that define slash commands, and optionally `agents/` containing custom subagent definitions.
 
 ## Core Workflow (claude-super-team plugin)
 
@@ -24,6 +25,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /map-codebase         --> .planning/codebase/ (7 docs: STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS)
 /create-roadmap       --> .planning/ROADMAP.md + STATE.md
 /discuss-phase [N]    --> .planning/phases/{NN}-{name}/{NN}-CONTEXT.md (user decisions)
+/research-phase [N]   --> .planning/phases/{NN}-{name}/{NN}-RESEARCH.md (ecosystem research)
 /plan-phase [N]       --> .planning/phases/{NN}-{name}/*-PLAN.md
 /execute-phase [N]    --> .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
 /progress             --> status report + smart routing to next action
@@ -37,7 +39,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 
 - **Phase numbering**: Directories use zero-padded format (`01-foundation`, `02-auth`). Inserted phases use decimals (`02.1-security-hardening`).
 - **Never auto-commit**: All skills tell the user how to commit but never run `git commit` automatically (exception: `/new-project` commits if it initialized a new git repo).
-- **Agent orchestration**: `/plan-phase` and `/execute-phase` spawn subagents via the Task tool. Planners get opus, checkers get sonnet. Context is embedded inline in prompts (no `@` file references across Task boundaries).
+- **Agent orchestration**: `/plan-phase`, `/execute-phase`, and `/research-phase` spawn subagents via the Task tool. Planners and researchers get opus, checkers get sonnet. `/research-phase` uses a custom `phase-researcher` agent (`agents/phase-researcher.md`) with preloaded Firecrawl skill; other skills embed context inline in prompts (no `@` file references across Task boundaries).
 - **Wave-based execution**: Plans group into waves. Plans within a wave run in parallel; waves run sequentially.
 - **Goal-backward success criteria**: Each phase defines observable, user-verifiable outcomes -- not task lists.
 - **State tracking**: `STATE.md` tracks current phase position, decisions, and blockers. `ROADMAP.md` tracks phase completion.

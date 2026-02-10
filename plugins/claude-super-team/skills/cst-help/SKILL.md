@@ -124,9 +124,10 @@ Use your knowledge of the CST pipeline to answer. Read `references/workflow-guid
 1. `/new-project` → define vision
 2. `/create-roadmap` → define phases with goals
 3. `/discuss-phase N` → gather user decisions (optional but recommended)
-4. `/plan-phase N` → create execution plans
-5. `/execute-phase N` → execute and verify
-6. `/progress` → check status, route to next
+4. `/research-phase N` → research ecosystem and patterns (optional)
+5. `/plan-phase N` → create execution plans
+6. `/execute-phase N` → execute and verify
+7. `/progress` → check status, route to next
 
 **Ad-hoc skills:** `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
 
@@ -210,6 +211,7 @@ Plans: {summary_count} of {plan_count} executed
 | All plans executed, no verification | `/execute-phase {N}` (will auto-verify) |
 | All complete, more phases remain | `/plan-phase {N+1}` or `/discuss-phase {N+1}` |
 | All complete, last phase | `/create-roadmap` to add more phases |
+| Context exists, no research, no plans | `/research-phase {N}` or `/plan-phase {N}` |
 | No plans for current phase | `/plan-phase {N}` |
 
 Append:
@@ -255,9 +257,10 @@ Core Concepts:
 1. /new-project → Define vision
 2. /create-roadmap → Define phases
 3. /discuss-phase → Gather decisions (optional)
-4. /plan-phase → Create execution plans
-5. /execute-phase → Execute and verify
-6. /progress → Check status, route to next
+4. /research-phase → Research ecosystem (optional)
+5. /plan-phase → Create execution plans
+6. /execute-phase → Execute and verify
+7. /progress → Check status, route to next
 
 Read references/workflow-guide.md for comprehensive documentation.
 ```
@@ -376,6 +379,10 @@ For more: see references/troubleshooting.md
 /discuss-phase [N]
   Gather user decisions before planning
   → Creates .planning/phases/{NN}-{name}/{NN}-CONTEXT.md
+
+/research-phase [N]
+  Research ecosystem, libraries, patterns before planning
+  → Creates .planning/phases/{NN}-{name}/{NN}-RESEARCH.md
 
 /plan-phase [N]
   Create execution plans for phase

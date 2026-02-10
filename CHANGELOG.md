@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.5] - 2026-02-10
+
+### claude-super-team
+- Added `/research-phase` skill for ecosystem research before planning
+- Added custom `phase-researcher` agent (`agents/phase-researcher.md`) with embedded research methodology, template, and preloaded Firecrawl skill
+- Updated `/plan-phase` to offer research when RESEARCH.md missing
+- Updated `/progress` routing to suggest research after discussion
+- Added RESEARCH.md interpretation guidance to planner-guide.md
+- Updated `/cst-help` with research-phase documentation
+
 ## [1.0.4] - 2026-02-09
 
 ### claude-super-team

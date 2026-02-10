@@ -11,6 +11,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 /map-codebase         → Understand existing codebase (optional, brownfield only)
 /create-roadmap       → Define phases and goals (.planning/ROADMAP.md + STATE.md)
 /discuss-phase [N]    → Gather user decisions for a phase (.planning/phases/NN-name/NN-CONTEXT.md)
+/research-phase [N]   → Research ecosystem and patterns (.planning/phases/NN-name/NN-RESEARCH.md)
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)
 /progress             → Check status and get smart routing to next action
@@ -71,15 +72,19 @@ Plans are grouped into waves:
    → Creates .planning/phases/01-{name}/01-CONTEXT.md
    → Gathers user decisions before planning
 
-4. /plan-phase 1
+4. /research-phase 1
+   → Creates .planning/phases/01-{name}/01-RESEARCH.md
+   → Investigates libraries, patterns, pitfalls
+
+5. /plan-phase 1
    → Creates .planning/phases/01-{name}/*-PLAN.md files
    → Breaks phase into executable plans
 
-5. /execute-phase 1
+6. /execute-phase 1
    → Executes plans, creates *-SUMMARY.md files
    → Verifies phase goal achievement
 
-6. /progress
+7. /progress
    → Shows status, routes to next action
 ```
 
@@ -186,6 +191,7 @@ Phases define **observable, user-verifiable outcomes**, not task lists:
 └── phases/
     ├── 01-foundation/
     │   ├── 01-CONTEXT.md                # User decisions (from /discuss-phase)
+    │   ├── 01-RESEARCH.md               # Research findings (from /research-phase)
     │   ├── 01-01-PLAN.md                # Execution plan 1
     │   ├── 01-01-SUMMARY.md             # Execution summary 1
     │   ├── 01-02-PLAN.md
@@ -254,6 +260,8 @@ For trusted phases or iteration speed:
 **Do:**
 - Define clear observable outcomes per phase
 - Use `/discuss-phase` to clarify decisions before planning
+- Use `/research-phase` for phases involving unfamiliar tech or library selection
+- Skip `/research-phase` for phases using well-known patterns you're confident about
 - Let `/progress` route you to next actions
 - Trust the state files managed by skills
 - Follow zero-padded naming (01-foundation)

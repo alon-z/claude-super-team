@@ -1,15 +1,15 @@
 {
   "name": "claude-super-team",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "owner": {
     "name": "Alon Zusman"
   },
   "plugins": [
     {
       "name": "claude-super-team",
-      "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, phase planning with discussion/planning/execution loops, progress tracking, quick phase insertion, security findings integration, and interactive help system.",
+      "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, phase planning with research/discussion/planning/execution loops, progress tracking, quick phase insertion, security findings integration, and interactive help system.",
       "source": "./plugins/claude-super-team",
-      "version": "1.0.4",
+      "version": "1.0.5",
       "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management", "help", "guidance"],
       "category": "development"
     },

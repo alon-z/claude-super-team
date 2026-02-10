@@ -97,10 +97,11 @@ fi
 PHASE_DIR=$(ls -d .planning/phases/${PADDED}-* 2>/dev/null | head -1)
 ```
 
-**Check for CONTEXT.md in current phase directory:**
+**Check for CONTEXT.md and RESEARCH.md in current phase directory:**
 
 ```bash
 [ -n "$PHASE_DIR" ] && ls "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null && echo "HAS_CONTEXT=true" || echo "HAS_CONTEXT=false"
+[ -n "$PHASE_DIR" ] && ls "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null && echo "HAS_RESEARCH=true" || echo "HAS_RESEARCH=false"
 ```
 
 ### Phase 5: Build Phase Map
@@ -233,7 +234,7 @@ Find first PLAN.md without matching SUMMARY.md. Read its objective.
 
 ### Route B: Plan Phase
 
-Check if CONTEXT.md exists for the upcoming phase (from Phase 5 map).
+Check if CONTEXT.md and RESEARCH.md exist for the upcoming phase (from Phase 5 map).
 
 **If CONTEXT_EXISTS=false (no context gathered):**
 
@@ -248,7 +249,20 @@ Alternative (plan without context):
   /plan-phase {N}
 ```
 
-**If CONTEXT_EXISTS=true (context already gathered):**
+**If CONTEXT_EXISTS=true and HAS_RESEARCH=false (context gathered, no research):**
+
+```
+### Next
+
+▸ **Research Phase {N}: {Name}** -- investigate ecosystem before planning
+
+  /research-phase {N}
+
+Alternative (plan without research):
+  /plan-phase {N}
+```
+
+**If CONTEXT_EXISTS=true and HAS_RESEARCH=true (both gathered):**
 
 ```
 ### Next

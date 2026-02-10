@@ -71,6 +71,16 @@
 - Run `/discuss-phase N` to gather user decisions first
 - Then run `/plan-phase N` again
 
+#### "RESEARCH.md missing, planner picks wrong libraries"
+
+**Symptom:** Plans use outdated libraries or miss established patterns
+
+**Cause:** Skipped `/research-phase` before planning
+
+**Solution:**
+- Run `/research-phase N` to investigate ecosystem
+- Then run `/plan-phase N` again
+
 #### "Plans reference wrong files or paths"
 
 **Symptom:** Generated plans mention non-existent files
@@ -315,6 +325,12 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - About to plan a phase with multiple valid approaches
 - Implementation decisions need user input
 - Want to clarify technical choices before planning
+
+### Use `/research-phase` when:
+- Phase involves unfamiliar technology or domain
+- Need to choose between libraries/frameworks
+- Want to understand current best practices and pitfalls
+- Building something with multiple valid architecture approaches
 
 ### Use `/plan-phase` when:
 - Phase is defined in roadmap

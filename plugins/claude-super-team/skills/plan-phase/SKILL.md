@@ -146,6 +146,22 @@ decisions, or continue planning without it.
 
 This is informational only -- plan-phase works fine without CONTEXT.md.
 
+**If RESEARCH.md does not exist,** show a brief informational note with offer:
+
+Use AskUserQuestion:
+
+- header: "Research"
+- question: "No RESEARCH.md found for this phase. Research helps the planner choose the right libraries, patterns, and avoid common pitfalls. Would you like to research first?"
+- options:
+  - label: "Research first (Recommended)"
+    description: "Run /research-phase {N} to investigate ecosystem, then return to planning"
+  - label: "Plan without research"
+    description: "Continue planning with existing knowledge only"
+
+**On "Research first":** Exit with message: "Run `/research-phase {N}` first, then come back to `/plan-phase {N}`."
+
+**On "Plan without research":** Continue to Phase 5.
+
 **For gap closure (--gaps only):**
 
 - `${PHASE_DIR}/*-VERIFICATION.md` -- verification failures to fix

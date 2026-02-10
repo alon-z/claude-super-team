@@ -4,7 +4,7 @@ A comprehensive project planning and execution framework for Claude Code users. 
 
 ## Overview
 
-The Claude Super Team plugin is a set of 11 slash commands that form a sequential workflow for managing software projects. It combines **project initialization**, **roadmap creation**, **phase discussion and planning**, **execution guidance**, and **interactive help** into a cohesive system designed to help you ship better software more predictably.
+The Claude Super Team plugin is a set of 12 slash commands that form a sequential workflow for managing software projects. It combines **project initialization**, **roadmap creation**, **phase discussion and planning**, **execution guidance**, and **interactive help** into a cohesive system designed to help you ship better software more predictably.
 
 The plugin works by creating and maintaining a `.planning/` directory in your project that stores:
 
@@ -95,7 +95,29 @@ Transform your project vision into a phased roadmap with observable success crit
 
 ---
 
-### 4. `/discuss-phase` — Clarify Implementation Decisions
+### 4. `/research-phase` — Investigate Phase Technologies
+
+Research ecosystem, libraries, architecture patterns, and pitfalls before planning a phase.
+
+**Usage:**
+
+```
+/research-phase 1
+/research-phase 3
+```
+
+**What it does:**
+
+- Spawns a custom `phase-researcher` agent with preloaded Firecrawl and full research methodology
+- Investigates the phase's technical domain, standard stack, patterns, and pitfalls
+- Creates `.planning/phases/{NN}-{name}/{NN}-RESEARCH.md` with verified findings and confidence levels
+- Falls back to WebSearch/WebFetch when Firecrawl is not installed
+
+**When to use:** After `/discuss-phase` and before `/plan-phase` when a phase involves unfamiliar technologies or you want ecosystem research to inform planning.
+
+---
+
+### 5. `/discuss-phase` — Clarify Implementation Decisions
 
 Gather user decisions and context before planning a phase.
 
@@ -117,7 +139,7 @@ Gather user decisions and context before planning a phase.
 
 ---
 
-### 5. `/plan-phase` — Create Executable Plans
+### 6. `/plan-phase` — Create Executable Plans
 
 Decompose a roadmap phase into executable tasks and dependencies.
 
@@ -153,7 +175,7 @@ Decompose a roadmap phase into executable tasks and dependencies.
 
 ---
 
-### 6. `/execute-phase` — Run Phase Tasks
+### 7. `/execute-phase` — Run Phase Tasks
 
 Execute phase plans by routing tasks to specialized agents and verifying completion.
 
@@ -189,7 +211,7 @@ Execute phase plans by routing tasks to specialized agents and verifying complet
 
 ---
 
-### 7. `/quick-plan` — Lightweight Ad-hoc Planning
+### 8. `/quick-plan` — Lightweight Ad-hoc Planning
 
 Insert and plan a small urgent task (bug fix, small feature) without full phase ceremony.
 
@@ -211,7 +233,7 @@ Insert and plan a small urgent task (bug fix, small feature) without full phase 
 
 ---
 
-### 8. `/phase-feedback` — Iterate on Delivered Work
+### 9. `/phase-feedback` — Iterate on Delivered Work
 
 Collect feedback on a just-executed phase and immediately plan + execute targeted modifications.
 
@@ -235,7 +257,7 @@ Collect feedback on a just-executed phase and immediately plan + execute targete
 
 ---
 
-### 9. `/progress` — Check Project Status
+### 10. `/progress` — Check Project Status
 
 Get a comprehensive status report and smart routing to next action.
 
@@ -260,7 +282,7 @@ Get a comprehensive status report and smart routing to next action.
 
 ---
 
-### 10. `/add-security-findings` — Document Security Audit Results
+### 11. `/add-security-findings` — Document Security Audit Results
 
 Integrate security audit findings into your roadmap as security-hardening phases.
 
@@ -281,7 +303,7 @@ Integrate security audit findings into your roadmap as security-hardening phases
 
 ---
 
-### 11. `/cst-help` — Interactive Workflow Help
+### 12. `/cst-help` — Interactive Workflow Help
 
 Get context-aware help on the Claude Super Team workflow.
 
@@ -325,29 +347,32 @@ Here's a typical end-to-end flow:
 3. /discuss-phase 1
    → Clarifies implementation decisions for Phase 1
 
-4. /plan-phase --all
+4. /research-phase 1
+   → Researches ecosystem, libraries, patterns for Phase 1
+
+5. /plan-phase --all
    → Plans all 5 phases:
      - Phase 1: 4 tasks in 2 waves
      - Phase 2: 6 tasks in 3 waves
      - Etc.
 
-5. /execute-phase 1
+6. /execute-phase 1
    → Routes tasks to agents, executes waves, verifies phase goal
 
-6. /phase-feedback 1
+7. /phase-feedback 1
    → "The login form needs better error messages and a loading spinner"
    → Creates Phase 1.1, plans modifications, executes with opus agents
 
-7. /progress
+8. /progress
    → Shows Phase 1 + 1.1 complete, recommends /execute-phase 2
 
-8. /quick-plan "fix OAuth token refresh bug"
+9. /quick-plan "fix OAuth token refresh bug"
    → Inserts Phase 1.2 with urgent fix
 
-9. /execute-phase 1.2
-   → Executes the urgent fix
+10. /execute-phase 1.2
+    → Executes the urgent fix
 
-10. /execute-phase 2
+11. /execute-phase 2
     → Moves forward with Phase 2
 ```
 
@@ -406,6 +431,8 @@ This lets you insert urgent work without renumbering the entire roadmap.
 │   └── CONCERNS.md            # Known issues
 └── phases/
     ├── 01-authentication/
+    │   ├── 01-CONTEXT.md      # User decisions (from /discuss-phase)
+    │   ├── 01-RESEARCH.md     # Ecosystem research (from /research-phase)
     │   ├── 01-01-PLAN.md      # Plan for task 1
     │   ├── 01-01-SUMMARY.md   # Execution summary
     │   └── 01-01-VERIFICATION.md
@@ -422,6 +449,7 @@ This lets you insert urgent work without renumbering the entire roadmap.
 
 This plugin fully integrates with Claude Code's ecosystem:
 
+- **Custom agents** — `/research-phase` uses a dedicated `phase-researcher` agent with preloaded methodology and Firecrawl skill
 - **Specialized agents** — Tasks are routed to security-reviewer, tdd-guide, code-simplifier, and other specialized agents
 - **Context preservation** — Full project context is embedded in agent prompts (no `@` references across boundaries)
 
@@ -445,6 +473,7 @@ The Claude Super Team plugin is built on these principles:
 # 2. Follow the guided workflow
 /create-roadmap
 /discuss-phase 1
+/research-phase 1
 /plan-phase 1
 /execute-phase 1
 /progress
