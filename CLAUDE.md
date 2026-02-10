@@ -61,15 +61,15 @@ Format: `[plugin] (type): Title`
 
 - **plugin**: The plugin name (e.g., `claude-super-team`, `marketplace-utils`)
 - **type**: What was added/changed -- skill, agent, asset, reference, config, etc.
-- **Title**: Short description of what was done
+- **Title**: Short description of what was done. Do not use `/` before skill or command names in the title (e.g., "Add brainstorm" not "Add /brainstorm").
 
 The commit body should contain a concise summary of what changed.
 
 Examples:
 
-- `[claude-super-team] (skill): Added /quick-plan for lightweight phase insertion`
-- `[marketplace-utils] (config): Updated plugin.json version to 1.2.0`
-- `[claude-super-team] (agent): Improved execute-phase wave parallelism`
+- `[claude-super-team] (skill): Add brainstorm for interactive ideation`
+- `[marketplace-utils] (config): Update plugin.json version to 1.2.0`
+- `[claude-super-team] (agent): Improve execute-phase wave parallelism`
 
 ## Editing Skills
 

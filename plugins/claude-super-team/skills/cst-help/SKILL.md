@@ -423,8 +423,8 @@ For more: see references/troubleshooting.md
 
 /phase-feedback
   Gather feedback on executed phase
-  → Plans + executes modifications immediately
-  → Creates subphase (e.g., 04.1-feedback)
+  → Quick fix: applies trivial changes directly
+  → Standard: plans subphase (e.g., 04.1-feedback), user runs /execute-phase
 
 /add-security-findings
   Integrate security audit into roadmap

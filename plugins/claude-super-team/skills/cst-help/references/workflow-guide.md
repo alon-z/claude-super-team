@@ -32,7 +32,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 
 ```
 /quick-plan           → Insert lightweight phase (decimal numbering: 4.1)
-/phase-feedback       → Gather feedback and execute modifications (creates subphase like 4.1)
+/phase-feedback       → Quick fix or plan feedback subphase (creates subphase like 4.1 for non-trivial changes)
 /add-security-findings → Integrate security audit into roadmap
 ```
 
@@ -168,9 +168,8 @@ Plans are grouped into waves:
 1. /phase-feedback
    → Reads execution summaries and verification from phase 4
    → Gathers specific feedback through clarification
-   → Spawns feedback-aware planner
-   → Immediately executes with opus agents
-   → Creates subphase (e.g., 04.1-feedback)
+   → Quick fix: applies trivial changes directly (no subphase)
+   → Standard: creates subphase (e.g., 04.1-feedback), plans it, then user runs /execute-phase
 ```
 
 ### When Lost or Returning

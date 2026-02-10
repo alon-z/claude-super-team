@@ -1,18 +1,20 @@
 ---
 name: phase-feedback
-description: Collect user feedback on a just-executed phase, plan a targeted subphase, and execute the changes immediately. Reads execution summaries and verification results from the parent phase, gathers specific feedback through iterative clarification, spawns a feedback-aware planner, then executes all tasks with opus agents. Use after /execute-phase when the user wants changes to delivered work. Requires .planning/PROJECT.md and .planning/ROADMAP.md.
+description: Collect user feedback on a just-executed phase and either apply a quick fix directly or plan a feedback subphase for execution. For trivial changes (single-file quick fixes), applies the change inline. For anything larger, creates a feedback subphase with a plan and directs the user to run /execute-phase. Use after /execute-phase when the user wants changes to delivered work. Requires .planning/PROJECT.md and .planning/ROADMAP.md.
 argument-hint: "[phase number] [feedback description]"
 allowed-tools: Read, Bash, Write, Edit, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskList
 ---
 
 ## Objective
 
-Collect feedback on a just-executed phase, create a feedback-driven subphase with decimal numbering (e.g., 4.1), plan targeted modifications, and execute them immediately with opus agents.
+Collect feedback on a just-executed phase, then route based on scope:
+- **Quick fix** (trivial, single-file change): Apply the fix directly inline -- no subphase, no plan, no agent spawning.
+- **Standard feedback** (anything else): Create a feedback-driven subphase with decimal numbering (e.g., 4.1), plan targeted modifications, then tell the user to run `/execute-phase` to execute.
 
-**Flow:** Validate -> Identify parent phase -> Load execution context -> Collect feedback -> Scope check -> Create subphase -> Annotate roadmap -> Spawn planner -> Execute tasks (opus) -> Write summary -> Done
+**Flow:** Validate -> Identify parent phase -> Load execution context -> Collect feedback -> Scope check -> Route (quick fix OR standard) -> Done
 
 **Reads:** `.planning/PROJECT.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, parent phase `*-SUMMARY.md` and `*-VERIFICATION.md`
-**Creates:** `.planning/phases/{NN.X}-feedback-{slug}/{NN.X}-01-PLAN.md`, `*-SUMMARY.md`, annotates `ROADMAP.md`
+**Creates (standard path only):** `.planning/phases/{NN.X}-feedback-{slug}/{NN.X}-01-PLAN.md`, annotates `ROADMAP.md`
 
 ## Process
 
@@ -114,9 +116,11 @@ If "Not quite," loop back to 4b and ask what needs adjusting.
 
 Only after confirmation, store as `$FEEDBACK`. This should be a concrete, specific description -- not a vague wish. Good: "Change the marketplace grid from 2 columns to 3 columns, add plugin icons to each card, and make the search bar full-width." Bad: "Make the marketplace look better."
 
-### Step 5: Scope Check
+### Step 5: Scope Check and Route
 
-Analyze the feedback. If it implies:
+Analyze the confirmed feedback to determine scope:
+
+**5a. Check for overly broad feedback.** If it implies:
 - More than 5 files
 - Multiple subsystems or services
 - Architectural changes
@@ -131,7 +135,66 @@ This feedback seems too broad for a subphase. Consider:
 
 Use AskUserQuestion to confirm: "Proceed as feedback subphase?" or "Use full phase instead?"
 
-### Step 6: Determine Subphase Number
+**5b. Classify scope.** Use AskUserQuestion:
+
+```
+AskUserQuestion:
+  header: "Scope"
+  question: "Based on the feedback, this looks like a {quick fix / standard change}. How should we handle it?\n\n{bullet list of feedback items}"
+  options:
+    - "Quick fix" -- "Apply the change directly right now (best for single-file tweaks, typos, small style/logic fixes)"
+    - "Plan it" -- "Create a feedback subphase with a plan, then execute with /execute-phase (best for multi-file or complex changes)"
+```
+
+Route based on the user's choice:
+- **Quick fix** -> Go to Step 6 (Quick Fix Path)
+- **Plan it** -> Go to Step 7 (Standard Feedback Path)
+
+---
+
+## Quick Fix Path
+
+### Step 6: Apply Quick Fix
+
+This path is for trivial changes -- single-file tweaks, typos, small style or logic fixes. No subphase, no plan, no agent spawning.
+
+**6a.** Read the target file(s) mentioned in the feedback. Use the execution context from Step 3 to locate exact file paths.
+
+**6b.** Apply the change directly using Edit/Write tools. Keep the change minimal and focused on exactly what the feedback requested.
+
+**6c.** Verify the change works (run relevant commands if applicable).
+
+**6d.** Present completion summary:
+
+```
+Quick fix applied for Phase ${PARENT_PHASE}.
+
+Feedback: ${FEEDBACK}
+Files changed: {list of files modified}
+
+---
+
+## Next Steps
+
+**More feedback?**
+  /phase-feedback ${PARENT_PHASE}
+
+**Continue to next phase:**
+  /progress to see what's next
+
+**Commit if desired:**
+  git add {changed files} && git commit -m "fix: {short description of fix}"
+
+---
+```
+
+Never auto-commit. **STOP here -- do not continue to Step 7.**
+
+---
+
+## Standard Feedback Path
+
+### Step 7: Determine Subphase Number
 
 ```bash
 # Find existing subphases of the parent
@@ -147,7 +210,7 @@ FEEDBACK_PHASE="${PARENT_PHASE}.${DECIMAL}"
 FEEDBACK_PHASE_PADDED=$(printf "%02d.%s" "$PARENT_PHASE" "$DECIMAL")
 ```
 
-### Step 7: Create Phase Directory
+### Step 8: Create Phase Directory
 
 ```bash
 slug=$(echo "$FEEDBACK" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//' | cut -c1-30)
@@ -158,17 +221,17 @@ mkdir -p "$PHASE_DIR"
 
 Report: `Creating Phase ${FEEDBACK_PHASE}: Feedback on Phase ${PARENT_PHASE}`
 
-### Step 8: Annotate ROADMAP.md
+### Step 9: Annotate ROADMAP.md
 
 Add entry **without restructuring existing phases**.
 
-**8a. Add to the `## Phases` checklist** after the parent phase entry:
+**9a. Add to the `## Phases` checklist** after the parent phase entry:
 
 ```markdown
 - [ ] Phase {FEEDBACK_PHASE}: {FEEDBACK summary} (FEEDBACK on Phase {PARENT_PHASE})
 ```
 
-**8b. Add a brief section** in `## Phase Details` after the parent phase's detail section:
+**9b. Add a brief section** in `## Phase Details` after the parent phase's detail section:
 
 ```markdown
 ### Phase {FEEDBACK_PHASE}: Feedback -- {FEEDBACK summary} (FEEDBACK on Phase {PARENT_PHASE})
@@ -183,9 +246,9 @@ Success Criteria:
 
 Use Edit tool to insert at correct positions. Do NOT renumber or move existing phases.
 
-**8c. Update STATE.md** -- set current phase to the feedback subphase so `/execute-phase` picks it up.
+**9c. Update STATE.md** -- set current phase to the feedback subphase so `/execute-phase` picks it up.
 
-### Step 9: Spawn Planner Agent
+### Step 10: Spawn Planner Agent
 
 Read `references/planner-feedback-mode.md` and `assets/feedback-plan-template.md`. Load project context.
 
@@ -251,112 +314,32 @@ After planner returns:
 1. Verify plan exists at `${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-PLAN.md`
 2. If plan not found, show error and exit
 
-### Step 10: Execute Tasks
+### Step 11: Done
 
-Read the plan created in Step 9. Parse the `<tasks>` section and extract each task's `<name>`, `<files>`, `<action>`, `<verify>`, `<done>`.
-
-Read the task execution guide from the execute-phase skill: `plugins/claude-super-team/skills/execute-phase/references/task-execution-guide.md`. This guide gives agents their execution protocol (deviation rules, commit protocol, self-check, report format).
-
-**All tasks execute sequentially via opus agents.** For each task, spawn:
+Present the plan summary and direct the user to execute:
 
 ```
-Task(
-  subagent_type: "general-purpose"
-  model: "opus"
-  description: "Feedback ${FEEDBACK_PHASE} Task {N}: {task_name}"
-  prompt: """
-  You are executing a feedback task -- modifying existing code to address user feedback on Phase ${PARENT_PHASE}.
-
-  {task_execution_guide_content}
-
-  ---
-
-  Plan: ${FEEDBACK_PHASE}-01
-  Plan objective: {objective from plan}
-  Plan must_haves: {must_haves from plan}
-
-  Your task:
-
-  <task type="{type}">
-    <name>{name}</name>
-    <files>{files}</files>
-    <action>{action}</action>
-    <verify>{verify}</verify>
-    <done>{done}</done>
-  </task>
-
-  Prior tasks in this plan:
-  {prior_task_reports or "This is the first task."}
-
-  User feedback being addressed:
-  ${FEEDBACK}
-
-  What parent Phase ${PARENT_PHASE} built (from execution summaries):
-  ${EXECUTION_CONTEXT}
-
-  Project context:
-  {project_md_content}
-
-  Codebase context:
-  {codebase_docs_content}
-
-  IMPORTANT: You are MODIFYING existing files, not building from scratch.
-  Read the files listed in <files> first to understand current state before changing anything.
-  """
-)
-```
-
-**Handling task results:**
-
-- **`## TASK COMPLETE`:** Record result. Feed report to next task as prior context. Continue.
-- **`## TASK BLOCKED`:** Show blocker to user via AskUserQuestion:
-  - header: "Blocked"
-  - question: "Task '{name}' is blocked: {reason}. What do you want to do?"
-  - options:
-    - "Provide guidance" -- User gives direction, re-spawn task with guidance
-    - "Skip task" -- Mark as skipped, continue
-    - "Abort" -- Stop execution
-
-### Step 11: Write Summary
-
-After all tasks complete, read the summary template from `plugins/claude-super-team/skills/execute-phase/assets/summary-template.md` and create:
-
-```
-${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-SUMMARY.md
-```
-
-Populate with:
-- Task results (commits, files changed, deviations)
-- Aggregate from all task reports
-- Note this is a feedback subphase on Phase ${PARENT_PHASE}
-
-### Step 12: Done
-
-Present completion summary:
-
-```
-Phase ${FEEDBACK_PHASE} complete (feedback on Phase ${PARENT_PHASE}).
+Phase ${FEEDBACK_PHASE} planned (feedback on Phase ${PARENT_PHASE}).
 
 Feedback: ${FEEDBACK}
-Tasks executed: {N} (all opus)
+Plan: ${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-PLAN.md
 Directory: ${PHASE_DIR}
-Summary: ${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-SUMMARY.md
 
 ---
 
 ## Next Steps
 
-**Review what changed:**
-  Read ${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-SUMMARY.md
+**Review the plan:**
+  Read ${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-PLAN.md
+
+**Execute the feedback changes:**
+  /execute-phase ${FEEDBACK_PHASE} --skip-verify
 
 **More feedback?**
   /phase-feedback ${PARENT_PHASE} to create another feedback subphase (${PARENT_PHASE}.${DECIMAL+1})
 
-**Continue to next phase:**
-  /progress to see what's next
-
 **Commit planning artifacts if desired:**
-  git add ${PHASE_DIR}/ .planning/ROADMAP.md .planning/STATE.md && git commit -m "feedback phase ${FEEDBACK_PHASE}: ${FEEDBACK summary}"
+  git add ${PHASE_DIR}/ .planning/ROADMAP.md .planning/STATE.md && git commit -m "plan feedback phase ${FEEDBACK_PHASE}: ${FEEDBACK summary}"
 
 ---
 ```
@@ -365,20 +348,27 @@ Never auto-commit.
 
 ## Success Criteria
 
+**Common (both paths):**
 - [ ] `.planning/PROJECT.md` and `.planning/ROADMAP.md` exist
 - [ ] Parent phase identified (from args, STATE.md, or user)
 - [ ] Parent phase has execution results (SUMMARY.md files)
 - [ ] Execution context loaded (summaries + verification)
 - [ ] Feedback collected and confirmed through iterative AskUserQuestion
 - [ ] Scope validated (not too broad for a subphase)
+- [ ] User chose route: quick fix or standard feedback
+
+**Quick fix path:**
+- [ ] Change applied directly using Edit/Write tools
+- [ ] No subphase, plan, or agent spawning created
+- [ ] User told how to commit (never auto-commit)
+
+**Standard feedback path:**
 - [ ] Decimal subphase number calculated (e.g., 4.1)
 - [ ] Phase directory created at `.planning/phases/{NN.X}-feedback-{slug}/`
 - [ ] ROADMAP.md annotated with feedback phase entry (no restructuring)
 - [ ] STATE.md updated to point to feedback phase
 - [ ] Planner spawned (opus) with execution context + feedback
 - [ ] `{NN.X}-01-PLAN.md` created with 1-3 modification-oriented tasks
-- [ ] Each task executed by an opus agent with full context
-- [ ] Task agents received task-execution-guide, execution summaries, and feedback
-- [ ] SUMMARY.md written after all tasks complete
-- [ ] User told how to commit (never auto-commit)
+- [ ] Execution NOT performed -- user directed to `/execute-phase {N.X} --skip-verify`
+- [ ] User told how to commit planning artifacts (never auto-commit)
 - [ ] User told about `/phase-feedback` for additional feedback rounds

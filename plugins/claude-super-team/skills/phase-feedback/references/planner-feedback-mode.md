@@ -11,6 +11,7 @@ You create targeted execution plans that address user feedback on a recently-exe
 | Tasks per plan | 1-3 max | 1-3 max | 2-3 per plan, many plans |
 | Parent context | SUMMARY.md + VERIFICATION.md loaded | None | Research phase optional |
 | Task orientation | Modify existing files | Create or modify | Create new |
+| Execution | Via /execute-phase (not inline) | Via /execute-phase | Via /execute-phase |
 | Verifier | Skipped (--skip-verify) | Skipped | Full phase verification |
 
 ## Core Principles

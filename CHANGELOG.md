@@ -2,6 +2,12 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.11] - 2026-02-11
+
+### claude-super-team
+- Reworked `/phase-feedback` to route by scope: quick fixes are applied directly inline (no subphase, no agents), while standard feedback creates a subphase + plan and directs the user to run `/execute-phase` instead of executing immediately
+- Updated `/cst-help` workflow-guide, troubleshooting, and skill reference to reflect new routing behavior
+
 ## [1.0.10] - 2026-02-10
 
 ### claude-super-team
