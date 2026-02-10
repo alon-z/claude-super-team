@@ -96,6 +96,33 @@ Found {N} plans, {M} already completed, {K} to execute.
 
 If all plans completed, show message and exit.
 
+### Phase 3.5: Resolve Execution Model Preference
+
+Read `.planning/STATE.md` and check for `execution-model` in the `## Preferences` section.
+
+**If preference is set:** Use it as `$EXEC_MODEL_PREF` (`sonnet` or `opus`).
+
+**If preference is NOT set (missing or placeholder):** Ask the user:
+
+```
+AskUserQuestion:
+  header: "Exec model"
+  question: "Which model should execution agents use when building code?"
+  options:
+    - "Sonnet (Recommended)" -- "Faster and cheaper. Opus still used for TDD, security, planning, and verification."
+    - "Opus" -- "Higher reasoning quality for all execution tasks. Slower and more expensive."
+```
+
+Persist the answer to STATE.md under `## Preferences`:
+
+```markdown
+## Preferences
+
+execution-model: {chosen_model}
+```
+
+Use Edit tool to update STATE.md. Set `$EXEC_MODEL_PREF` to the chosen value.
+
 ### Phase 4: Group Plans by Wave
 
 Read `wave` field from each plan's YAML frontmatter. Group plans into waves.
@@ -136,6 +163,10 @@ For each plan in this wave, parse the `<tasks>` section. Extract each `<task>`:
 #### 5b. Route Tasks to Agents
 
 For each task, infer the best agent type using these heuristics (first match wins):
+
+**If `$EXEC_MODEL_PREF` = `opus`:** All execution tasks use opus regardless of signal analysis. Skip the routing table below -- every task gets `model: "opus"`.
+
+**If `$EXEC_MODEL_PREF` = `sonnet` (default):** Use the routing table:
 
 | Signal | Agent Type | Model |
 |--------|-----------|-------|

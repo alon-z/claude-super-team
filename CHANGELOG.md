@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.9] - 2026-02-10
+
+### claude-super-team
+- Added execution model preference (`execution-model: sonnet|opus`) to `## Preferences` section in STATE.md and PROJECT.md
+- `/new-project` now asks user for preferred execution model during project initialization (Phase 3.5)
+- `/create-roadmap` carries execution model preference from PROJECT.md to STATE.md when creating state
+- `/execute-phase` reads preference from STATE.md and asks on first run if not set (Phase 3.5); opus preference overrides routing table to use opus for all execution tasks
+- Updated STATE.md and PROJECT.md templates with `## Preferences` section
+
 ## [1.0.8] - 2026-02-10
 
 ### claude-super-team

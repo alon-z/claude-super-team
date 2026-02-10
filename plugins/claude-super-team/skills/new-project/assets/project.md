@@ -56,5 +56,9 @@ Common types: Tech stack, Timeline, Budget, Dependencies, Compatibility, Perform
 |----------|-----------|---------|
 | [Choice] | [Why] | [✓ Good / ⚠️ Revisit / — Pending] |
 
+## Preferences
+
+execution-model: [sonnet|opus] <!-- Model for execution agents in /execute-phase. sonnet = faster/cheaper, opus = higher reasoning quality -->
+
 ---
 *Last updated: [date] after [trigger]*

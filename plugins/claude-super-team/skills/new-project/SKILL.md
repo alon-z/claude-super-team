@@ -210,6 +210,21 @@ If "Keep exploring" — ask what they want to add, or identify gaps and probe na
 
 Loop until "Create PROJECT.md" selected.
 
+### Phase 3.5: Execution Model Preference
+
+Before writing PROJECT.md, ask the user about their preferred execution model:
+
+```
+AskUserQuestion:
+  header: "Exec model"
+  question: "Which model should execution agents use when building code?"
+  options:
+    - "Sonnet (Recommended)" -- "Faster and cheaper. Opus still used for TDD, security, planning, and verification."
+    - "Opus" -- "Higher reasoning quality for all execution tasks. Slower and more expensive."
+```
+
+Store the answer as `$EXEC_MODEL` (`sonnet` or `opus`). This will be written to the `## Preferences` section in PROJECT.md.
+
 ### Phase 4: Write PROJECT.md
 
 Synthesize all context into `.planning/PROJECT.md` using the template from `assets/project.md`.

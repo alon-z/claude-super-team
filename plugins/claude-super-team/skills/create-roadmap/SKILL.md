@@ -241,6 +241,8 @@ Write `.planning/ROADMAP.md` using the template from `assets/roadmap.md`. Fill i
 
 Write `.planning/STATE.md` using the template from `assets/state.md`. Initialize with Phase 1 as current position.
 
+**Carry preferences:** If `.planning/PROJECT.md` has a `## Preferences` section with `execution-model`, copy that value into STATE.md's `## Preferences` section. If PROJECT.md has no preference set, default to `sonnet`.
+
 **Do NOT commit.** Tell the user:
 
 ```

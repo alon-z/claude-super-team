@@ -13,6 +13,10 @@ Phase: 1 of [Y] ([Phase name])
 Status: Ready to plan
 Last activity: [date] — Roadmap created
 
+## Preferences
+
+execution-model: [sonnet|opus] <!-- default: sonnet. Set during /new-project or /execute-phase -->
+
 ## Accumulated Context
 
 ### Decisions
