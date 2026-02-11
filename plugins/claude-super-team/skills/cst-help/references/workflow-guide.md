@@ -26,6 +26,7 @@ Claude Super Team is a structured project planning and execution workflow for so
                         Interactive mode: collaborative discussion with iterative exploration
                         Autonomous mode: 3 parallel agents generate bold ideas ranked by impact
                         Optionally invokes /create-roadmap for approved ideas
+                        Auto-generates CONTEXT.md for each new phase using discuss-phase template
 ```
 
 ### Ad-Hoc Extensions
@@ -192,8 +193,11 @@ Plans are grouped into waves:
 
 ### Execution
 
+- **Branch guard**: Warns if running on main/master, offers to switch branch or continue
+- **Mode logging**: Prints which execution mode (team/task) was selected and how to change it
 - Plans route to specialized agents (security, TDD, general-purpose)
 - After each plan's tasks complete, `code-simplifier:code-simplifier` refines the output for clarity, consistency, and maintainability
+- **Single-plan wave downgrade**: Waves with only one plan auto-downgrade from teams to task mode (no parallelism benefit)
 - Wave structure enables parallel execution
 - Verification ensures phase goals achieved
 - Requires `code-simplifier` plugin: `/plugin install code-simplifier@claude-plugins-official`

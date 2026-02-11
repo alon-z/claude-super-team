@@ -105,6 +105,28 @@
 
 ### Phase Execution
 
+#### "Branch guard blocks execution"
+
+**Symptom:** `/execute-phase` warns about running on main/master
+
+**Cause:** Current branch is main or master -- executing directly on the default branch is not recommended
+
+**Solution:**
+- Switch to a feature branch: `git checkout -b feature/phase-N`
+- Re-run `/execute-phase N`
+- Or choose "Continue anyway" if you intentionally want to work on main
+
+#### "Wrong execution mode"
+
+**Symptom:** `/execute-phase` runs in task mode when you expected teams, or vice versa
+
+**Cause:** Teams mode requires the `--team` flag or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable
+
+**Solution:**
+- For teams mode: `/execute-phase N --team` or set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+- Mode is logged at the start of execution -- check the message for how to change it
+- Waves with a single plan auto-downgrade to task mode (expected behavior)
+
 #### "Cannot execute, no plans found"
 
 **Symptom:** `/execute-phase N` fails with no PLAN.md files
@@ -306,6 +328,17 @@ Then run `/brainstorm` after project is defined.
 - Run `/map-codebase` first for brownfield projects
 - Try Interactive mode instead for early-stage projects
 
+#### "Brainstorm didn't create CONTEXT.md for new phases"
+
+**Symptom:** `/brainstorm` added phases to roadmap but no CONTEXT.md files were generated
+
+**Cause:** Phase 11.5 (context generation) only runs when `/create-roadmap` was invoked and completed successfully from within the brainstorm session
+
+**Solution:**
+- If roadmap update was skipped or failed, no context files are generated (expected)
+- Run `/discuss-phase N` manually for each new phase to create CONTEXT.md with full exploration
+- Auto-generated CONTEXT.md from brainstorm is a starting point -- `/discuss-phase` provides deeper coverage
+
 #### "IDEAS.md keeps growing with duplicate sessions"
 
 **Symptom:** Multiple brainstorming sessions add overlapping ideas
@@ -414,8 +447,8 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 ### Use `/execute-phase` when:
 - Plans exist for the phase
 - Ready to execute work
-- Optionally: use `--skip-verify` to skip verification
-- Note: requires `code-simplifier` plugin for post-task code refinement
+- Optionally: use `--skip-verify` to skip verification, `--team` for teams mode
+- Note: warns if on main/master branch; requires `code-simplifier` plugin for post-task code refinement
 
 ### Use `/quick-plan` when:
 - Need to insert urgent work (bug fix, small feature)

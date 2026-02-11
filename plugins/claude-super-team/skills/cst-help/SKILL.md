@@ -395,14 +395,18 @@ For more: see references/troubleshooting.md
 
 /execute-phase [N]
   Execute plans, simplify code, and verify phase goals
+  → Branch guard: warns if running on main/master, offers to switch
+  → Logs execution mode (team/task) and how to change it
+  → Single-plan waves auto-downgrade from teams to task mode
   → Runs code-simplifier on each plan's output before summary
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
-  Options: --gaps-only (execute only gap plans), --skip-verify (skip verification)
+  Options: --gaps-only (execute only gap plans), --skip-verify (skip verification), --team (use teams mode)
   Requires: code-simplifier plugin (/plugin install code-simplifier@claude-plugins-official)
 
 /progress
   Check status and get smart routing
   → Shows current position, recent work, next action
+  → Steps column (D/R/P) shows discuss, research, plan status per phase
 
 ## Brainstorming
 
@@ -413,6 +417,7 @@ For more: see references/troubleshooting.md
     Autonomous -- 3 parallel agents (codebase, strategy, architecture) generate bold ideas
   → Creates/updates .planning/IDEAS.md
   → Optionally invokes /create-roadmap to add approved ideas as phases
+  → Auto-generates CONTEXT.md for each new phase using discuss-phase template
 
 ## Ad-Hoc Extensions
 

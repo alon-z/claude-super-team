@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.12] - 2026-02-12
+
+### claude-super-team
+- Added branch guard to `/execute-phase`: warns when running on main/master and offers to switch branch or continue
+- Added execution mode logging to `/execute-phase`: prints which mode (team/task) was selected and how to change it
+- Added single-plan wave downgrade in `/execute-phase`: waves with only one plan automatically use task mode even in teams mode, since cross-plan parallelism has no benefit
+- Updated `/execute-phase` completion summary with Mode column in wave table
+- Enhanced `/brainstorm` with Phase 11.5: auto-generates CONTEXT.md files for new roadmap phases created from brainstorm ideas, using the discuss-phase context template
+- Enhanced `/progress` phase table with Steps column showing discuss/research/plan status (D/R/P) per phase
+
 ## [1.0.11] - 2026-02-11
 
 ### claude-super-team
