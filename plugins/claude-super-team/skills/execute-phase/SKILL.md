@@ -94,6 +94,30 @@ else
 fi
 ```
 
+### Phase 2.5: Log Execution Mode Decision
+
+After determining `EXEC_MODE`, print one of the following messages so the user understands which mode was selected and how to change it:
+
+- **If `EXEC_MODE=team` and triggered by the `--team` flag:**
+
+```
+Using teams mode (--team flag).
+```
+
+- **If `EXEC_MODE=team` and triggered by the environment variable** (no `--team` flag, but `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set):
+
+```
+Using teams mode (CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1).
+```
+
+- **If `EXEC_MODE=task`:**
+
+```
+Using task mode -- teams not enabled. Pass --team or set CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 to use teams.
+```
+
+This message is printed once, immediately after Phase 2 completes.
+
 ### Phase 3: Discover Plans
 
 ```bash
@@ -184,6 +208,14 @@ The team persists across all waves in this phase. Teammates spawned in wave 1 go
 ### Phase 5: Execute Waves
 
 For each wave (sequential):
+
+**Single-plan downgrade (teams mode only):** If `EXEC_MODE=team` and the current wave contains only a single plan, downgrade to task mode for that wave and print:
+
+```
+Using task mode for wave {N} -- single plan in wave, teams not beneficial.
+```
+
+Teams mode adds overhead for inter-agent coordination; with only one plan in a wave there is no cross-plan parallelism to benefit from, so task mode is used instead. This is a per-wave decision -- subsequent waves with multiple plans still use teams mode.
 
 #### 5a. Parse Tasks from Plans
 
@@ -519,15 +551,16 @@ Present completion summary:
 
 ```
 Phase {N} executed ({task mode | teams mode}).
+Execution mode: {the Phase 2.5 message that was printed at start}
 
 Plans completed: {M}/{total}
 Tasks executed: {T} total across {M} plans
 
 Wave summary:
-| Wave | Plans | Status |
-|------|-------|--------|
-| 1 | 01, 02 | complete |
-| 2 | 03 | complete |
+| Wave | Plans | Mode | Status |
+|------|-------|------|--------|
+| 1 | 01, 02 | teams | complete |
+| 2 | 03 | task (single plan) | complete |
 
 Verification: {Passed | Gaps found | Skipped}
 
