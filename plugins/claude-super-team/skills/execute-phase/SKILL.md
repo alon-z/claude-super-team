@@ -27,6 +27,37 @@ Execute PLAN.md files for a roadmap phase by routing each task to the best avail
 
 You MUST run these checks before proceeding.
 
+### Phase 1.5: Branch Guard
+
+Check the current git branch before proceeding:
+
+```bash
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+```
+
+**If git is unavailable or the command fails** (non-zero exit code), or **if HEAD is detached** (output is `"HEAD"`):
+
+Print a note and continue:
+
+```
+Note: Could not determine branch (git unavailable or detached HEAD). Continuing.
+```
+
+**If the branch is `main` or `master`:**
+
+Use AskUserQuestion:
+
+```
+AskUserQuestion:
+  header: "Branch warning"
+  question: "You are on the '{CURRENT_BRANCH}' branch. Running execute-phase on main/master is not recommended."
+  options:
+    - "Switch branch" -- Tell the user to switch to a feature branch and re-run, then STOP execution.
+    - "Continue anyway" -- Proceed with execution on the current branch.
+```
+
+**Otherwise:** Proceed normally.
+
 ### Phase 2: Parse Arguments
 
 Extract from $ARGUMENTS:

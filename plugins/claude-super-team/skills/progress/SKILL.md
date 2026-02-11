@@ -128,7 +128,9 @@ For each phase directory found, check:
 PLAN_COUNT=$(ls -1 "${PHASE_DIR}"/*-PLAN.md 2>/dev/null | wc -l)
 SUMMARY_COUNT=$(ls -1 "${PHASE_DIR}"/*-SUMMARY.md 2>/dev/null | wc -l)
 grep -l "status: gaps_found" "${PHASE_DIR}"/*-VERIFICATION.md 2>/dev/null
-CONTEXT_EXISTS=$(ls "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null | wc -l)
+HAS_CONTEXT=$(ls "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null | wc -l)
+HAS_RESEARCH=$(ls "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null | wc -l)
+HAS_PLANS=$(ls -1 "${PHASE_DIR}"/*-PLAN.md 2>/dev/null | wc -l)
 ```
 
 Assign each phase a status label:
@@ -157,12 +159,12 @@ Example: 7 of 10 plans done = `███████░░░` 70%
 
 ### Phases
 
-| # | Phase | Status | Plans |
-|---|-------|--------|-------|
-| 1 | Foundation | ✓ done | 3/3 |
-| 2 | Authentication | ▸ executing | 1/2 |
-| 3 | API Layer | · upcoming | -- |
-| 4 | Dashboard | · upcoming | -- |
+| # | Phase | Status | Steps | Plans |
+|---|-------|--------|-------|-------|
+| 1 | Foundation | ✓ done | - - - | 3/3 |
+| 2 | Authentication | ▸ executing | D R P | 1/2 |
+| 3 | API Layer | ○ planned | D · P | 0/1 |
+| 4 | Dashboard | · upcoming | · · · | -- |
 
 ---
 ```
@@ -173,6 +175,8 @@ Example: 7 of 10 plans done = `███████░░░` 70%
 - `▸ executing` -- plans exist, execution in progress
 - `○ planned` -- plans created, not started
 - `· upcoming` -- not yet planned
+
+**Steps column:** `D` discuss | `R` research | `P` plan (`·` = not done, `- - -` = phase complete)
 
 **After the phase table, add sections only if they have content:**
 
