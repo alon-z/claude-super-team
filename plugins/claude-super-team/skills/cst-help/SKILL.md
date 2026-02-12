@@ -29,24 +29,11 @@ Provide context-aware help for Claude Super Team workflow by analyzing current p
 
 ### Phase 1: Classify Request
 
-Determine whether the user needs **general workflow knowledge** or **project-specific guidance**.
+Determine if the user needs **general workflow knowledge** or **project-specific guidance**.
 
-**General workflow question** -- user asks about how CST works:
-- "After making a new phase, how should I proceed?"
-- "What's the difference between discuss-phase and plan-phase?"
-- "When should I use quick-plan vs create-roadmap?"
-- "How do waves work?"
-- "What does execute-phase do?"
+**General workflow question** -- asks about how CST works. Answer directly from workflow knowledge. Skip Phase 2.
 
-Answer directly from workflow knowledge. Do NOT analyze `.planning/` state. Skip Phase 2 entirely.
-
-**Project-specific guidance** -- user asks about their current situation:
-- "What should I do next?" (wants specific advice for their project)
-- "Where am I?"
-- "I'm stuck" (no further context about what concept confuses them)
-- Anything that only makes sense in the context of their specific project
-
-Analyze `.planning/` state in Phase 2, then provide targeted guidance.
+**Project-specific guidance** -- asks about their current situation. Analyze `.planning/` state in Phase 2, then provide targeted guidance.
 
 **If $ARGUMENTS is empty or generic ("help"):**
 
@@ -61,7 +48,7 @@ Use AskUserQuestion to clarify:
 
 **If $ARGUMENTS contains a specific question:**
 
-Classify as general vs project-specific using the criteria above. When in doubt, treat as general and answer the question directly without state analysis.
+Classify as general vs project-specific. When in doubt, treat as general.
 
 ### Phase 2: Analyze Project State (project-specific only)
 
@@ -95,12 +82,10 @@ Only run state detection when the user needs project-specific guidance. Use Bash
 | PROJECT.md + ROADMAP.md | `roadmap_created` | Phases defined, not started |
 | All core files + phase dirs | `active_project` | Work in progress |
 
-**Extract for active projects:**
-
-If state is `active_project`, read:
-- `.planning/STATE.md` → current phase number
-- `.planning/ROADMAP.md` → total phases, phase names
-- Find phase directory → check for PLAN.md and SUMMARY.md counts
+**For active projects, read:**
+- STATE.md → current phase number
+- ROADMAP.md → total phases, phase names
+- Phase directory → PLAN.md and SUMMARY.md counts
 
 ### Phase 3: Route to Help Response
 
@@ -115,9 +100,9 @@ Based on classification from Phase 1:
 
 ## Help Response: General Workflow Question
 
-**Goal:** Answer the user's question about CST workflow directly and concisely.
+**Goal:** Answer the user's question directly and concisely.
 
-Use your knowledge of the CST pipeline to answer. Read `references/workflow-guide.md` if you need details on a specific topic. Answer the question asked -- nothing more.
+Read `references/workflow-guide.md` for details if needed. Answer only what was asked.
 
 **The standard flow:**
 1. `/new-project` -- define vision
@@ -134,17 +119,17 @@ Use your knowledge of the CST pipeline to answer. Read `references/workflow-guid
 **Ad-hoc skills:**
 `/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
 
-Example answers:
-- "After creating a new phase?" -- Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
-- "What's the difference between discuss-phase and plan-phase?" -- `/discuss-phase` gathers user decisions and context before planning. `/plan-phase` creates executable plans with tasks and waves.
-- "When should I use quick-plan?" -- When you need to insert urgent work (bug fix, small feature) without full phase ceremony. Creates a decimal phase (e.g., 2.1).
-- "Should I research after discussing?" -- Yes, `/discuss-phase` will suggest it. Research can find that a chosen library is deprecated or a better tool exists, and will suggest re-discussing if so.
+**Example answers:**
+- "After creating a new phase?" → Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
+- "Difference between discuss-phase and plan-phase?" → `/discuss-phase` gathers user decisions before planning. `/plan-phase` creates executable plans with tasks and waves.
+- "When to use quick-plan?" → For urgent work (bug fix, small feature) without full phase ceremony. Creates a decimal phase (e.g., 2.1).
+- "Should I research after discussing?" → Yes. Research can find deprecated libraries or better alternatives, and will suggest re-discussing if conflicts found.
 
 ---
 
 ## Help Response: What to Do Next (project-specific)
 
-**Goal:** Tell user exactly which skill to run and why.
+**Goal:** Tell user which skill to run and why.
 
 **For `brand_new` state:**
 
@@ -229,15 +214,11 @@ Not sure? Run /progress for detailed status and smart routing.
 
 ## Help Response: Understand Concepts
 
-**Goal:** Explain workflow concepts clearly and concisely.
+**Goal:** Explain workflow concepts concisely.
 
-**If user asks about specific concept** (phases, waves, plans, etc.):
+**For specific concepts:** Explain using project examples if possible.
 
-Explain that concept using examples from their project if possible.
-
-**If general "how does this work":**
-
-Provide workflow overview:
+**For general "how does this work":** Provide workflow overview:
 
 ```
 Claude Super Team is a structured planning and execution workflow.
@@ -270,28 +251,23 @@ Core Concepts:
 Read references/workflow-guide.md for comprehensive documentation.
 ```
 
-**Available reference materials:**
-
-Tell user about reference files:
+**Reference materials:**
 
 ```
-Detailed guides available:
+Detailed guides:
 - references/workflow-guide.md -- Full workflow documentation
 - references/troubleshooting.md -- Common issues and solutions
-
-Read these with:
-  Read tool on the file paths
 ```
 
 ---
 
 ## Help Response: Troubleshoot Issue
 
-**Goal:** Diagnose and solve specific problems.
+**Goal:** Diagnose and solve problems.
 
-**Step 1: Gather problem details**
+**Step 1: Gather details**
 
-If not clear from $ARGUMENTS, use AskUserQuestion:
+If unclear from $ARGUMENTS, use AskUserQuestion:
 
 - header: "Issue type"
 - question: "What's the problem?"
@@ -502,9 +478,7 @@ For other plugins:
 
 ## Success Criteria
 
-- [ ] User need identified (what to do next, concepts, troubleshooting, or reference)
-- [ ] Project state analyzed (always, before any guidance)
-- [ ] Targeted response provided based on state + need
-- [ ] Specific commands or next steps given (not generic advice)
-- [ ] Reference materials mentioned when relevant
+- [ ] User need identified
+- [ ] Project state analyzed if needed
+- [ ] Targeted response with specific commands
 - [ ] User knows how to proceed

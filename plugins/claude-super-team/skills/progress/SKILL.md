@@ -54,11 +54,11 @@ Exit skill.
 
 ### Phase 2: Detect Planning File Sync Issues
 
-**Only runs when all three core files exist** (PROJECT.md + ROADMAP.md + STATE.md). Performs three sync checks using Bash/Grep:
+**Only runs when all three core files exist.** Performs three sync checks using Bash/Grep:
 
 **Check 1: Directory vs Roadmap**
 
-List all phase directories and extract their phase numbers. Parse all phases from ROADMAP.md (both the "## Phases" checklist and "## Phase Details" sections). Compare:
+List all phase directories and extract phase numbers. Parse all phases from ROADMAP.md. Compare:
 
 ```bash
 # Get phase numbers from directories
@@ -101,7 +101,7 @@ Report:
 - Progress table entries with no matching Phases checklist entry
 - Phases checklist entries missing from the Progress table
 
-**Collect all issues found.** If any exist, store them for output in Phase 7. If none, skip the sync issues section entirely.
+**Collect all issues found.** Store for output in Phase 7 if any exist, otherwise omit entirely.
 
 ### Phase 3: Load Context
 
@@ -160,10 +160,9 @@ PHASE_DIR=$(ls -d .planning/phases/${PADDED}-* 2>/dev/null | head -1)
 Parse ROADMAP.md to extract ALL phases. For each phase, zero-pad the number before looking up directories:
 
 ```bash
-# CRITICAL: Phase directories use zero-padded names (e.g., 05-design-polish)
-# but ROADMAP.md uses plain numbers (e.g., Phase 5). Always pad.
+# Phase directories use zero-padded names (05-design-polish)
+# ROADMAP.md uses plain numbers (Phase 5). Always pad before lookup.
 if echo "$PHASE_NUM" | grep -q '\.'; then
-  # Decimal phase (e.g., 2.1 from inserted phases)
   INT_PART=$(echo "$PHASE_NUM" | cut -d. -f1)
   DEC_PART=$(echo "$PHASE_NUM" | cut -d. -f2)
   PADDED=$(printf "%02d.%s" "$INT_PART" "$DEC_PART")
@@ -194,9 +193,7 @@ Assign each phase a status label:
 
 ### Phase 7: Present Status Report
 
-**Output the report exactly in this format.** Use the unicode characters shown. Compute the progress bar from total completed plans / total plans across all phases.
-
-Build a progress bar: for each 10% of total plan completion, use `█`. For remaining, use `░`. Always 10 characters wide.
+**Output the report in this format.** Build a progress bar: for each 10% of completion, use `█`. For remaining, use `░`. Always 10 characters wide.
 
 Example: 7 of 10 plans done = `███████░░░` 70%
 
@@ -236,9 +233,9 @@ Example: 7 of 10 plans done = `███████░░░` 70%
 
 **Steps column:** `D` discuss | `R` research | `P` plan (`·` = not done, `- - -` = phase complete)
 
-**Sync Issues block:** Only show the `### Sync Issues` section if Phase 2 found issues. Omit the section entirely when no sync issues exist. The examples above show the block for illustration -- in practice it appears only when problems are detected.
+**Sync Issues block:** Only show if Phase 2 found issues. Omit entirely when clean.
 
-**After the phase table, add sections only if they have content:**
+**Add sections only if they have content:**
 
 ```
 ### Recent Work
@@ -260,13 +257,13 @@ Example: 7 of 10 plans done = `███████░░░` 70%
 | Low | {N} |
 ```
 
-Omit "Recent Work" if no summaries exist. Omit "Decisions" if none in STATE.md. Omit "Blockers" if none. Omit "Security" if no SECURITY-AUDIT.md.
+Omit any section with no content.
 
-**After all sections, add the routing output from Phase 8.**
+**Append routing output from Phase 8.**
 
 ### Phase 8: Smart Routing
 
-Use the current phase status (from Phase 5 map) to determine routing. Append the routing block directly after the status report -- it is part of the same output.
+Use current phase status to determine routing. Append routing block after status report.
 
 **Routing priority (first match wins):**
 
@@ -408,12 +405,8 @@ No .planning/ or no PROJECT.md.
 
 ## Success Criteria
 
-- [ ] `.planning/` structure validated
-- [ ] Sync issues detected (directory vs roadmap, STATE.md drift, progress table inconsistencies)
-- [ ] Sync issues warning shown when issues found, omitted when clean
-- [ ] Recent work identified (2-3 most recent summaries)
-- [ ] Current position clear (phase, plan counts, blockers)
-- [ ] Security findings counted if audit exists
-- [ ] Smart routing determined based on project state
-- [ ] Clear "Next Up" guidance provided
-- [ ] User knows to run `/clear` before next action
+- [ ] Planning structure validated
+- [ ] Sync issues detected and reported when found
+- [ ] Current position clear with recent work, decisions, blockers
+- [ ] Smart routing provided based on project state
+- [ ] User knows exact next action

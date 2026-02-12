@@ -41,32 +41,31 @@ Claude Super Team is a structured project planning and execution workflow for so
 
 ### Phases
 
-A phase is a cohesive delivery milestone with:
-- **Number**: Sequential (1, 2, 3) or decimal for inserted phases (2.1, 4.2)
+Cohesive delivery milestone with:
+- **Number**: Sequential (1, 2, 3) or decimal for insertions (2.1, 4.2)
 - **Name**: Descriptive identifier (e.g., "foundation", "authentication")
 - **Goal**: Observable, user-verifiable outcome (not a task list)
-- **Directory**: `.planning/phases/{NN}-{name}/` (zero-padded: 01, 02, etc.)
+- **Directory**: `.planning/phases/{NN}-{name}/` (zero-padded)
 
 ### Plans
 
-A plan is an executable unit of work:
+Executable unit of work:
 - **File**: `.planning/phases/{NN}-{name}/{NN}-{plan}-PLAN.md`
 - **Structure**: Objective, constraints, tasks, wave assignments
-- **Execution**: Produces `{NN}-{plan}-SUMMARY.md` after completion
+- **Execution**: Produces `{NN}-{plan}-SUMMARY.md`
 
 ### Waves
 
-Plans are grouped into waves:
-- **Within a wave**: Plans execute in parallel (independent work)
-- **Between waves**: Waves execute sequentially (dependencies)
-- **Example**: Wave 1 (data model, API routes), Wave 2 (integration tests)
+Plans grouped for execution:
+- **Within wave**: Parallel execution (independent work)
+- **Between waves**: Sequential execution (dependencies)
 
 ### State Tracking
 
-- **ROADMAP.md**: All phases with goals, status (`complete` vs `active`)
-- **STATE.md**: Current phase position, decisions, blockers
-- **VERIFICATION.md**: Phase goal verification results (success or gaps found)
-- **Sync detection**: `/progress` checks for mismatches between phase directories, ROADMAP.md entries, STATE.md references, and progress table entries
+- **ROADMAP.md**: All phases with goals and status
+- **STATE.md**: Current position, decisions, blockers
+- **VERIFICATION.md**: Phase goal verification results
+- **Sync detection**: `/progress` checks for mismatches between directories, ROADMAP.md, STATE.md, and progress table
 
 ## Workflow Patterns
 
@@ -206,24 +205,24 @@ Plans are grouped into waves:
 
 ### Compaction Resilience
 
-Long-running `/execute-phase` sessions (especially teams mode with many plans) can trigger context compaction. The skill handles this automatically:
+Long-running `/execute-phase` sessions can trigger context compaction. Handled automatically:
 
-- **PreCompact hook**: Injects EXEC-PROGRESS.md content into compaction summary so execution state survives
-- **SessionStart(compact) hook**: Re-injects STATE.md, PROJECT.md, EXEC-PROGRESS.md, and all PLAN.md files for current phase after compaction
-- **EXEC-PROGRESS.md**: Written to phase directory during execution. Tracks current wave, plan statuses, team name, and teammate assignments
+- **PreCompact hook**: Injects EXEC-PROGRESS.md into compaction summary to preserve execution state
+- **SessionStart(compact) hook**: Re-injects STATE.md, PROJECT.md, EXEC-PROGRESS.md, and PLAN.md files after compaction
+- **EXEC-PROGRESS.md**: Tracks current wave, plan statuses, team name, teammate assignments
 
-**Configuration:** Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (1-100) to control when auto-compaction triggers. Lower values compact more aggressively (preserving headroom but losing more context). Ideal value depends on phase size. Test empirically.
+**Configuration:** Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (1-100) to control compaction timing. Lower values = earlier compaction with more headroom. Ideal value depends on phase size.
 
 ## Success Criteria Philosophy
 
-Phases define **observable, user-verifiable outcomes**, not task lists:
+Phases define **observable, user-verifiable outcomes**, not task lists.
 
-**Good criteria:**
+**Good:**
 - "Users can register, log in, and manage profile"
 - "API serves data with <200ms latency under 1000 concurrent users"
 - "Code passes security scan with 0 high/critical findings"
 
-**Bad criteria:**
+**Bad:**
 - "Complete authentication implementation"
 - "Write tests"
 - "Refactor codebase"
@@ -307,20 +306,18 @@ For trusted phases or iteration speed:
 
 ## Anti-Patterns
 
-**Don't:**
-- Create phases with task lists as goals
-- Skip `/discuss-phase` for complex implementation decisions
-- Run `/execute-phase` before `/plan-phase`
-- Manually edit STATE.md (skills manage this)
-- Use non-zero-padded directories (use 01 not 1)
-- Ignore research conflicts with prior decisions -- re-discuss instead
+**Avoid:**
+- Phases with task lists as goals
+- Skipping `/discuss-phase` for complex decisions
+- Running `/execute-phase` before `/plan-phase`
+- Manually editing STATE.md
+- Non-zero-padded directories (use 01 not 1)
+- Ignoring research conflicts with decisions
 
 **Do:**
-- Define clear observable outcomes per phase
-- Use `/discuss-phase` to clarify decisions before planning
-- Use `/research-phase` after discussion -- let it validate decisions against real ecosystem data
-- Re-run `/discuss-phase` if research finds conflicts (deprecated packages, better alternatives)
-- Skip `/research-phase` for phases using well-known patterns you're confident about
-- Let `/progress` route you to next actions
-- Trust the state files managed by skills
+- Define observable outcomes per phase
+- Use `/discuss-phase` before planning
+- Use `/research-phase` after discussion to validate decisions
+- Re-run `/discuss-phase` if research finds conflicts
+- Let `/progress` route to next actions
 - Follow zero-padded naming (01-foundation)
