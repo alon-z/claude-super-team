@@ -1,8 +1,7 @@
 ---
 name: add-security-findings
-description: Store security audit findings in .planning/SECURITY-AUDIT.md and integrate remediation into the project roadmap. Critical/high findings become urgent inserted phases that block feature work. Medium findings become regular phases. Low findings go to backlog. Use after running a security review or audit to document findings and create remediation phases.
-allowed-tools: Read, Bash, Write, Edit, AskUserQuestion, Glob, Grep, Skill
-disable-model-invocation: true
+description: Store security audit findings in .planning/SECURITY-AUDIT.md and integrate remediation into the project roadmap. Critical/high findings become urgent inserted phases. Medium findings become regular phases. Low findings go to backlog. Use after a security review or scan, or invoked automatically after security analysis to capture findings.
+allowed-tools: Read, Write, Edit, AskUserQuestion, Glob, Grep, Skill, Bash(test *)
 ---
 
 ## Objective
@@ -12,6 +11,26 @@ Transform security audit findings into a structured document and integrate remed
 **Reads:** `.planning/PROJECT.md` (required), `.planning/ROADMAP.md` (optional), `.planning/STATE.md` (optional), `.planning/SECURITY-AUDIT.md` (if exists)
 **Creates/Updates:** `.planning/SECURITY-AUDIT.md`
 **Delegates to:** `/create-roadmap` for all roadmap modifications
+
+## Mode Detection
+
+This skill supports two invocation modes. Detect which mode applies BEFORE starting the process:
+
+**Interactive mode** (user explicitly invoked `/add-security-findings`):
+- Full AskUserQuestion flow for gathering, classifying, and approving findings
+- Follow the standard Process below as-is
+
+**Autonomous mode** (model auto-invoked after security analysis/scanning):
+- Security findings are already present in the conversation context from prior analysis
+- Skip Phase 2 (Gather Findings) -- extract findings directly from conversation context
+- Auto-classify severity based on finding content (Critical: RCE/injection/credential exposure, High: auth bypass/privilege escalation, Medium: misconfig/weak policies, Low: informational/outdated deps)
+- Present findings summary (Phase 4) with a single approval checkpoint before writing
+- Proceed through Phase 5-7 normally
+
+**How to detect mode:**
+- If `$ARGUMENTS` is empty AND no security findings are visible in conversation context: Interactive mode
+- If security findings are present in conversation context (from a prior scan, research, or analysis): Autonomous mode
+- If `$ARGUMENTS` contains a file path or "paste": Interactive mode
 
 ## Process
 
