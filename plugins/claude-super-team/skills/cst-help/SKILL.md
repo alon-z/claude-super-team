@@ -400,6 +400,8 @@ For more: see references/troubleshooting.md
   → Single-plan waves auto-downgrade from teams to task mode
   → Runs code-simplifier on each plan's output before summary
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
+  -> Compaction resilient: hooks re-inject execution state after context compaction
+  -> Set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to control when compaction triggers (user-configured)
   Options: --gaps-only (execute only gap plans), --skip-verify (skip verification), --team (use teams mode)
   Requires: code-simplifier plugin (/plugin install code-simplifier@claude-plugins-official)
 

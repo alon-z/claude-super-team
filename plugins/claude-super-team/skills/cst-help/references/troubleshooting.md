@@ -163,6 +163,28 @@
 - Edit PLAN.md files if needed (update wave numbers)
 - Re-run `/execute-phase N`
 
+#### "Execute-phase lost track after compaction"
+
+**Symptom:** Orchestrator confused about which wave/plan to execute next after a long run
+
+**Cause:** Context compacted without execution state
+
+**Solution:**
+- EXEC-PROGRESS.md and hooks handle this automatically in the latest version
+- If still occurring, check that `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set appropriately
+- Lower values (e.g., 50) compact earlier with more headroom; higher values (e.g., 80) preserve more context
+
+#### "How to configure compaction threshold"
+
+**Symptom:** Compaction happens too early or too late during execute-phase
+
+**Cause:** Default threshold may not suit phase size
+
+**Solution:**
+- Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable (1-100)
+- Lower values = earlier compaction with more headroom
+- Start with 50-60 for large phases and adjust based on behavior
+
 ### Decimal Phase Insertion
 
 #### "Decimal phase doesn't appear in order"
@@ -449,6 +471,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Ready to execute work
 - Optionally: use `--skip-verify` to skip verification, `--team` for teams mode
 - Note: warns if on main/master branch; requires `code-simplifier` plugin for post-task code refinement
+- Compaction resilient: hooks preserve execution state for long-running sessions. Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` for large phases.
 
 ### Use `/quick-plan` when:
 - Need to insert urgent work (bug fix, small feature)

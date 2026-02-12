@@ -202,6 +202,16 @@ Plans are grouped into waves:
 - Verification ensures phase goals achieved
 - Requires `code-simplifier` plugin: `/plugin install code-simplifier@claude-plugins-official`
 
+### Compaction Resilience
+
+Long-running `/execute-phase` sessions (especially teams mode with many plans) can trigger context compaction. The skill handles this automatically:
+
+- **PreCompact hook**: Injects EXEC-PROGRESS.md content into the compaction summary so execution state survives
+- **SessionStart(compact) hook**: Re-injects STATE.md, PROJECT.md, EXEC-PROGRESS.md, and all PLAN.md files for the current phase after compaction
+- **EXEC-PROGRESS.md**: Written to the phase directory during execution; tracks current wave, plan statuses, team name, and teammate assignments
+
+**Configuration:** Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (1-100) to control when auto-compaction triggers. Lower values compact more aggressively (preserving headroom but losing more context). The ideal value depends on phase size -- test empirically.
+
 ## Success Criteria Philosophy
 
 Phases define **observable, user-verifiable outcomes**, not task lists:
