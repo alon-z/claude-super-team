@@ -11,7 +11,7 @@ Collect feedback on a just-executed phase, then route based on scope:
 - **Quick fix** (trivial, single-file change): Apply the fix directly inline -- no subphase, no plan, no agent spawning.
 - **Standard feedback** (anything else): Create a feedback-driven subphase with decimal numbering (e.g., 4.1), plan targeted modifications, then tell the user to run `/execute-phase` to execute.
 
-**Flow:** Validate -> Identify parent phase -> Load execution context -> Collect feedback -> Scope check -> Route (quick fix OR standard) -> [Research if needed] -> Done
+**Flow:** Validate -> Identify parent phase -> Load execution context -> Collect feedback -> Scope check -> Route (quick fix OR standard) -> Research (if needed) -> Done
 
 **Reads:** `.planning/PROJECT.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, parent phase `*-SUMMARY.md` and `*-VERIFICATION.md`
 **Creates (standard path only):** `.planning/phases/{NN.X}-feedback-{slug}/{NN.X}-01-PLAN.md`, annotates `ROADMAP.md`. Optionally creates `{NN.X}-RESEARCH.md` if inline research is triggered.
@@ -147,8 +147,8 @@ AskUserQuestion:
 ```
 
 Route based on the user's choice:
-- **Quick fix** -> Go to Step 6 (Quick Fix Path)
-- **Plan it** -> Go to Step 7 (Standard Feedback Path)
+- If "Quick fix" -> Go to Step 6 (Quick Fix Path)
+- If "Plan it" -> Go to Step 7 (Standard Feedback Path)
 
 ---
 
@@ -156,15 +156,15 @@ Route based on the user's choice:
 
 ### Step 6: Apply Quick Fix
 
-This path is for trivial changes -- single-file tweaks, typos, small style or logic fixes. No subphase, no plan, no agent spawning.
+This path is for trivial changes: single-file tweaks, typos, small style or logic fixes. No subphase, no plan, no agent spawning.
 
-**6a.** Read the target file(s) mentioned in the feedback. Use the execution context from Step 3 to locate exact file paths.
+**6a. Locate target files.** Read the target file(s) mentioned in the feedback. Use the execution context from Step 3 to locate exact file paths.
 
-**6b.** Apply the change directly using Edit/Write tools. Keep the change minimal and focused on exactly what the feedback requested.
+**6b. Apply changes.** Apply the change directly using Edit/Write tools. Keep the change minimal and focused on exactly what the feedback requested.
 
-**6c.** Verify the change works (run relevant commands if applicable).
+**6c. Verify changes.** Verify the change works (run relevant commands if applicable).
 
-**6d.** Present completion summary:
+**6d. Present completion summary:**
 
 ```
 Quick fix applied for Phase ${PARENT_PHASE}.
@@ -258,19 +258,19 @@ After the subphase directory is created and ROADMAP.md is annotated, analyze the
 2. Does it require integration with external services or protocols the project hasn't used before?
 3. Does it involve architectural patterns or techniques not evident in existing code?
 
-Produce two variables:
-- `$RESEARCH_NEEDED` -- yes or no
-- `$RESEARCH_TOPICS` -- brief description of what needs researching (empty if no)
+Set two variables based on analysis:
+- `$RESEARCH_NEEDED`: yes or no
+- `$RESEARCH_TOPICS`: brief description of what needs researching (empty if no)
 
 Inform the user of the decision:
-- If yes: `"Research needed: feedback references {topic} -- spawning researcher before planning."`
-- If no: `"No research needed -- proceeding to planning."`
+- If yes: "Research needed: feedback references {topic} -- spawning researcher before planning."
+- If no: "No research needed -- proceeding to planning."
 
-This is an autonomous LLM decision -- do NOT ask the user for confirmation. The goal is to keep the flow frictionless while ensuring unfamiliar territory gets researched.
+This is an autonomous LLM decision. Do NOT ask the user for confirmation. The goal is to keep the flow frictionless while ensuring unfamiliar territory gets researched.
 
 ### Step 11: Spawn Researcher (conditional)
 
-**Only runs if `$RESEARCH_NEEDED` is yes.** Skip to Step 12 otherwise.
+This step only runs if `$RESEARCH_NEEDED` is yes. Skip to Step 12 otherwise.
 
 Spawn the `phase-researcher` custom agent via Task tool, using the same pattern as `/research-phase`:
 
@@ -307,7 +307,7 @@ Task(
 
 1. Read and store the RESEARCH.md content as `$RESEARCH_CONTENT`
 2. If the researcher returned `RESEARCH BLOCKED`, inform the user and proceed to planning without research (do not block the feedback flow):
-   `"Research was blocked: {reason}. Proceeding to planning without research findings."`
+   "Research was blocked: {reason}. Proceeding to planning without research findings."
 
 ### Step 12: Spawn Planner Agent
 
@@ -315,7 +315,7 @@ Read `references/planner-feedback-mode.md` and `assets/feedback-plan-template.md
 
 **Context to load:**
 - `.planning/PROJECT.md` (required)
-- `.planning/ROADMAP.md` (required -- includes the annotation just added)
+- `.planning/ROADMAP.md` (required, includes the annotation just added)
 - `.planning/STATE.md` (if exists)
 - `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` (if exist)
 - Parent phase execution context (`$EXECUTION_CONTEXT`)
@@ -350,10 +350,9 @@ Task(
   Parent phase execution context (what was built):
   ${EXECUTION_CONTEXT}
 
-  {If $RESEARCH_CONTENT is non-empty, include this block:}
   Research findings (from inline research):
   ${RESEARCH_CONTENT}
-  {End conditional block}
+  (Include this section only if $RESEARCH_CONTENT is non-empty)
 
   Project context:
   {project_md_content}
