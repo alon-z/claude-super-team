@@ -1,7 +1,8 @@
 ---
 name: github-issue-manager
 description: Create and maintain GitHub issues following best practices. Use when creating new issues, editing issue titles/bodies, triaging issues, managing issue metadata (labels, types, assignees), or converting task lists/backlogs into structured GitHub issues. Ensures consistent formatting, clear descriptions, proper categorization, and supports hierarchical issue structures (epics with child issues).
-model: sonnet
+model: haiku
+argument-hint: "[create | edit | triage | bulk-create | close]"
 allowed-tools: Read, Grep, Glob, Bash(gh repo view *), Bash(gh issue create *), Bash(gh issue edit *), Bash(gh issue view *), Bash(gh issue list *), Bash(gh issue close *), Bash(gh label create *), Bash(gh label list *)
 ---
 
