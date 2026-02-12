@@ -3,8 +3,8 @@ name: map-codebase
 description: Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents. Use when user wants to understand existing code structure, refresh codebase understanding, onboard to unfamiliar codebase, or before major refactoring. Creates 7 structured documents (STACK, INTEGRATIONS, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, CONCERNS). Supports incremental updates to refresh specific topic areas without rewriting everything.
 argument-hint: "[optional: topic to update e.g. 'db and auth', or 'refresh' to remap from scratch]"
 context: fork
-model: opus
-allowed-tools: Read, Bash, Glob, Grep, Write, Task
+model: sonnet
+allowed-tools: Read, Glob, Grep, Write, Task, Bash(ls *), Bash(rm *), Bash(mkdir *), Bash(wc *), Bash(grep *)
 disable-model-invocation: true
 ---
 
