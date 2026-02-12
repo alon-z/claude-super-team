@@ -20,7 +20,7 @@ hooks:
 
 Execute PLAN.md files for a roadmap phase by routing each task to the best available agent, then verifying the phase goal was achieved.
 
-**Flow:** Validate -> Discover plans -> Group by wave -> For each wave: route tasks to agents -> simplify code -> verify wave -> Next wave -> Done
+**Flow:** Validate -> Discover plans -> Group by wave -> For each wave: route tasks to agents -> simplify code (if enabled) -> verify wave -> Next wave -> Done
 
 **Key difference from typical execution:** Each task is routed to a specialized agent (security-reviewer, tdd-guide, etc.) based on content analysis. Agents can use skills.
 
@@ -180,6 +180,20 @@ execution-model: {chosen_model}
 ```
 
 Use Edit tool to update STATE.md. Set `$EXEC_MODEL_PREF` to the chosen value.
+
+### Phase 3.6: Resolve Simplifier Preference
+
+Read `.planning/STATE.md` and check for `simplifier` in the `## Preferences` section.
+
+**If preference is set:** Use its value (`enabled` or `disabled`) as `$SIMPLIFIER_PREF`.
+
+**If preference is NOT set (missing):** Default to `enabled` silently (no user prompt).
+
+Log the resolved value:
+
+```
+Simplifier: {enabled|disabled}
+```
 
 ### Phase 4: Group Plans by Wave
 
@@ -368,9 +382,10 @@ Task(
 
   Instructions:
   - Execute each task in order. Task 2 may depend on task 1's output.
-  - After completing ALL tasks, run the code-simplifier agent on all created/modified files:
+  - If simplifier is enabled ($SIMPLIFIER_PREF = enabled): After completing ALL tasks, run the code-simplifier agent on all created/modified files:
     Task(subagent_type: "code-simplifier:code-simplifier", model: "sonnet", description: "Simplify {phase}-{plan} code", prompt: "Simplify and refine the recently modified files for clarity, consistency, and maintainability. Preserve ALL functionality. Files: {all created/modified files from task results}")
-  - After simplification, write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
+  - If simplifier is disabled: Skip the code-simplifier step and proceed directly to writing SUMMARY.md.
+  - After simplification (or skipping it), write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
   - Use the summary template: {summary_template_content}
   - If any task is blocked, report ## TASK BLOCKED with the reason and stop.
   - When done, report ## PLAN COMPLETE with a brief summary of what was built.
@@ -441,9 +456,13 @@ Do NOT spawn an agent. Present the checkpoint to the user directly:
 - Wait for user response
 - Feed user's response as context to the next task
 
-#### 5e. Simplify Code
+#### 5e. Simplify Code (Conditional)
 
-After all tasks in a plan complete, spawn the code-simplifier agent to refine the code that was just written. The simplifier focuses on recently modified files for clarity, consistency, and maintainability while preserving all functionality.
+After all tasks in a plan complete, check `$SIMPLIFIER_PREF` to decide whether to run the code-simplifier.
+
+**If `$SIMPLIFIER_PREF` = `enabled`:**
+
+Spawn the code-simplifier agent to refine the code that was just written. The simplifier focuses on recently modified files for clarity, consistency, and maintainability while preserving all functionality.
 
 Gather all created/modified file paths from the task reports for the completed plan.
 
@@ -475,6 +494,16 @@ Run simplifiers for plans in the same wave in parallel.
 
 **Teams Mode:**
 The simplifier call is embedded in the teammate prompt (see Phase 5c teams mode). Each teammate spawns the simplifier after executing all tasks but before writing SUMMARY.md.
+
+**If `$SIMPLIFIER_PREF` = `disabled`:**
+
+Skip code simplification. Print:
+
+```
+Simplifier disabled -- skipping code simplification for {phase}-{plan}.
+```
+
+Proceed directly to SUMMARY.md creation (Phase 5f).
 
 #### 5f. Create SUMMARY.md Per Plan (Task Mode Only)
 
