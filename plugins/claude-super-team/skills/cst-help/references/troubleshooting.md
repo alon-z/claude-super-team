@@ -83,13 +83,13 @@
 
 #### "Research found conflicts with CONTEXT.md decisions"
 
-**Symptom:** `/research-phase` reports that chosen libraries are deprecated or better alternatives exist
+**Symptom:** `/research-phase` reports chosen libraries are deprecated or better alternatives exist
 
 **Cause:** Decisions made during `/discuss-phase` were based on incomplete or outdated information
 
 **Solution:**
 - Re-run `/discuss-phase N` to update decisions with research insights
-- The updated CONTEXT.md will have research-informed choices
+- Updated CONTEXT.md will have research-informed choices
 - Then run `/plan-phase N` with both CONTEXT.md and RESEARCH.md
 
 #### "Plans reference wrong files or paths"
@@ -162,6 +162,28 @@
 - Check wave assignments and dependencies
 - Edit PLAN.md files if needed (update wave numbers)
 - Re-run `/execute-phase N`
+
+#### "Execute-phase lost track after compaction"
+
+**Symptom:** Orchestrator confused about which wave/plan to execute next after a long run
+
+**Cause:** Context compacted without execution state
+
+**Solution:**
+- EXEC-PROGRESS.md and hooks handle this automatically
+- If still occurring, check `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set appropriately
+- Lower values (e.g., 50) compact earlier with more headroom. Higher values (e.g., 80) preserve more context
+
+#### "How to configure compaction threshold"
+
+**Symptom:** Compaction happens too early or too late during execute-phase
+
+**Cause:** Default threshold may not suit phase size
+
+**Solution:**
+- Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable (1-100)
+- Lower values mean earlier compaction with more headroom
+- Start with 50-60 for large phases and adjust based on behavior
 
 ### Decimal Phase Insertion
 
@@ -337,7 +359,7 @@ Then run `/brainstorm` after project is defined.
 **Solution:**
 - If roadmap update was skipped or failed, no context files are generated (expected)
 - Run `/discuss-phase N` manually for each new phase to create CONTEXT.md with full exploration
-- Auto-generated CONTEXT.md from brainstorm is a starting point -- `/discuss-phase` provides deeper coverage
+- Auto-generated CONTEXT.md from brainstorm is a starting point. `/discuss-phase` provides deeper coverage
 
 #### "IDEAS.md keeps growing with duplicate sessions"
 
@@ -447,8 +469,9 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 ### Use `/execute-phase` when:
 - Plans exist for the phase
 - Ready to execute work
-- Optionally: use `--skip-verify` to skip verification, `--team` for teams mode
-- Note: warns if on main/master branch; requires `code-simplifier` plugin for post-task code refinement
+- Optionally use `--skip-verify` to skip verification, `--team` for teams mode
+- Note: warns if on main/master branch. Requires code-simplifier plugin for post-task code refinement
+- Compaction resilient: hooks preserve execution state for long-running sessions. Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` for large phases
 
 ### Use `/quick-plan` when:
 - Need to insert urgent work (bug fix, small feature)
@@ -486,7 +509,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 4. Review PLAN.md files before execution
 
 ### During Execution
-1. Let skills run to completion (don't interrupt)
+1. Let skills run to completion (do not interrupt)
 2. Code-simplifier runs automatically after each plan's tasks complete
 3. Review SUMMARY.md files after execution (reflects post-simplification state)
 4. Check VERIFICATION.md for gaps
@@ -498,6 +521,6 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 
 ### Maintenance
 1. Keep STATE.md and ROADMAP.md in sync
-2. Don't manually edit state files unless necessary
+2. Do not manually edit state files unless necessary
 3. Use zero-padded directory names (01, 02, not 1, 2)
 4. Commit planning files regularly

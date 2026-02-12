@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.13] - 2026-02-12
+
+### claude-super-team
+- Added compaction resilience to `/execute-phase`: skill-scoped hooks (`PreCompact`, `SessionStart`) preserve and re-inject execution state when context compaction occurs during long team-mode runs
+- Added `EXEC-PROGRESS.md` tracking to `/execute-phase`: initializes wave/plan/team state in Phase 4.7, updates at 5 execution points (wave start, teammate spawn, plan completion, wave completion, team cleanup), and cleans up in Phase 8
+- Updated `/cst-help` skill reference, workflow-guide, and troubleshooting with compaction resilience documentation
+
 ## [1.0.12] - 2026-02-12
 
 ### claude-super-team

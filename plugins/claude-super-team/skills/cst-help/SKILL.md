@@ -31,27 +31,26 @@ Provide context-aware help for Claude Super Team workflow by analyzing current p
 
 Determine whether the user needs **general workflow knowledge** or **project-specific guidance**.
 
-**General workflow question** -- user asks about how CST works in the abstract:
+**General workflow question** -- user asks about how CST works:
 - "After making a new phase, how should I proceed?"
 - "What's the difference between discuss-phase and plan-phase?"
 - "When should I use quick-plan vs create-roadmap?"
 - "How do waves work?"
 - "What does execute-phase do?"
 
-→ Answer directly from workflow knowledge. Do NOT analyze `.planning/` state. Skip Phase 2 entirely.
+Answer directly from workflow knowledge. Do NOT analyze `.planning/` state. Skip Phase 2 entirely.
 
 **Project-specific guidance** -- user asks about their current situation:
-- "What should I do next?" (no general context, wants specific advice)
+- "What should I do next?" (wants specific advice for their project)
 - "Where am I?"
-- "I'm stuck" (with no further context about what concept confuses them)
+- "I'm stuck" (no further context about what concept confuses them)
 - Anything that only makes sense in the context of their specific project
 
-→ Analyze `.planning/` state in Phase 2, then provide targeted guidance.
+Analyze `.planning/` state in Phase 2, then provide targeted guidance.
 
 **If $ARGUMENTS is empty or generic ("help"):**
 
 Use AskUserQuestion to clarify:
-
 - header: "Help type"
 - question: "What do you need help with?"
 - options:
@@ -62,7 +61,7 @@ Use AskUserQuestion to clarify:
 
 **If $ARGUMENTS contains a specific question:**
 
-Classify as general vs project-specific using the criteria above. When in doubt, treat as general -- answer the question directly without state analysis.
+Classify as general vs project-specific using the criteria above. When in doubt, treat as general and answer the question directly without state analysis.
 
 ### Phase 2: Analyze Project State (project-specific only)
 
@@ -121,23 +120,25 @@ Based on classification from Phase 1:
 Use your knowledge of the CST pipeline to answer. Read `references/workflow-guide.md` if you need details on a specific topic. Answer the question asked -- nothing more.
 
 **The standard flow:**
-1. `/new-project` → define vision
-2. `/create-roadmap` → define phases with goals
-3. `/discuss-phase N` → gather user decisions (optional but recommended; suggests research next)
-4. `/research-phase N` → research ecosystem and patterns (optional but recommended; may suggest re-discussing if findings conflict with decisions)
-5. `/plan-phase N` → create execution plans
-6. `/execute-phase N` → execute and verify
-7. `/progress` → check status, route to next
+1. `/new-project` -- define vision
+2. `/create-roadmap` -- define phases with goals
+3. `/discuss-phase N` -- gather user decisions (optional but recommended; suggests research next)
+4. `/research-phase N` -- research ecosystem and patterns (optional but recommended; may suggest re-discussing if findings conflict with decisions)
+5. `/plan-phase N` -- create execution plans
+6. `/execute-phase N` -- execute and verify
+7. `/progress` -- check status, route to next
 
-**Discuss-research loop:** `/discuss-phase` recommends running `/research-phase` if no RESEARCH.md exists. `/research-phase` compares findings against CONTEXT.md and recommends re-running `/discuss-phase` if it finds conflicts (deprecated packages, better alternatives, etc.). This loop refines decisions before planning.
+**Discuss-research loop:**
+`/discuss-phase` recommends running `/research-phase` if no RESEARCH.md exists. `/research-phase` compares findings against CONTEXT.md and recommends re-running `/discuss-phase` if it finds conflicts (deprecated packages, better alternatives). This loop refines decisions before planning.
 
-**Ad-hoc skills:** `/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
+**Ad-hoc skills:**
+`/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
 
 Example answers:
-- "After creating a new phase?" → Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
-- "What's the difference between discuss-phase and plan-phase?" → `/discuss-phase` gathers user decisions and context before planning. `/plan-phase` creates executable plans with tasks and waves.
-- "When should I use quick-plan?" → When you need to insert urgent work (bug fix, small feature) without full phase ceremony. Creates a decimal phase (e.g., 2.1).
-- "Should I research after discussing?" → Yes, `/discuss-phase` will suggest it. Research can find that a chosen library is deprecated or a better tool exists, and will suggest re-discussing if so.
+- "After creating a new phase?" -- Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
+- "What's the difference between discuss-phase and plan-phase?" -- `/discuss-phase` gathers user decisions and context before planning. `/plan-phase` creates executable plans with tasks and waves.
+- "When should I use quick-plan?" -- When you need to insert urgent work (bug fix, small feature) without full phase ceremony. Creates a decimal phase (e.g., 2.1).
+- "Should I research after discussing?" -- Yes, `/discuss-phase` will suggest it. Research can find that a chosen library is deprecated or a better tool exists, and will suggest re-discussing if so.
 
 ---
 
@@ -400,6 +401,8 @@ For more: see references/troubleshooting.md
   → Single-plan waves auto-downgrade from teams to task mode
   → Runs code-simplifier on each plan's output before summary
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
+  -> Compaction resilient: hooks re-inject execution state after context compaction
+  -> Set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to control when compaction triggers (user-configured)
   Options: --gaps-only (execute only gap plans), --skip-verify (skip verification), --team (use teams mode)
   Requires: code-simplifier plugin (/plugin install code-simplifier@claude-plugins-official)
 

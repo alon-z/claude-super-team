@@ -7,6 +7,10 @@ Evolve the Claude Super Team plugin marketplace from a working but unoptimized s
 ## Phases
 
 - [ ] **Phase 1: Claude Code Capability Mapping** - Research and document all available plugin primitives as an audit reference
+- [ ] Phase 1.5: Add research detection to phase-feedback skill (QUICK)
+- [ ] Phase 1.4: Add compaction resilience to execute-phase (QUICK)
+- [ ] Phase 1.6: Add planning file sync detection to progress skill (QUICK)
+- [ ] Phase 1.7: Add per-project toggle to disable simplifier agent in execute-phase (QUICK)
 - [ ] **Phase 2: Skill Audit & Reclassification** - Systematically review every skill and classify as skill, agent, or hybrid
 - [ ] **Phase 3: Apply Audit Recommendations** - Implement reclassifications, add missing features, fix frontmatter gaps
 - [ ] **Phase 4: Harden Fragile Areas** - Address tech debt, phase numbering, state coordination, and large file decomposition
@@ -22,6 +26,43 @@ Evolve the Claude Super Team plugin marketplace from a working but unoptimized s
   1. A capability reference document exists covering all skill frontmatter fields, agent definition syntax, hooks, and context behavior options
   2. Each capability is documented with when to use it, examples, and tradeoffs (skill vs agent vs hook)
   3. The reference is accurate against the current Claude Code version (verified by testing at least 3 capabilities)
+
+### Phase 1.5: Add Research Detection to Phase-Feedback Skill (QUICK)
+**Goal:** Make phase-feedback detect when feedback requires research (e.g., missing package docs, unfamiliar APIs) and spawn a research agent inline before planning
+**Type:** Quick phase -- lightweight planning, no research/verification
+**Inserted before:** Phase 2
+
+Success Criteria:
+1. Phase-feedback skill includes an LLM analysis step between feedback collection and planner spawning that determines if research is needed
+2. When research is needed, the skill spawns the phase-researcher agent inline and passes RESEARCH.md to the planner
+
+### Phase 1.4: Add Compaction Resilience to Execute-Phase (QUICK)
+**Goal:** Make execute-phase survive context compaction during long team-mode executions by adding skill-scoped hooks and EXEC-PROGRESS.md tracking
+**Type:** Quick phase -- lightweight planning, no research/verification
+**Inserted before:** Phase 2
+
+Success Criteria:
+1. Execute-phase skill has PreCompact and SessionStart(compact) hooks in frontmatter that re-inject critical state after compaction
+2. Execute-phase writes EXEC-PROGRESS.md during execution tracking wave/plan completion, team name, and teammate state
+3. cst-help is updated with guidance on compaction resilience and CLAUDE_AUTOCOMPACT_PCT_OVERRIDE configuration
+
+### Phase 1.6: Add Planning File Sync Detection to Progress Skill (QUICK)
+**Goal:** Make `/progress` detect and report sync issues between planning files -- missing phase directories, sub-phases absent from ROADMAP.md, STATE.md pointing to nonexistent phases, and other desync conditions
+**Type:** Quick phase -- lightweight planning, no research/verification
+**Inserted before:** Phase 2
+
+Success Criteria:
+1. `/progress` includes a "Sync Issues" section that detects phase directories not listed in ROADMAP.md and ROADMAP.md phases without matching directories
+2. `/progress` reports when STATE.md references a phase that doesn't exist in ROADMAP.md or has no directory
+
+### Phase 1.7: Add Per-Project Toggle to Disable Simplifier Agent in Execute-Phase (QUICK)
+**Goal:** Allow users to disable the code-simplifier agent step in execute-phase on a per-project basis via a persistent setting
+**Type:** Quick phase -- lightweight planning, no research/verification
+**Inserted before:** Phase 2
+
+Success Criteria:
+1. A `simplifier` preference in STATE.md (or equivalent per-project config) controls whether the code-simplifier step runs during execution
+2. Execute-phase respects the setting in both task mode and teams mode, skipping simplification when disabled
 
 ### Phase 2: Skill Audit & Reclassification
 **Goal**: Systematically review every skill in the marketplace against the capability reference, producing per-skill recommendations
@@ -63,8 +104,15 @@ Evolve the Claude Super Team plugin marketplace from a working but unoptimized s
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 1. Claude Code Capability Mapping | Not started | - |
-| 2. Skill Audit & Reclassification | Not started | - |
+| 1. Claude Code Capability Mapping | Complete | 2026-02-11 |
+| 1.1 Progress Phase Steps (QUICK) | Complete | 2026-02-11 |
+| 1.2 Execute Branch Guard Team Log (QUICK) | Complete | 2026-02-12 |
+| 1.3 Brainstorm Creates Context (QUICK) | Complete | 2026-02-12 |
+| 1.4 Execute Compaction Resilience (QUICK) | Complete | 2026-02-11 |
+| 1.5 Feedback Research Detection (QUICK) | Not started | - |
+| 1.6 Progress Sync Detection (QUICK) | Not started | - |
+| 1.7 Simplifier Toggle (QUICK) | Not started | - |
+| 2. Skill Audit & Reclassification | Planned | - |
 | 3. Apply Audit Recommendations | Not started | - |
 | 4. Harden Fragile Areas | Not started | - |
 | 5. Workflow Validation & Gap Closure | Not started | - |
