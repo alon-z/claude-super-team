@@ -2,7 +2,7 @@
 name: quick-plan
 description: Quickly plan an ad-hoc feature or fix as a lightweight phase inserted into the roadmap. Uses decimal numbering (e.g., 4.1 if currently on phase 5) so it slots between existing phases. Spawns a planner (1-3 tasks, no research/checker/verifier) and annotates ROADMAP.md without restructuring it. Execution is handled by /execute-phase. Use when the user wants to squeeze in something urgent or small -- bug fixes, small features, refactors -- without full phase ceremony. Requires .planning/PROJECT.md and .planning/ROADMAP.md.
 argument-hint: "[task description]"
-allowed-tools: Read, Bash, Write, Edit, Glob, Grep, Task, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *)
 ---
 
 ## Objective

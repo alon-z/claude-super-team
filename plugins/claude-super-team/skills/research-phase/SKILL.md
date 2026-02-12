@@ -2,7 +2,7 @@
 name: research-phase
 description: Research how to implement a phase before planning. Spawns a custom phase-researcher agent that investigates ecosystem, architecture patterns, libraries, and pitfalls. Firecrawl is preloaded via the agent definition. Produces RESEARCH.md consumed by /plan-phase planner. Use after /discuss-phase and before /plan-phase.
 argument-hint: "<phase number>"
-allowed-tools: Read, Write, Bash, Glob, Grep, Task, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *)
 ---
 
 ## Objective

@@ -2,7 +2,7 @@
 name: plan-phase
 description: Create execution plans (PLAN.md files) for a roadmap phase. Spawns a planner agent to decompose phase goals into executable plans with tasks, dependencies, and wave structure. Includes plan verification loop. Use after /create-roadmap to plan a specific phase before execution. Supports --all to plan every unplanned phase sequentially. Supports gap closure mode (--gaps) for fixing verification failures.
 argument-hint: "[phase number | --all] [--gaps] [--skip-verify]"
-allowed-tools: Read, Bash, Write, Glob, Grep, Task, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *)
 ---
 
 ## Objective

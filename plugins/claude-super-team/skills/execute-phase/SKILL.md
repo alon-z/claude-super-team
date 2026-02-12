@@ -2,7 +2,7 @@
 name: execute-phase
 description: Execute planned phase by routing tasks to specialized agents. Reads PLAN.md files, infers the best agent type per task (security, TDD, general-purpose, etc.), executes in wave order with parallel plans, then verifies phase goal achievement. Use after /plan-phase to execute a specific phase. Supports --gaps-only for executing only gap closure plans and --skip-verify to skip verification.
 argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team]"
-allowed-tools: Read, Bash, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(grep *), Bash(test *)
 hooks:
   PreCompact:
     - matcher: "auto"
