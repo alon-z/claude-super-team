@@ -250,3 +250,115 @@
 **Rationale:** Correctly a skill (heavy orchestrator with complex agent routing). Only gap is blanket Bash. Hooks usage is exemplary.
 
 **User Decision:** Needs Feature Additions + Remain as Skill (fix blanket Bash, keep auto-invocable)
+
+---
+
+### Skill: progress (claude-super-team)
+
+**Current Frontmatter:**
+| Field | Value |
+|-------|-------|
+| name | progress |
+| description | "Check project progress and route to next action..." |
+| allowed-tools | Read, Bash, Grep, Glob |
+| model | haiku |
+| context | fork |
+| disable-model-invocation | not set (default: false) |
+| argument-hint | not set |
+| user-invocable | not set (default: true) |
+
+**Behavior Summary:** Read-only status skill that runs in forked haiku context. Analyzes `.planning/` files to produce a progress bar, phase status table, sync issue detection, and smart routing to the next action.
+
+**Frontmatter Audit:**
+| Check | Status | Finding |
+|-------|--------|---------|
+| allowed-tools completeness | GAP | Blanket `Bash` -- uses `test -d`, `ls -d`, `find`, `grep` extensively. No Write (correct for read-only). No AskUserQuestion (correct for fork context). |
+| model selection | OK | haiku. Appropriate for read-only status analysis. |
+| context mode | OK | `context: fork`. Correct -- produces verbose output, doesn't need conversation history. |
+| disable-model-invocation | OK | Not set (false). Auto-invocation desirable -- "what's next?" should trigger this. |
+| description quality | OK | Clear, lists multiple natural trigger phrases. |
+| argument-hint | OK | Not set. Correct -- takes no arguments. |
+
+**Capability Gap Analysis:**
+- Blanket Bash should be restricted
+- Could benefit from dynamic context injection (`!`command``) for injecting current git status
+- Well-configured as a model pattern for read-only forked skills
+
+**Classification Recommendation:** Needs Feature Additions + Remain as Skill
+**Rationale:** Correctly a skill (read-only status, forked context, haiku). Only gap is blanket Bash.
+
+**User Decision:** Needs Feature Additions + Remain as Skill (fix blanket Bash)
+
+---
+
+### Skill: quick-plan (claude-super-team)
+
+**Current Frontmatter:**
+| Field | Value |
+|-------|-------|
+| name | quick-plan |
+| description | "Quickly plan an ad-hoc feature or fix as a lightweight phase..." |
+| allowed-tools | Read, Bash, Write, Edit, Glob, Grep, Task, AskUserQuestion |
+| model | not set (inherits) |
+| context | not set (default: skill) |
+| disable-model-invocation | not set (default: false) |
+| argument-hint | `[task description]` |
+| user-invocable | not set (default: true) |
+
+**Behavior Summary:** Interactive skill that inserts a lightweight phase into the roadmap using decimal numbering, includes a mini-discussion (2-3 gray areas), and spawns an opus planner for a 1-3 task plan. Uses Edit tool (unique among skills) for ROADMAP.md annotation.
+
+**Frontmatter Audit:**
+| Check | Status | Finding |
+|-------|--------|---------|
+| allowed-tools completeness | GAP | Blanket `Bash`. Edit is justified for ROADMAP.md annotation (unique among skills). |
+| model selection | OK | Inherits. Interactive orchestrator with agent delegation. |
+| context mode | OK | Default `skill`. Needs AskUserQuestion + conversation history. |
+| disable-model-invocation | OK | Not set (false). Auto-invocation useful. |
+| description quality | OK | Clear, differentiates from full phase ceremony. |
+| argument-hint | OK | Present and accurate. |
+
+**Capability Gap Analysis:**
+- Blanket Bash should be restricted
+- Edit tool usage is justified and unique -- good practice for targeted ROADMAP.md modification
+
+**Classification Recommendation:** Needs Feature Additions + Remain as Skill
+**Rationale:** Correctly a skill (interactive orchestrator with agent delegation + Edit tool for ROADMAP.md). Only gap is blanket Bash.
+
+**User Decision:** PENDING -- session paused before user classification
+
+---
+
+### Skill: phase-feedback (claude-super-team)
+
+**Current Frontmatter:**
+| Field | Value |
+|-------|-------|
+| name | phase-feedback |
+| description | "Collect user feedback on a just-executed phase..." |
+| allowed-tools | Read, Bash, Write, Edit, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskList |
+| model | not set (inherits) |
+| context | not set (default: skill) |
+| disable-model-invocation | not set (default: false) |
+| argument-hint | `[phase number] [feedback description]` |
+| user-invocable | not set (default: true) |
+
+**Behavior Summary:** Interactive skill with two paths: quick fix (direct code changes, no subphase) and standard feedback (creates decimal-numbered subphase, spawns researcher if needed, spawns opus planner). Uses Edit for code modifications on quick fix path.
+
+**Frontmatter Audit:**
+| Check | Status | Finding |
+|-------|--------|---------|
+| allowed-tools completeness | GAP | Blanket `Bash`. TaskCreate/TaskUpdate/TaskList appear unnecessary -- skill creates plans, not task list items. Not used in process steps. |
+| model selection | OK | Inherits. Interactive orchestrator. |
+| context mode | OK | Default `skill`. Needs conversation history + AskUserQuestion. |
+| disable-model-invocation | OK | Not set (false). Auto-invocation useful -- "I want to change X" is natural. |
+| description quality | OK | Clear, explains both paths, differentiates from quick-plan. |
+| argument-hint | OK | Present and accurate. |
+
+**Capability Gap Analysis:**
+- Blanket Bash should be restricted
+- TaskCreate/TaskUpdate/TaskList may be unnecessary -- not used in any process step. Should be removed to follow principle of least privilege.
+
+**Classification Recommendation:** Needs Feature Additions + Remain as Skill
+**Rationale:** Correctly a skill (interactive with two paths, agent delegation). Gaps: blanket Bash, possibly unnecessary Task* tools.
+
+**User Decision:** PENDING -- session paused before user classification
