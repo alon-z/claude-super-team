@@ -3,6 +3,17 @@ name: execute-phase
 description: Execute planned phase by routing tasks to specialized agents. Reads PLAN.md files, infers the best agent type per task (security, TDD, general-purpose, etc.), executes in wave order with parallel plans, then verifies phase goal achievement. Use after /plan-phase to execute a specific phase. Supports --gaps-only for executing only gap closure plans and --skip-verify to skip verification.
 argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team]"
 allowed-tools: Read, Bash, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage
+hooks:
+  PreCompact:
+    - matcher: "auto"
+      hooks:
+        - type: command
+          command: 'echo "EXECUTION STATE TO PRESERVE:"; find .planning/phases -name "EXEC-PROGRESS.md" -exec cat {} \; 2>/dev/null || echo "No execution progress file found"'
+  SessionStart:
+    - matcher: "compact"
+      hooks:
+        - type: command
+          command: '{ echo "=== STATE ==="; cat .planning/STATE.md 2>/dev/null; echo "=== PROJECT ==="; cat .planning/PROJECT.md 2>/dev/null; echo "=== EXEC PROGRESS ==="; find .planning/phases -name "EXEC-PROGRESS.md" -exec cat {} \; 2>/dev/null; echo "=== PLANS ==="; PHASE_DIR=$(find .planning/phases -name "EXEC-PROGRESS.md" -exec dirname {} \; 2>/dev/null | head -1); [ -n "$PHASE_DIR" ] && cat "$PHASE_DIR"/*-PLAN.md 2>/dev/null; }'
 ---
 
 ## Objective
@@ -205,9 +216,38 @@ TeamCreate(
 
 The team persists across all waves in this phase. Teammates spawned in wave 1 go idle after completing their plan and can be re-messaged with new work in wave 2 (avoids context startup overhead).
 
+### Phase 4.7: Initialize Progress Tracking
+
+Create `${PHASE_DIR}/EXEC-PROGRESS.md` to track execution state for compaction resilience:
+
+```markdown
+## Execution Progress
+
+- **Phase:** {PHASE} - {phase_name}
+- **Mode:** {EXEC_MODE}
+- **Team:** {team_name or "N/A (task mode)"}
+- **Current wave:** 1
+- **Started:** {current date}
+
+### Wave Progress
+| Wave | Plans | Status |
+|------|-------|--------|
+| 1 | {plan_list} | pending |
+| 2 | {plan_list} | pending |
+
+### Plan Status
+| Plan | Wave | Teammate | Status |
+|------|------|----------|--------|
+| {plan} | {wave} | - | pending |
+```
+
+Populate the tables from the wave groupings determined in Phase 4. This file is re-injected by hooks after context compaction, allowing the orchestrator to resume from where it left off.
+
 ### Phase 5: Execute Waves
 
 For each wave (sequential):
+
+**Update EXEC-PROGRESS.md:** Set "Current wave" to this wave number and update the wave's status to "in_progress" in the Wave Progress table.
 
 **Single-plan downgrade (teams mode only):** If `EXEC_MODE=team` and the current wave contains only a single plan, downgrade to task mode for that wave and print:
 
@@ -299,7 +339,7 @@ Task(
 
 Spawn one teammate per plan in the wave. Each teammate owns all tasks in its plan (executed sequentially within the teammate's context). Cross-plan parallelism happens naturally because teammates run concurrently.
 
-For each plan in the wave, spawn a teammate:
+For each plan in the wave, spawn a teammate and update EXEC-PROGRESS.md: set the plan's Teammate column to the teammate name (e.g., "plan-{plan}").
 
 ```
 Task(
@@ -453,6 +493,8 @@ Populate with:
 - Aggregate from all task reports
 - Decisions made during execution
 
+**Update EXEC-PROGRESS.md:** Set the plan's status to "complete" and its teammate to "idle" (teams mode) or "-" (task mode) in the Plan Status table.
+
 #### 5g. Spot-Check Wave Results
 
 After all plans in wave complete:
@@ -462,6 +504,8 @@ After all plans in wave complete:
 3. Check for `SELF_CHECK: FAILED` in any task report
 
 If any spot-check fails, report and ask user whether to continue.
+
+**Update EXEC-PROGRESS.md:** Set this wave's status to "complete" in the Wave Progress table.
 
 #### 5h. Team Cleanup (Teams Mode Only)
 
@@ -484,6 +528,8 @@ TeamDelete(
   team_name: "phase-{PHASE}-exec"
 )
 ```
+
+**Update EXEC-PROGRESS.md:** Set status to "all waves complete" and record the team shutdown.
 
 ### Phase 6: Verify Phase Goal
 
@@ -604,6 +650,8 @@ If execution is interrupted and restarted:
 2. Completed plans are skipped
 3. Execution resumes from first incomplete plan
 4. Within an incomplete plan, check git log for task commits to determine resume point
+
+After context compaction, the skill's hooks automatically re-inject `EXEC-PROGRESS.md` along with `STATE.md`, `PROJECT.md`, and the current phase's PLAN files. The existing SUMMARY-based resumption logic still applies, but `EXEC-PROGRESS.md` provides finer-grained state within a wave -- including which plans are in-flight, which teammates are active or idle, and the current wave number.
 
 ## Success Criteria
 
