@@ -3,6 +3,8 @@ name: phase-researcher
 description: Research ecosystem, libraries, architecture patterns, and pitfalls for a project phase. Produces RESEARCH.md consumed by the planner. Use when researching how to implement a phase before planning.
 tools: Read, Write, Bash, Glob, Grep, WebSearch, WebFetch
 model: opus
+maxTurns: 40
+memory: project
 skills:
   - firecrawl
 ---
