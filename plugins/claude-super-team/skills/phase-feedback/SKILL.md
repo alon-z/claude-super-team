@@ -11,10 +11,10 @@ Collect feedback on a just-executed phase, then route based on scope:
 - **Quick fix** (trivial, single-file change): Apply the fix directly inline -- no subphase, no plan, no agent spawning.
 - **Standard feedback** (anything else): Create a feedback-driven subphase with decimal numbering (e.g., 4.1), plan targeted modifications, then tell the user to run `/execute-phase` to execute.
 
-**Flow:** Validate -> Identify parent phase -> Load execution context -> Collect feedback -> Scope check -> Route (quick fix OR standard) -> Done
+**Flow:** Validate -> Identify parent phase -> Load execution context -> Collect feedback -> Scope check -> Route (quick fix OR standard) -> Research (if needed) -> Done
 
 **Reads:** `.planning/PROJECT.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, parent phase `*-SUMMARY.md` and `*-VERIFICATION.md`
-**Creates (standard path only):** `.planning/phases/{NN.X}-feedback-{slug}/{NN.X}-01-PLAN.md`, annotates `ROADMAP.md`
+**Creates (standard path only):** `.planning/phases/{NN.X}-feedback-{slug}/{NN.X}-01-PLAN.md`, annotates `ROADMAP.md`. Optionally creates `{NN.X}-RESEARCH.md` if inline research is triggered.
 
 ## Process
 
@@ -147,8 +147,8 @@ AskUserQuestion:
 ```
 
 Route based on the user's choice:
-- **Quick fix** -> Go to Step 6 (Quick Fix Path)
-- **Plan it** -> Go to Step 7 (Standard Feedback Path)
+- If "Quick fix" -> Go to Step 6 (Quick Fix Path)
+- If "Plan it" -> Go to Step 7 (Standard Feedback Path)
 
 ---
 
@@ -156,15 +156,15 @@ Route based on the user's choice:
 
 ### Step 6: Apply Quick Fix
 
-This path is for trivial changes -- single-file tweaks, typos, small style or logic fixes. No subphase, no plan, no agent spawning.
+This path is for trivial changes: single-file tweaks, typos, small style or logic fixes. No subphase, no plan, no agent spawning.
 
-**6a.** Read the target file(s) mentioned in the feedback. Use the execution context from Step 3 to locate exact file paths.
+**6a. Locate target files.** Read the target file(s) mentioned in the feedback. Use the execution context from Step 3 to locate exact file paths.
 
-**6b.** Apply the change directly using Edit/Write tools. Keep the change minimal and focused on exactly what the feedback requested.
+**6b. Apply changes.** Apply the change directly using Edit/Write tools. Keep the change minimal and focused on exactly what the feedback requested.
 
-**6c.** Verify the change works (run relevant commands if applicable).
+**6c. Verify changes.** Verify the change works (run relevant commands if applicable).
 
-**6d.** Present completion summary:
+**6d. Present completion summary:**
 
 ```
 Quick fix applied for Phase ${PARENT_PHASE}.
@@ -248,13 +248,74 @@ Use Edit tool to insert at correct positions. Do NOT renumber or move existing p
 
 **9c. Update STATE.md** -- set current phase to the feedback subphase so `/execute-phase` picks it up.
 
-### Step 10: Spawn Planner Agent
+### Step 10: Detect Research Need
+
+After the subphase directory is created and ROADMAP.md is annotated, analyze the confirmed feedback (`$FEEDBACK`) together with the execution context (`$EXECUTION_CONTEXT`) to determine if research is needed before planning.
+
+**Analysis criteria:**
+
+1. Does the feedback reference packages, libraries, or APIs not present in the parent phase's stack?
+2. Does it require integration with external services or protocols the project hasn't used before?
+3. Does it involve architectural patterns or techniques not evident in existing code?
+
+Set two variables based on analysis:
+- `$RESEARCH_NEEDED`: yes or no
+- `$RESEARCH_TOPICS`: brief description of what needs researching (empty if no)
+
+Inform the user of the decision:
+- If yes: "Research needed: feedback references {topic} -- spawning researcher before planning."
+- If no: "No research needed -- proceeding to planning."
+
+This is an autonomous LLM decision. Do NOT ask the user for confirmation. The goal is to keep the flow frictionless while ensuring unfamiliar territory gets researched.
+
+### Step 11: Spawn Researcher (conditional)
+
+This step only runs if `$RESEARCH_NEEDED` is yes. Skip to Step 12 otherwise.
+
+Spawn the `phase-researcher` custom agent via Task tool, using the same pattern as `/research-phase`:
+
+```
+Task(
+  subagent_type: "phase-researcher"
+  description: "Inline research: Phase ${FEEDBACK_PHASE}"
+  prompt: """
+  Research Phase ${FEEDBACK_PHASE}: Feedback on Phase ${PARENT_PHASE}
+  Phase goal: ${FEEDBACK}
+  Research focus: ${RESEARCH_TOPICS}
+  ---
+  Project context: {project_md_content}
+  Roadmap: {roadmap_content}
+  State: {state_content}
+  Existing stack: {stack_content}
+  Existing architecture: {architecture_content}
+  ---
+  Write RESEARCH.md to: ${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-RESEARCH.md
+  Return RESEARCH COMPLETE or RESEARCH BLOCKED when done.
+  """
+)
+```
+
+**Context to pass:**
+- `.planning/PROJECT.md` (required)
+- `.planning/ROADMAP.md` (required)
+- `.planning/STATE.md` (if exists)
+- `.planning/codebase/STACK.md`, `ARCHITECTURE.md` (if exist)
+- `$FEEDBACK` as the phase goal (the feedback IS the goal for a feedback subphase)
+- `$RESEARCH_TOPICS` as the research focus
+
+**After the researcher returns:**
+
+1. Read and store the RESEARCH.md content as `$RESEARCH_CONTENT`
+2. If the researcher returned `RESEARCH BLOCKED`, inform the user and proceed to planning without research (do not block the feedback flow):
+   "Research was blocked: {reason}. Proceeding to planning without research findings."
+
+### Step 12: Spawn Planner Agent
 
 Read `references/planner-feedback-mode.md` and `assets/feedback-plan-template.md`. Load project context.
 
 **Context to load:**
 - `.planning/PROJECT.md` (required)
-- `.planning/ROADMAP.md` (required -- includes the annotation just added)
+- `.planning/ROADMAP.md` (required, includes the annotation just added)
 - `.planning/STATE.md` (if exists)
 - `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` (if exist)
 - Parent phase execution context (`$EXECUTION_CONTEXT`)
@@ -289,6 +350,10 @@ Task(
   Parent phase execution context (what was built):
   ${EXECUTION_CONTEXT}
 
+  Research findings (from inline research):
+  ${RESEARCH_CONTENT}
+  (Include this section only if $RESEARCH_CONTENT is non-empty)
+
   Project context:
   {project_md_content}
 
@@ -314,7 +379,7 @@ After planner returns:
 1. Verify plan exists at `${PHASE_DIR}/${FEEDBACK_PHASE_PADDED}-01-PLAN.md`
 2. If plan not found, show error and exit
 
-### Step 11: Done
+### Step 13: Done
 
 Present the plan summary and direct the user to execute:
 
@@ -367,6 +432,8 @@ Never auto-commit.
 - [ ] Phase directory created at `.planning/phases/{NN.X}-feedback-{slug}/`
 - [ ] ROADMAP.md annotated with feedback phase entry (no restructuring)
 - [ ] STATE.md updated to point to feedback phase
+- [ ] Research need analyzed after feedback confirmed
+- [ ] Researcher spawned inline when research needed, RESEARCH.md passed to planner
 - [ ] Planner spawned (opus) with execution context + feedback
 - [ ] `{NN.X}-01-PLAN.md` created with 1-3 modification-oriented tasks
 - [ ] Execution NOT performed -- user directed to `/execute-phase {N.X} --skip-verify`

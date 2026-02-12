@@ -5,17 +5,18 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 1.7 -- Add Per-Project Toggle to Disable Simplifier Agent in Execute-Phase
+**Current focus:** Phase 2 -- next major phase
 
 ## Current Position
 
-Phase: 1.7 of 5 (Add Per-Project Toggle to Disable Simplifier Agent in Execute-Phase)
-Status: Planning
-Last activity: 2026-02-12 -- Quick phase 1.7 inserted for simplifier toggle
+Phase: 1.7 of 5 (completed through 1.7)
+Status: Executed
+Last activity: 2026-02-12 -- Phases 1.5, 1.6, 1.7 executed in parallel (teams mode)
 
 ## Preferences
 
 execution-model: opus
+simplifier: enabled
 
 ## Accumulated Context
 
@@ -31,4 +32,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 None.
 
 ---
-*Last updated: 2026-02-11 -- Phase 1.4 executed*
+*Last updated: 2026-02-12 -- Phases 1.5, 1.6, 1.7 executed*

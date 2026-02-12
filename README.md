@@ -67,7 +67,9 @@ claude mcp add-plugin /path/to/claude-super-team/plugins/claude-super-team
 5. **For each phase**: discuss decisions, research the ecosystem (may loop back to update decisions if conflicts found), plan the work, then execute
 6. **Track progress** with `/progress`, which routes you to the next step
 
-Execution uses wave-based parallelism -- plans within a wave run concurrently via subagents, while waves run sequentially. After each plan's tasks complete, a code-simplifier pass refines the output for clarity and consistency. Planners use Claude Opus; checkers use Claude Sonnet. Execution agents default to Sonnet with Opus for TDD/security tasks, but you can set `execution-model: opus` in your project preferences to use Opus for all execution tasks (asked during `/new-project` or on first `/execute-phase` run).
+Execution uses wave-based parallelism -- plans within a wave run concurrently via subagents, while waves run sequentially. After each plan's tasks complete, a code-simplifier pass refines the output for clarity and consistency (can be disabled per-project via `simplifier: disabled` in STATE.md preferences). Planners use Claude Opus; checkers use Claude Sonnet. Execution agents default to Sonnet with Opus for TDD/security tasks, but you can set `execution-model: opus` in your project preferences to use Opus for all execution tasks (asked during `/new-project` or on first `/execute-phase` run).
+
+`/phase-feedback` automatically detects when feedback involves unfamiliar packages or APIs and spawns a research agent before planning. `/progress` detects sync issues between phase directories and planning files, warning you early when drift occurs.
 
 ## Dependencies
 

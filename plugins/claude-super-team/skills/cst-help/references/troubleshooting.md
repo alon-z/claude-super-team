@@ -18,19 +18,15 @@
 
 **Symptom:** `/new-project` detects code but you skipped mapping
 
-**Cause:** Brownfield project without codebase analysis
-
 **Solution:**
 - Run `/map-codebase` to analyze existing code
-- Then run `/new-project` again for better context
+- Then run `/new-project` again
 
 ### Roadmap and State
 
 #### "No ROADMAP.md found"
 
 **Symptom:** Skills fail saying roadmap missing
-
-**Cause:** Haven't run `/create-roadmap` yet
 
 **Solution:**
 ```
@@ -65,17 +61,13 @@
 
 **Symptom:** Plans lack clarity or miss implementation decisions
 
-**Cause:** Skipped `/discuss-phase` before planning
-
 **Solution:**
-- Run `/discuss-phase N` to gather user decisions first
+- Run `/discuss-phase N` to gather user decisions
 - Then run `/plan-phase N` again
 
 #### "RESEARCH.md missing, planner picks wrong libraries"
 
 **Symptom:** Plans use outdated libraries or miss established patterns
-
-**Cause:** Skipped `/research-phase` before planning
 
 **Solution:**
 - Run `/research-phase N` to investigate ecosystem
@@ -85,12 +77,9 @@
 
 **Symptom:** `/research-phase` reports chosen libraries are deprecated or better alternatives exist
 
-**Cause:** Decisions made during `/discuss-phase` were based on incomplete or outdated information
-
 **Solution:**
 - Re-run `/discuss-phase N` to update decisions with research insights
-- Updated CONTEXT.md will have research-informed choices
-- Then run `/plan-phase N` with both CONTEXT.md and RESEARCH.md
+- Then run `/plan-phase N` with updated CONTEXT.md and RESEARCH.md
 
 #### "Plans reference wrong files or paths"
 
@@ -109,29 +98,23 @@
 
 **Symptom:** `/execute-phase` warns about running on main/master
 
-**Cause:** Current branch is main or master -- executing directly on the default branch is not recommended
-
 **Solution:**
 - Switch to a feature branch: `git checkout -b feature/phase-N`
 - Re-run `/execute-phase N`
-- Or choose "Continue anyway" if you intentionally want to work on main
+- Or choose "Continue anyway" to work on main intentionally
 
 #### "Wrong execution mode"
 
-**Symptom:** `/execute-phase` runs in task mode when you expected teams, or vice versa
-
-**Cause:** Teams mode requires the `--team` flag or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable
+**Symptom:** `/execute-phase` runs in unexpected mode (task vs teams)
 
 **Solution:**
 - For teams mode: `/execute-phase N --team` or set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
-- Mode is logged at the start of execution -- check the message for how to change it
-- Waves with a single plan auto-downgrade to task mode (expected behavior)
+- Check execution start message for mode and how to change it
+- Single-plan waves auto-downgrade to task mode (expected)
 
 #### "Cannot execute, no plans found"
 
 **Symptom:** `/execute-phase N` fails with no PLAN.md files
-
-**Cause:** Haven't run `/plan-phase N` yet
 
 **Solution:**
 ```
@@ -143,47 +126,38 @@
 
 **Symptom:** Phase marked with `status: gaps_found` in VERIFICATION.md
 
-**Cause:** Phase goal not fully achieved (expected, not an error)
-
 **Solution:**
 ```
-/plan-phase N --gaps          # Creates gap closure plans
-/execute-phase N --gaps-only  # Executes only gap plans
+/plan-phase N --gaps          # Create gap closure plans
+/execute-phase N --gaps-only  # Execute only gap plans
 ```
 
 #### "Wave dependencies unclear"
 
 **Symptom:** Plans execute in wrong order or block each other
 
-**Cause:** Planner assigned waves incorrectly
-
 **Solution:**
-- Read plan files (`.planning/phases/{NN}-{name}/*-PLAN.md`)
+- Read plan files in `.planning/phases/{NN}-{name}/*-PLAN.md`
 - Check wave assignments and dependencies
-- Edit PLAN.md files if needed (update wave numbers)
+- Edit PLAN.md wave numbers if needed
 - Re-run `/execute-phase N`
 
 #### "Execute-phase lost track after compaction"
 
-**Symptom:** Orchestrator confused about which wave/plan to execute next after a long run
-
-**Cause:** Context compacted without execution state
+**Symptom:** Orchestrator confused about which wave/plan to execute after a long run
 
 **Solution:**
 - EXEC-PROGRESS.md and hooks handle this automatically
-- If still occurring, check `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is set appropriately
-- Lower values (e.g., 50) compact earlier with more headroom. Higher values (e.g., 80) preserve more context
+- Adjust `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` if needed (lower = earlier compaction, more headroom)
 
 #### "How to configure compaction threshold"
 
-**Symptom:** Compaction happens too early or too late during execute-phase
-
-**Cause:** Default threshold may not suit phase size
+**Symptom:** Compaction happens at wrong time during execute-phase
 
 **Solution:**
 - Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable (1-100)
-- Lower values mean earlier compaction with more headroom
-- Start with 50-60 for large phases and adjust based on behavior
+- Lower values = earlier compaction with more headroom
+- Start with 50-60 for large phases, adjust based on behavior
 
 ### Decimal Phase Insertion
 
@@ -191,11 +165,9 @@
 
 **Symptom:** Phase 02.1 appears after phase 03 in listings
 
-**Cause:** Directory sorting or ROADMAP.md ordering
-
 **Solution:**
 - Ensure ROADMAP.md lists phases in numeric order (2, 2.1, 3)
-- Directory names auto-sort correctly if zero-padded (02.1-name)
+- Zero-padded directory names auto-sort correctly (02.1-name)
 
 #### "Conflicting decimal phases"
 
@@ -221,6 +193,18 @@
 - Ensure each PLAN.md has matching SUMMARY.md if executed
 - Ensure VERIFICATION.md exists if phase complete
 
+#### "/progress shows sync issues"
+
+**Symptom:** Progress report shows "Sync Issues" warning block
+
+**Solution:**
+- Read specific warnings to identify sync problems
+- Orphan directories: add phase to ROADMAP.md or delete directory
+- Missing directories: create directory or remove phase from ROADMAP.md
+- STATE.md drift: update STATE.md to reference valid phase
+- Progress table issues: sync table entries with phases checklist
+- Run `/progress` again to verify resolution
+
 #### "/progress routes to wrong skill"
 
 **Symptom:** Next action suggestion doesn't make sense
@@ -238,31 +222,25 @@
 
 **Symptom:** Phase 5 directory named `5-design` instead of `05-design`
 
-**Cause:** Manual creation without zero-padding
-
 **Solution:**
-- Rename directory: `mv .planning/phases/5-design .planning/phases/05-design`
-- Skills expect zero-padded format (01, 02, ..., 10, 11)
+- Rename: `mv .planning/phases/5-design .planning/phases/05-design`
+- Always use zero-padded format (01, 02, ..., 10, 11)
 
 #### "Multiple VERIFICATION.md files"
 
 **Symptom:** More than one verification file in phase directory
 
-**Cause:** Manual duplication or re-runs without cleanup
-
 **Solution:**
 - Keep only the latest verification file
-- Delete others or consolidate into one
+- Delete or consolidate others
 
 #### "CONTEXT.md in wrong location"
 
 **Symptom:** CONTEXT.md outside phase directory
 
-**Cause:** Manual file move or skill bug
-
 **Solution:**
 - Move to `.planning/phases/{NN}-{name}/{NN}-CONTEXT.md`
-- Follow naming pattern: `{NN}-CONTEXT.md` (e.g., `02-CONTEXT.md`)
+- Use naming pattern `{NN}-CONTEXT.md` (e.g., `02-CONTEXT.md`)
 
 ### Security Integration
 
@@ -283,23 +261,19 @@
 
 **Symptom:** Task tool returns error during planning/execution
 
-**Cause:** Agent encountered unexpected state or constraint
-
 **Solution:**
 - Read agent output for specific error
-- Fix underlying issue (missing files, syntax errors, etc.)
+- Fix underlying issue (missing files, syntax errors)
 - Re-run the skill
 
 #### "Plans execute but produce no summaries"
 
 **Symptom:** SUMMARY.md files missing after execution
 
-**Cause:** Agent execution failed silently or was interrupted
-
 **Solution:**
-- Check for error logs in terminal
-- Manually verify work was done
-- If work incomplete: re-run `/execute-phase N`
+- Check terminal for error logs
+- Verify work was completed
+- Re-run `/execute-phase N` if incomplete
 
 ### Code Simplification
 
@@ -318,12 +292,10 @@
 
 **Symptom:** Code works differently after simplification pass
 
-**Cause:** Simplifier made changes beyond cosmetic refinement (rare)
-
 **Solution:**
-- Check git diff for the simplifier's commit
-- Revert specific changes that affected behavior
-- Re-run `/execute-phase N` -- the simplifier is instructed to preserve all functionality
+- Check git diff for simplifier's commit
+- Revert specific behavior-changing edits
+- Note: Simplifier is instructed to preserve all functionality
 
 ### Brainstorming
 
@@ -331,46 +303,38 @@
 
 **Symptom:** `/brainstorm` fails saying no PROJECT.md exists
 
-**Cause:** Project not initialized yet
-
 **Solution:**
 ```
 /new-project <project idea>
+/brainstorm
 ```
-Then run `/brainstorm` after project is defined.
 
 #### "Autonomous mode agents return empty results"
 
-**Symptom:** One or more analysis agents produce no useful output
-
-**Cause:** Codebase is very small or project context is minimal
+**Symptom:** Analysis agents produce no useful output
 
 **Solution:**
-- Ensure `.planning/PROJECT.md` has substantive content
+- Ensure PROJECT.md has substantive content
 - Run `/map-codebase` first for brownfield projects
-- Try Interactive mode instead for early-stage projects
+- Try Interactive mode for early-stage projects
 
 #### "Brainstorm didn't create CONTEXT.md for new phases"
 
-**Symptom:** `/brainstorm` added phases to roadmap but no CONTEXT.md files were generated
-
-**Cause:** Phase 11.5 (context generation) only runs when `/create-roadmap` was invoked and completed successfully from within the brainstorm session
+**Symptom:** `/brainstorm` added phases to roadmap but no CONTEXT.md files generated
 
 **Solution:**
-- If roadmap update was skipped or failed, no context files are generated (expected)
-- Run `/discuss-phase N` manually for each new phase to create CONTEXT.md with full exploration
-- Auto-generated CONTEXT.md from brainstorm is a starting point. `/discuss-phase` provides deeper coverage
+- Context generation only runs when roadmap update completes within brainstorm
+- Run `/discuss-phase N` manually for each new phase for full exploration
+- Auto-generated CONTEXT.md is a starting point; `/discuss-phase` provides deeper coverage
 
 #### "IDEAS.md keeps growing with duplicate sessions"
 
 **Symptom:** Multiple brainstorming sessions add overlapping ideas
 
-**Cause:** Each session prepends to IDEAS.md without deduplication
-
 **Solution:**
-- Edit `.planning/IDEAS.md` manually to consolidate
-- Remove older sessions that have been superseded
-- Approved ideas should be tracked in ROADMAP.md, not just IDEAS.md
+- Edit IDEAS.md to consolidate
+- Remove superseded sessions
+- Track approved ideas in ROADMAP.md
 
 ### Quick Plan and Phase Feedback
 
@@ -378,22 +342,18 @@ Then run `/brainstorm` after project is defined.
 
 **Symptom:** Phase 4.1 created but currently on phase 2
 
-**Cause:** User specified insertion position manually
-
 **Solution:**
-- Quick-plan asks where to insert -- review the question carefully
-- Decimal phases can go anywhere (not just after current)
+- Review insertion position question carefully
+- Decimal phases can insert anywhere, not just after current phase
 
 #### "/phase-feedback creates duplicate work"
 
 **Symptom:** Feedback subphase overlaps with main phase tasks
 
-**Cause:** Feedback requests too broad or unclear
-
 **Solution:**
-- Be specific about what to change in feedback
+- Be specific in feedback about what to change
 - Use `/phase-feedback` for modifications, not new features
-- For new features: use `/quick-plan` instead
+- Use `/quick-plan` for new features
 
 ## Diagnostic Commands
 
@@ -436,6 +396,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Just completed a phase
 - Unsure what to do next
 - Want to see overall status
+- Planning files might be out of sync (after manual edits or interrupted skills)
 
 ### Use `/new-project` when:
 - Starting a brand new project
