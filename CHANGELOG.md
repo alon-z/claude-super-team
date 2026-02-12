@@ -2,6 +2,14 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.14] - 2026-02-12
+
+### claude-super-team
+- Added inline research detection to `/phase-feedback`: LLM analyzes confirmed feedback for unfamiliar packages/APIs/patterns and conditionally spawns the `phase-researcher` agent before planning
+- Added planning file sync detection to `/progress`: detects directory-vs-roadmap mismatches, STATE.md drift, and progress table inconsistencies; outputs "Sync Issues" warning block when problems found
+- Added per-project simplifier toggle to `/execute-phase`: `simplifier: enabled|disabled` preference in STATE.md gates the code-simplifier step in both task mode and teams mode
+- Updated `/cst-help` skill reference, workflow-guide, and troubleshooting with sync detection documentation
+
 ## [1.0.13] - 2026-02-12
 
 ### claude-super-team

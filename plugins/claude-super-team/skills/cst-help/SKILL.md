@@ -375,7 +375,7 @@ For more: see references/troubleshooting.md
   → Branch guard: warns if running on main/master, offers to switch
   → Logs execution mode (team/task) and how to change it
   → Single-plan waves auto-downgrade from teams to task mode
-  → Runs code-simplifier on each plan's output before summary
+  → Runs code-simplifier on each plan's output before summary (togglable via `simplifier` preference in STATE.md)
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
   -> Compaction resilient: hooks re-inject execution state after context compaction
   -> Set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to control when compaction triggers (user-configured)
@@ -409,7 +409,7 @@ For more: see references/troubleshooting.md
 /phase-feedback
   Gather feedback on executed phase
   → Quick fix: applies trivial changes directly
-  → Standard: plans subphase (e.g., 04.1-feedback), user runs /execute-phase
+  → Standard: detects if research needed, then plans subphase (e.g., 04.1-feedback), user runs /execute-phase
 
 /add-security-findings
   Integrate security audit into roadmap
