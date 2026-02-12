@@ -10,10 +10,10 @@ Claude Super Team is a structured project planning and execution workflow for so
 /new-project          → Initialize project vision (.planning/PROJECT.md)
 /map-codebase         → Understand existing codebase (optional, brownfield only)
 /create-roadmap       → Define phases and goals (.planning/ROADMAP.md + STATE.md)
-/discuss-phase [N]    → Explore codebase + gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
+/discuss-phase [N]    → Explore codebase, gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
                         Recommends /research-phase next if no RESEARCH.md exists
 /research-phase [N]   → Research ecosystem and patterns (.planning/phases/NN-name/NN-RESEARCH.md)
-                        Checks findings against CONTEXT.md; suggests /discuss-phase if conflicts found
+                        Checks findings against CONTEXT.md, suggests /discuss-phase if conflicts found
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)
 /progress             → Check status and get smart routing to next action
@@ -82,7 +82,7 @@ Plans are grouped into waves:
 
 3. /discuss-phase 1
    → Creates .planning/phases/01-{name}/01-CONTEXT.md
-   → Explores codebase for phase-relevant context, then gathers user decisions
+   → Explores codebase for phase-relevant context, gathers user decisions
    → Recommends /research-phase 1 next
 
 4. /research-phase 1
@@ -196,21 +196,21 @@ Plans are grouped into waves:
 - **Branch guard**: Warns if running on main/master, offers to switch branch or continue
 - **Mode logging**: Prints which execution mode (team/task) was selected and how to change it
 - Plans route to specialized agents (security, TDD, general-purpose)
-- After each plan's tasks complete, `code-simplifier:code-simplifier` refines the output for clarity, consistency, and maintainability
+- After each plan's tasks complete, code-simplifier refines output for clarity, consistency, and maintainability
 - **Single-plan wave downgrade**: Waves with only one plan auto-downgrade from teams to task mode (no parallelism benefit)
 - Wave structure enables parallel execution
 - Verification ensures phase goals achieved
-- Requires `code-simplifier` plugin: `/plugin install code-simplifier@claude-plugins-official`
+- Requires code-simplifier plugin: `/plugin install code-simplifier@claude-plugins-official`
 
 ### Compaction Resilience
 
 Long-running `/execute-phase` sessions (especially teams mode with many plans) can trigger context compaction. The skill handles this automatically:
 
-- **PreCompact hook**: Injects EXEC-PROGRESS.md content into the compaction summary so execution state survives
-- **SessionStart(compact) hook**: Re-injects STATE.md, PROJECT.md, EXEC-PROGRESS.md, and all PLAN.md files for the current phase after compaction
-- **EXEC-PROGRESS.md**: Written to the phase directory during execution; tracks current wave, plan statuses, team name, and teammate assignments
+- **PreCompact hook**: Injects EXEC-PROGRESS.md content into compaction summary so execution state survives
+- **SessionStart(compact) hook**: Re-injects STATE.md, PROJECT.md, EXEC-PROGRESS.md, and all PLAN.md files for current phase after compaction
+- **EXEC-PROGRESS.md**: Written to phase directory during execution. Tracks current wave, plan statuses, team name, and teammate assignments
 
-**Configuration:** Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (1-100) to control when auto-compaction triggers. Lower values compact more aggressively (preserving headroom but losing more context). The ideal value depends on phase size -- test empirically.
+**Configuration:** Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (1-100) to control when auto-compaction triggers. Lower values compact more aggressively (preserving headroom but losing more context). Ideal value depends on phase size. Test empirically.
 
 ## Success Criteria Philosophy
 

@@ -80,15 +80,10 @@ Extract from $ARGUMENTS:
 
 **Execution mode detection:**
 
-```
-if --team flag is set:
-  EXEC_MODE=team
-elif CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 in environment:
-  EXEC_MODE=team
-else:
-  EXEC_MODE=task
-fi
-```
+Set `EXEC_MODE` based on these conditions:
+- If `--team` flag is set: `EXEC_MODE=team`
+- Else if `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in environment: `EXEC_MODE=team`
+- Else: `EXEC_MODE=task`
 
 When `EXEC_MODE=team`, waves use Agent Teams (TeamCreate + teammates) instead of parallel Task calls. This provides inter-agent messaging, shared task list coordination, and better progress visibility within waves.
 
@@ -107,27 +102,24 @@ fi
 
 ### Phase 2.5: Log Execution Mode Decision
 
-After determining `EXEC_MODE`, print one of the following messages so the user understands which mode was selected and how to change it:
+After determining `EXEC_MODE`, print one message so the user understands which mode was selected and how to change it:
 
-- **If `EXEC_MODE=team` and triggered by the `--team` flag:**
-
+**If `EXEC_MODE=team` triggered by `--team` flag:**
 ```
 Using teams mode (--team flag).
 ```
 
-- **If `EXEC_MODE=team` and triggered by the environment variable** (no `--team` flag, but `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set):
-
+**If `EXEC_MODE=team` triggered by environment variable:**
 ```
 Using teams mode (CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1).
 ```
 
-- **If `EXEC_MODE=task`:**
-
+**If `EXEC_MODE=task`:**
 ```
 Using task mode -- teams not enabled. Pass --team or set CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 to use teams.
 ```
 
-This message is printed once, immediately after Phase 2 completes.
+Print this once immediately after Phase 2 completes.
 
 ### Phase 3: Discover Plans
 
@@ -249,13 +241,15 @@ For each wave (sequential):
 
 **Update EXEC-PROGRESS.md:** Set "Current wave" to this wave number and update the wave's status to "in_progress" in the Wave Progress table.
 
-**Single-plan downgrade (teams mode only):** If `EXEC_MODE=team` and the current wave contains only a single plan, downgrade to task mode for that wave and print:
+**Single-plan downgrade (teams mode only):**
+
+If `EXEC_MODE=team` and the current wave contains only a single plan, downgrade to task mode for that wave and print:
 
 ```
 Using task mode for wave {N} -- single plan in wave, teams not beneficial.
 ```
 
-Teams mode adds overhead for inter-agent coordination; with only one plan in a wave there is no cross-plan parallelism to benefit from, so task mode is used instead. This is a per-wave decision -- subsequent waves with multiple plans still use teams mode.
+This is a per-wave decision. Teams mode adds overhead for inter-agent coordination. With only one plan in a wave, there is no cross-plan parallelism to benefit from. Subsequent waves with multiple plans still use teams mode.
 
 #### 5a. Parse Tasks from Plans
 
@@ -265,11 +259,13 @@ For each plan in this wave, parse the `<tasks>` section. Extract each `<task>`:
 
 #### 5b. Route Tasks to Agents
 
-For each task, infer the best agent type using these heuristics (first match wins):
+For each task, infer the best agent type using these heuristics:
 
-**If `$EXEC_MODEL_PREF` = `opus`:** All execution tasks use opus regardless of signal analysis. Skip the routing table below -- every task gets `model: "opus"`.
+**If `$EXEC_MODEL_PREF` = `opus`:**
+All execution tasks use opus regardless of signal analysis. Every task gets `model: "opus"`.
 
-**If `$EXEC_MODEL_PREF` = `sonnet` (default):** Use the routing table:
+**If `$EXEC_MODEL_PREF` = `sonnet` (default):**
+Use the routing table (first match wins):
 
 | Signal | Agent Type | Model |
 |--------|-----------|-------|
@@ -279,7 +275,7 @@ For each task, infer the best agent type using these heuristics (first match win
 | Files are all test files (`.test.`, `.spec.`) | `general-purpose` | sonnet |
 | Default | `general-purpose` | sonnet |
 
-**Note on agent types:** While the Task tool supports specialized `subagent_type` values, `general-purpose` with appropriate prompting and model selection provides the most flexibility. The routing value comes from the **prompt content and model choice**, not the agent type label. Security tasks get opus + security-focused instructions. Refactoring gets sonnet + simplification focus. The agent's skills and tools remain available regardless.
+**Note on agent types:** The routing value comes from prompt content and model choice, not the agent type label. While the Task tool supports specialized `subagent_type` values, `general-purpose` with appropriate prompting and model selection provides the most flexibility. Security tasks get opus with security-focused instructions. Refactoring gets sonnet with simplification focus. The agent's skills and tools remain available regardless.
 
 #### 5c. Execute Tasks
 
@@ -384,8 +380,8 @@ Task(
 
 **Key differences from Task mode:**
 
-- Each teammate gets ALL tasks for its plan at once (not one task at a time from the orchestrator). This eliminates round-trips between the orchestrator and agents for sequential tasks within a plan.
-- Teammates run code-simplifier and write their own SUMMARY.md (skip Phase 5e/5f for teams -- teammates handle both).
+- Each teammate gets ALL tasks for its plan at once, not one task at a time from the orchestrator. This eliminates round-trips between the orchestrator and agents for sequential tasks within a plan.
+- Teammates run code-simplifier and write their own SUMMARY.md. Skip Phase 5e and 5f for teams mode.
 - The team lead monitors progress via `SendMessage` broadcasts:
 
 ```
@@ -409,27 +405,28 @@ SendMessage(
 
 **Reusing teammates across waves:**
 
-After wave N completes, idle teammates from wave N can be re-messaged with wave N+1 plans instead of spawning new teammates. This preserves their context (codebase understanding, prior decisions) and avoids cold-start overhead:
+After wave N completes, idle teammates can be re-messaged with wave N+1 plans instead of spawning new teammates. This preserves their context (codebase understanding, prior decisions) and avoids cold-start overhead:
 
 ```
 SendMessage(
   team_name: "phase-{PHASE}-exec"
   type: "message"
-  to: "plan-{prev_plan}"  // idle teammate from prior wave
+  to: "plan-{prev_plan}"
   message: "New assignment: execute plan {new_plan}. {new_plan_prompt}"
 )
 ```
 
-If the wave has more plans than available idle teammates, spawn additional teammates. If fewer, let extras stay idle until cleanup.
+If the wave has more plans than idle teammates, spawn additional teammates. If fewer, let extras stay idle until cleanup.
 
 #### 5d. Handle Task Results
 
 Parse each agent's return:
 
-**`## TASK COMPLETE`:** Record result. If more tasks in plan, feed report to next task as context. Continue.
+**`## TASK COMPLETE`:**
+Record result. If more tasks in plan, feed report to next task as context. Continue.
 
-**`## TASK BLOCKED`:** Show blocker to user. Use AskUserQuestion:
-
+**`## TASK BLOCKED`:**
+Show blocker to user. Use AskUserQuestion:
 - header: "Blocked"
 - question: "Task '{name}' is blocked: {reason}. What do you want to do?"
 - options:
@@ -437,8 +434,8 @@ Parse each agent's return:
   - "Skip task" -- Mark as skipped, continue with next task
   - "Abort plan" -- Stop this plan, continue other plans in wave
 
-**Checkpoint tasks (`checkpoint:human-verify`, `checkpoint:decision`):** Do NOT spawn an agent. Present the checkpoint to the user directly:
-
+**Checkpoint tasks (`checkpoint:human-verify`, `checkpoint:decision`):**
+Do NOT spawn an agent. Present the checkpoint to the user directly:
 - Show what was built so far (prior task results)
 - Show the checkpoint question/verification request
 - Wait for user response
@@ -448,7 +445,7 @@ Parse each agent's return:
 
 After all tasks in a plan complete, spawn the code-simplifier agent to refine the code that was just written. The simplifier focuses on recently modified files for clarity, consistency, and maintainability while preserving all functionality.
 
-**Collect files from task reports:** Gather all created/modified file paths from the task reports for the completed plan.
+Gather all created/modified file paths from the task reports for the completed plan.
 
 **Task Mode:**
 
@@ -476,7 +473,8 @@ Task(
 
 Run simplifiers for plans in the same wave in parallel.
 
-**Teams Mode:** The simplifier call is embedded in the teammate prompt (see Phase 5c teams mode). Each teammate spawns the simplifier after executing all tasks but before writing SUMMARY.md.
+**Teams Mode:**
+The simplifier call is embedded in the teammate prompt (see Phase 5c teams mode). Each teammate spawns the simplifier after executing all tasks but before writing SUMMARY.md.
 
 #### 5f. Create SUMMARY.md Per Plan (Task Mode Only)
 
@@ -589,6 +587,8 @@ Update `.planning/STATE.md` with:
 - Key decisions made during execution
 - Any blockers or issues for next phases
 
+Delete `${PHASE_DIR}/EXEC-PROGRESS.md` -- it served its purpose during execution and stale files would confuse the hooks on future phase runs.
+
 Do NOT auto-commit. Do NOT update ROADMAP.md (that's for /complete-milestone).
 
 ### Phase 9: Done
@@ -646,12 +646,12 @@ In teams mode, model selection still applies per-teammate. The `model` parameter
 ## Resumption
 
 If execution is interrupted and restarted:
-1. `discover_plans` finds completed SUMMARYs
-2. Completed plans are skipped
-3. Execution resumes from first incomplete plan
+1. Find completed SUMMARY.md files
+2. Skip completed plans
+3. Resume from first incomplete plan
 4. Within an incomplete plan, check git log for task commits to determine resume point
 
-After context compaction, the skill's hooks automatically re-inject `EXEC-PROGRESS.md` along with `STATE.md`, `PROJECT.md`, and the current phase's PLAN files. The existing SUMMARY-based resumption logic still applies, but `EXEC-PROGRESS.md` provides finer-grained state within a wave -- including which plans are in-flight, which teammates are active or idle, and the current wave number.
+After context compaction, the skill's hooks automatically re-inject `EXEC-PROGRESS.md` along with `STATE.md`, `PROJECT.md`, and the current phase's PLAN files. EXEC-PROGRESS.md provides finer-grained state within a wave: which plans are in-flight, which teammates are active or idle, and the current wave number. The existing SUMMARY-based resumption logic still applies.
 
 ## Success Criteria
 
