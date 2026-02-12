@@ -16,6 +16,7 @@ Last activity: 2026-02-12 -- Quick phase 1.7 inserted for simplifier toggle
 ## Preferences
 
 execution-model: opus
+simplifier: enabled
 
 ## Accumulated Context
 
