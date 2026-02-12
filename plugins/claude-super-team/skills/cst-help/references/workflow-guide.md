@@ -16,7 +16,7 @@ Claude Super Team is a structured project planning and execution workflow for so
                         Checks findings against CONTEXT.md, suggests /discuss-phase if conflicts found
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)
-/progress             → Check status and get smart routing to next action
+/progress             → Detect sync issues and check status with smart routing to next action
 ```
 
 ### Brainstorming
@@ -66,6 +66,7 @@ Plans are grouped into waves:
 - **ROADMAP.md**: All phases with goals, status (`complete` vs `active`)
 - **STATE.md**: Current phase position, decisions, blockers
 - **VERIFICATION.md**: Phase goal verification results (success or gaps found)
+- **Sync detection**: `/progress` checks for mismatches between phase directories, ROADMAP.md entries, STATE.md references, and progress table entries
 
 ## Workflow Patterns
 
@@ -177,6 +178,7 @@ Plans are grouped into waves:
 
 ```
 /progress
+→ Detects sync issues between phase directories, ROADMAP.md, STATE.md, and progress table
 → Analyzes .planning/ state
 → Shows recent work, current position, blockers
 → Smart routes to next action (/plan-phase, /execute-phase, etc.)

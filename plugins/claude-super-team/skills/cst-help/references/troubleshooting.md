@@ -221,6 +221,20 @@
 - Ensure each PLAN.md has matching SUMMARY.md if executed
 - Ensure VERIFICATION.md exists if phase complete
 
+#### "/progress shows sync issues"
+
+**Symptom:** Progress report shows a "Sync Issues" warning block at the top
+
+**Cause:** Planning files are out of sync -- directories don't match ROADMAP.md, STATE.md points to nonexistent phase, or progress table is inconsistent with phases checklist
+
+**Solution:**
+- Read the specific warnings to identify which files are out of sync
+- For orphan directories: add the phase to ROADMAP.md or delete the directory
+- For missing directories: create the directory or remove the phase from ROADMAP.md
+- For STATE.md drift: update STATE.md to reference a valid phase
+- For progress table issues: add missing entries or remove extra ones from the Progress table in ROADMAP.md
+- Run `/progress` again to verify sync issues are resolved
+
 #### "/progress routes to wrong skill"
 
 **Symptom:** Next action suggestion doesn't make sense
@@ -436,6 +450,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Just completed a phase
 - Unsure what to do next
 - Want to see overall status
+- Planning files might be out of sync (after manual edits or interrupted skills)
 
 ### Use `/new-project` when:
 - Starting a brand new project

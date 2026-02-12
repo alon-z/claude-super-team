@@ -408,6 +408,7 @@ For more: see references/troubleshooting.md
 
 /progress
   Check status and get smart routing
+  → Detects sync issues between phase directories, ROADMAP.md, STATE.md, and progress table
   → Shows current position, recent work, next action
   → Steps column (D/R/P) shows discuss, research, plan status per phase
 
