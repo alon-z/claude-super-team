@@ -2,7 +2,7 @@
 name: discuss-phase
 description: Gather implementation decisions through adaptive questioning before planning. Identifies gray areas in a phase, deep-dives each with the user, and creates CONTEXT.md that constrains downstream planning. Use after /create-roadmap and before /plan-phase to lock decisions and clarify ambiguities.
 argument-hint: "<phase number>"
-allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion, Task
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Task, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *)
 ---
 
 ## Objective

@@ -1,10 +1,15 @@
 ---
 name: progress
 description: Check project progress and route to next action. Analyzes .planning/ files to show current position, recent work, key decisions, and intelligently routes to the appropriate next step (/new-project, /create-roadmap, /plan-phase, /execute-phase, etc.). Use when user asks "where am I?", "what's next?", returns to project after time away, or completes a phase and needs direction.
-allowed-tools: Read, Bash, Grep, Glob
+allowed-tools: Read, Grep, Glob, Bash(test *), Bash(ls *), Bash(find *), Bash(grep *)
 context: fork
 model: haiku
 ---
+
+<!-- Dynamic context injection: pre-load project state for faster analysis -->
+!`ls .planning/ 2>/dev/null`
+!`ls -d .planning/phases/*/ 2>/dev/null`
+!`cat .planning/STATE.md 2>/dev/null | head -20`
 
 ## Objective
 

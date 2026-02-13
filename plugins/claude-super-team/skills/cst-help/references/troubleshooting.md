@@ -455,6 +455,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Have security audit results
 - Want to integrate findings into roadmap
 - Need to plan security remediation
+- After a security scan or analysis
 
 ## Best Practices
 

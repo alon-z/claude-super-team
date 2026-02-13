@@ -1,9 +1,14 @@
 ---
 name: cst-help
 description: Interactive help system for Claude Super Team workflow. Analyzes current project state in .planning/ to provide context-aware guidance on which skill to run next. Explains workflow concepts, troubleshoots issues, provides skill reference. Use when user asks "what's next?", "how does this work?", "I'm stuck", or needs help understanding the planning pipeline.
-allowed-tools: Read, Bash, Grep, Glob, AskUserQuestion
+allowed-tools: Read, Grep, Glob, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(find *)
 model: haiku
+argument-hint: "[question]"
 ---
+
+<!-- Dynamic context injection: pre-load project state before skill body executes -->
+!`ls .planning/ 2>/dev/null`
+!`ls .planning/phases/ 2>/dev/null`
 
 ## Objective
 
@@ -413,6 +418,9 @@ For more: see references/troubleshooting.md
 
 /add-security-findings
   Integrate security audit into roadmap
+  Two modes:
+    Interactive -- manual invocation with guided finding entry
+    Autonomous -- auto-invoked after security scan, extracts findings from context
   → Creates .planning/SECURITY-AUDIT.md
   → Adds security phases to roadmap
 

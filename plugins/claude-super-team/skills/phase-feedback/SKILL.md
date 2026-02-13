@@ -2,7 +2,7 @@
 name: phase-feedback
 description: Collect user feedback on a just-executed phase and either apply a quick fix directly or plan a feedback subphase for execution. For trivial changes (single-file quick fixes), applies the change inline. For anything larger, creates a feedback subphase with a plan and directs the user to run /execute-phase. Use after /execute-phase when the user wants changes to delivered work. Requires .planning/PROJECT.md and .planning/ROADMAP.md.
 argument-hint: "[phase number] [feedback description]"
-allowed-tools: Read, Bash, Write, Edit, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskList
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *)
 ---
 
 ## Objective

@@ -2,8 +2,7 @@
 name: create-roadmap
 description: Create or modify project roadmap with phased delivery plan and state tracking. Reads .planning/PROJECT.md (required) and optionally .planning/REQUIREMENTS.md. Produces .planning/ROADMAP.md and .planning/STATE.md. Use after /new-project to define phases, success criteria, and delivery order. Also use to add phases, insert urgent phases with decimal numbering, reorder phases, or replace an existing roadmap. Pass modification intent as arguments (e.g., "add a security phase", "insert urgent auth fix after phase 2", "reorder to prioritize payments").
 argument-hint: "[modification description]"
-allowed-tools: Read, Bash, Write, AskUserQuestion, Glob, Grep
-disable-model-invocation: false
+allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(test *)
 ---
 
 ## Objective

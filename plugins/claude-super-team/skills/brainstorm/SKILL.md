@@ -1,8 +1,8 @@
 ---
 name: brainstorm
-description: Brainstorm features, improvements, and architectural changes for a project. Two modes -- Interactive (collaborative discussion) or Autonomous (Claude deeply analyzes the project and generates bold, creative ideas on its own). Captures decisions in IDEAS.md and optionally updates ROADMAP.md. Use when thinking about what to build next.
+description: "Run a structured brainstorming session for project features, improvements, and architecture. Two modes: Interactive (collaborative Q&A) or Autonomous (3 parallel agents analyze codebase and generate ideas). Captures decisions in IDEAS.md, optionally updates ROADMAP.md. Invoke explicitly with /brainstorm -- not for casual ideation mentions."
 argument-hint: "[optional topic or focus area]"
-allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion, Task, Skill
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Task, Skill, Bash(test *), Bash(ls *), Bash(cat *)
 ---
 
 ## Objective

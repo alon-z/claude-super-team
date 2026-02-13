@@ -2,6 +2,20 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.15] - 2026-02-13
+
+### claude-super-team
+- Audited all 18 skills across 3 plugins
+- Redesigned `/add-security-findings` with dual-mode support: Interactive (manual invocation) and Autonomous (auto-invoked after security analysis with findings in context)
+- Downgraded `/map-codebase` model from opus to sonnet for cost/speed efficiency
+- Added `maxTurns: 40` and `memory: project` to `phase-researcher` agent for safety limits and session persistence
+- Added `disable-model-invocation: true` to `/new-project` to prevent spurious auto-invocation
+- Added `argument-hint` to `/cst-help` and dynamic context injection (`!` commands) to `/cst-help` and `/progress`
+- Added `allowed-tools` to `/marketplace-manager` (was missing entirely)
+- Added `Skill` tool to `/linear-sync` for invoking Linear CLI
+- Downgraded `/github-issue-manager` model from sonnet to haiku
+- Added `argument-hint` to `/marketplace-manager` and `/github-issue-manager`
+
 ## [1.0.14] - 2026-02-12
 
 ### claude-super-team

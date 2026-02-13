@@ -2,7 +2,7 @@
 name: linear-sync
 description: Sync .planning/ artifacts to Linear. Creates/updates initiative, projects, milestones, documents, and issues from PROJECT.md, ROADMAP.md, and PLAN.md files. Sub-commands - init (create/connect Linear initiative), projects (sync phases), milestones (sync waves), docs (sync documentation), issues [phase] (create/update issues), status (show sync state). Use when user wants to sync planning artifacts to Linear, create Linear issues from plans, or check Linear sync status.
 argument-hint: "[init | projects | milestones | docs | issues [phase] | status]"
-allowed-tools: Read, Write, Edit, Bash(shasum *), Glob, Grep, AskUserQuestion
+allowed-tools: Read, Write, Edit, Bash(shasum *), Glob, Grep, AskUserQuestion, Skill
 ---
 
 # Linear Sync

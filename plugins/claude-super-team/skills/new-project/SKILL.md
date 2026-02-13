@@ -2,7 +2,8 @@
 name: new-project
 description: Initialize a new project to produce .planning/PROJECT.md. Requires either a path to a project vision document (recommended) or a brief project idea as argument. Use when starting a new project, onboarding to existing codebase, or defining what to build next.
 argument-hint: "<brief project idea OR path to project document>"
-allowed-tools: Read, Bash, Write, AskUserQuestion, Glob, Grep
+allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(git *), Bash(mkdir *), Bash(find *), Bash(test *)
+disable-model-invocation: true
 ---
 
 ## Objective

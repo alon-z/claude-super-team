@@ -69,7 +69,9 @@ claude mcp add-plugin /path/to/claude-super-team/plugins/claude-super-team
 
 Execution uses wave-based parallelism -- plans within a wave run concurrently via subagents, while waves run sequentially. After each plan's tasks complete, a code-simplifier pass refines the output for clarity and consistency (can be disabled per-project via `simplifier: disabled` in STATE.md preferences). Planners use Claude Opus; checkers use Claude Sonnet. Execution agents default to Sonnet with Opus for TDD/security tasks, but you can set `execution-model: opus` in your project preferences to use Opus for all execution tasks (asked during `/new-project` or on first `/execute-phase` run).
 
-`/phase-feedback` automatically detects when feedback involves unfamiliar packages or APIs and spawns a research agent before planning. `/progress` detects sync issues between phase directories and planning files, warning you early when drift occurs.
+`/phase-feedback` automatically detects when feedback involves unfamiliar packages or APIs and spawns a research agent before planning. `/progress` detects sync issues between phase directories and planning files, warning you early when drift occurs. `/add-security-findings` supports dual-mode invocation: run it manually for interactive finding entry, or let it auto-invoke after a security scan to capture findings from the conversation context.
+
+All skills use scoped Bash access (e.g., `Bash(git *)`, `Bash(test *)`) rather than blanket shell access, following least-privilege principles.
 
 ## Dependencies
 
