@@ -418,6 +418,9 @@ For more: see references/troubleshooting.md
 
 /add-security-findings
   Integrate security audit into roadmap
+  Two modes:
+    Interactive -- manual invocation with guided finding entry
+    Autonomous -- auto-invoked after security scan, extracts findings from context
   → Creates .planning/SECURITY-AUDIT.md
   → Adds security phases to roadmap
 
