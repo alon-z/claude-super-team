@@ -1,7 +1,7 @@
 ---
 name: progress
 description: Check project progress and route to next action. Analyzes .planning/ files to show current position, recent work, key decisions, and intelligently routes to the appropriate next step (/new-project, /create-roadmap, /plan-phase, /execute-phase, etc.). Use when user asks "where am I?", "what's next?", returns to project after time away, or completes a phase and needs direction.
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read, Grep, Glob, Bash(bash *gather-data.sh)
 context: fork
 model: haiku
 ---
@@ -12,20 +12,8 @@ model: haiku
 !`cat .planning/STATE.md 2>/dev/null`
 !`cat .planning/SECURITY-AUDIT.md 2>/dev/null | head -20`
 
-<!-- Structure: which planning files exist -->
-!`echo "=== STRUCTURE ==="; P=.planning; [ -d "$P" ] && echo "PLANNING_DIR=exists" || echo "PLANNING_DIR=missing"; [ -f "$P/PROJECT.md" ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"; [ -f "$P/ROADMAP.md" ] && echo "HAS_ROADMAP=true" || echo "HAS_ROADMAP=false"; [ -f "$P/STATE.md" ] && echo "HAS_STATE=true" || echo "HAS_STATE=false"; [ -f "$P/SECURITY-AUDIT.md" ] && echo "HAS_SECURITY=true" || echo "HAS_SECURITY=false"`
-
-<!-- Phase map: per-phase plan/summary/gap/context/research counts -->
-!`echo "=== PHASE_MAP ==="; for dir in .planning/phases/*/; do [ -d "$dir" ] || continue; n=$(basename "$dir"); p=$(find "$dir" -maxdepth 1 -name "*-PLAN.md" 2>/dev/null | wc -l | tr -d " "); s=$(find "$dir" -maxdepth 1 -name "*-SUMMARY.md" 2>/dev/null | wc -l | tr -d " "); g=$(grep -l "status: gaps_found" "${dir}"*-VERIFICATION.md 2>/dev/null | wc -l | tr -d " "); c=$(find "$dir" -maxdepth 1 -name "*-CONTEXT.md" 2>/dev/null | wc -l | tr -d " "); r=$(find "$dir" -maxdepth 1 -name "*-RESEARCH.md" 2>/dev/null | wc -l | tr -d " "); echo "$n|plans=$p|summaries=$s|gaps=$g|context=$c|research=$r"; done 2>/dev/null`
-
-<!-- Recent summaries: 3 most recent with excerpts -->
-!`echo "=== RECENT_SUMMARIES ==="; find .planning/phases -name "*-SUMMARY.md" -type f 2>/dev/null | xargs ls -t 2>/dev/null | head -3 | while IFS= read -r f; do rel=${f#.planning/phases/}; exc=$(grep -m1 -vE "^(#|---|[[:space:]]*$)" "$f" 2>/dev/null | head -c 120); echo "$rel|$exc"; done`
-
-<!-- Sync check: pre-computed phase number lists for sync issue detection -->
-!`echo "=== SYNC_CHECK ==="; echo -n "DIR_PHASES: "; for dir in .planning/phases/*/; do [ -d "$dir" ] || continue; basename "$dir" | sed 's/^\([0-9.]*\)-.*/\1/' | sed 's/^0*//'; done 2>/dev/null | sort -V | tr '\n' ' '; echo; echo -n "ROADMAP_PHASES: "; grep -oE 'Phase [0-9]+(\.[0-9]+)?' .planning/ROADMAP.md 2>/dev/null | awk '{print $2}' | sort -V | uniq | tr '\n' ' '; echo; echo -n "STATE_PHASE: "; grep -E '^Phase:' .planning/STATE.md 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1; grep -E '^\s*- \[x\] Phase' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "CHECKED: %s\n", $2}'; grep -E '^\s*- \[ \] Phase' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "UNCHECKED: %s\n", $2}'`
-
-<!-- Git: recent commits, branch, dirty count -->
-!`echo "=== GIT ==="; git log --oneline -5 2>/dev/null || echo "(no git)"; echo "---"; echo "BRANCH=$(git branch --show-current 2>/dev/null || echo detached)"; echo "DIRTY=$(git status --porcelain 2>/dev/null | wc -l | tr -d " ")"`
+<!-- Structured data: structure flags, phase map, summaries, sync check, git -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"`
 
 ## Objective
 
@@ -274,6 +262,9 @@ Current phase done, more remain. Show completion then route forward.
 ▸ **Plan Phase {Z+1}: {Name}** -- {goal from ROADMAP.md}
 
   /plan-phase {Z+1}
+
+**Refine interactively?**
+  /code {Z} to start a coding session on Phase {Z}
 ```
 
 ### Route D: All Phases Complete

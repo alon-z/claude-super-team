@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.16] - 2026-02-16
+
+### claude-super-team
+- Added `/code` skill for interactive coding sessions with project context
+- Two modes: phase-linked (loads phase artifacts, creates REFINEMENT.md) and free-form (project awareness only)
+- Session logs tracked in `.planning/.sessions/` (gitignored)
+- Updated `/progress` Route C to offer `/code` as a phase refinement alternative
+- Updated `/cst-help` skill reference, workflow-guide, and troubleshooting with `/code` documentation
+
 ## [1.0.15] - 2026-02-13
 
 ### claude-super-team

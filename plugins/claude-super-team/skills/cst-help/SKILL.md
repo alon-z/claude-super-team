@@ -416,6 +416,12 @@ For more: see references/troubleshooting.md
   → Quick fix: applies trivial changes directly
   → Standard: detects if research needed, then plans subphase (e.g., 04.1-feedback), user runs /execute-phase
 
+/code [N] [description]
+  Interactive coding session with project context
+  → Phase-linked: loads phase context, creates REFINEMENT.md when done
+  → Free-form: code with project awareness, session log only
+  → Session logs tracked in .planning/.sessions/
+
 /add-security-findings
   Integrate security audit into roadmap
   Two modes:

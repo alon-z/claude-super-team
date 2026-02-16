@@ -336,6 +336,21 @@
 - Remove superseded sessions
 - Track approved ideas in ROADMAP.md
 
+### Interactive Coding
+
+#### "When to use /code vs /phase-feedback"
+
+`/code` is for interactive back-and-forth coding sessions where you describe changes conversationally. `/phase-feedback` is for structured feedback that needs the planning/research/execution pipeline. Use `/code` when you want to iterate quickly; use `/phase-feedback` when changes are substantial enough to warrant a subphase with plans.
+
+#### "Session log not found"
+
+**Symptom:** Can't find session log after `/code` session
+
+**Solution:**
+- Check `.planning/.sessions/` directory
+- Sessions are named `{YYYY-MM-DD-HHMM}-{slug}.md`
+- Note: `.planning/.sessions/` is gitignored by default
+
 ### Quick Plan and Phase Feedback
 
 #### "/quick-plan inserts phase at wrong position"
@@ -443,6 +458,13 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Just finished executing a phase
 - Want changes to delivered work
 - Need to iterate on completed phase
+
+### Use `/code` when:
+- Want direct changes without planning overhead
+- Quick iteration on specific files or features
+- Ad-hoc fixes, experiments, or exploratory coding
+- Conversational phase refinement after execution
+- Prefer back-and-forth over structured pipeline
 
 ### Use `/brainstorm` when:
 - Exploring what to build next

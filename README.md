@@ -21,6 +21,7 @@ The main plugin. Provides a sequential pipeline of skills for planning and deliv
 | `/progress` | Check status and get routed to the next action |
 | `/quick-plan` | Insert a lightweight phase with decimal numbering |
 | `/phase-feedback` | Feedback-driven subphase with opus agents |
+| `/code [N]` | Interactive coding session with project context |
 | `/add-security-findings` | Integrate security audit results into the roadmap |
 | `/cst-help [question]` | Get help, troubleshooting, and skill reference |
 
