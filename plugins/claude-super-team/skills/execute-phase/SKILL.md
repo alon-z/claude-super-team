@@ -2,7 +2,7 @@
 name: execute-phase
 description: Execute planned phase by routing tasks to specialized agents. Reads PLAN.md files, infers the best agent type per task (security, TDD, general-purpose, etc.), executes in wave order with parallel plans, then verifies phase goal achievement. Use after /plan-phase to execute a specific phase. Supports --gaps-only for executing only gap closure plans and --skip-verify to skip verification.
 argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team]"
-allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(grep *), Bash(test *)
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(grep *), Bash(test *), Bash(bash *gather-data.sh)
 hooks:
   PreCompact:
     - matcher: "auto"
@@ -15,6 +15,14 @@ hooks:
         - type: command
           command: '{ echo "=== STATE ==="; cat .planning/STATE.md 2>/dev/null; echo "=== PROJECT ==="; cat .planning/PROJECT.md 2>/dev/null; echo "=== EXEC PROGRESS ==="; find .planning/phases -name "EXEC-PROGRESS.md" -exec cat {} \; 2>/dev/null; echo "=== PLANS ==="; PHASE_DIR=$(find .planning/phases -name "EXEC-PROGRESS.md" -exec dirname {} \; 2>/dev/null | head -1); [ -n "$PHASE_DIR" ] && cat "$PHASE_DIR"/*-PLAN.md 2>/dev/null; }'
 ---
+
+<!-- Dynamic context injection: pre-load core planning files -->
+!`cat .planning/PROJECT.md 2>/dev/null`
+!`cat .planning/ROADMAP.md 2>/dev/null`
+!`cat .planning/STATE.md 2>/dev/null`
+
+<!-- Structured data: plan index with wave/gap/completion metadata, preferences, branch -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/execute-phase/gather-data.sh"`
 
 ## Objective
 
@@ -31,20 +39,14 @@ Execute PLAN.md files for a roadmap phase by routing each task to the best avail
 
 ### Phase 1: Validate Environment
 
-```bash
-[ ! -f .planning/ROADMAP.md ] && echo "ERROR: No roadmap found. Run /create-roadmap first." && exit 1
-[ ! -f .planning/PROJECT.md ] && echo "ERROR: No project found. Run /new-project first." && exit 1
-```
+PROJECT.md, ROADMAP.md, and STATE.md are pre-loaded via dynamic context injection. If their contents are empty/missing from the injection, show the appropriate error and exit:
 
-You MUST run these checks before proceeding.
+- No ROADMAP.md content: "ERROR: No roadmap found. Run /create-roadmap first."
+- No PROJECT.md content: "ERROR: No project found. Run /new-project first."
 
 ### Phase 1.5: Branch Guard
 
-Check the current git branch before proceeding:
-
-```bash
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-```
+Use the pre-loaded **GIT** section from the gather script. The `BRANCH` value is already computed.
 
 **If git is unavailable or the command fails** (non-zero exit code), or **if HEAD is detached** (output is `"HEAD"`):
 
@@ -156,7 +158,7 @@ If all plans completed, show message and exit.
 
 ### Phase 3.5: Resolve Execution Model Preference
 
-Read `.planning/STATE.md` and check for `execution-model` in the `## Preferences` section.
+Use the pre-loaded **PREFERENCES** section from the gather script. Check the `execution-model` value.
 
 **If preference is set:** Use it as `$EXEC_MODEL_PREF` (`sonnet` or `opus`).
 
@@ -183,7 +185,7 @@ Use Edit tool to update STATE.md. Set `$EXEC_MODEL_PREF` to the chosen value.
 
 ### Phase 3.6: Resolve Simplifier Preference
 
-Read `.planning/STATE.md` and check for `simplifier` in the `## Preferences` section.
+Use the pre-loaded **PREFERENCES** section from the gather script. Check the `simplifier` value.
 
 **If preference is set:** Use its value (`enabled` or `disabled`) as `$SIMPLIFIER_PREF`.
 
@@ -618,7 +620,11 @@ Update `.planning/STATE.md` with:
 
 Delete `${PHASE_DIR}/EXEC-PROGRESS.md` -- it served its purpose during execution and stale files would confuse the hooks on future phase runs.
 
-Do NOT auto-commit. Do NOT update ROADMAP.md (that's for /complete-milestone).
+Update `.planning/ROADMAP.md`:
+- In the **Phases** checklist, change `- [ ]` to `- [x]` for the completed phase entry
+- In the **Progress** table, update the phase row: set Status to "Complete" and Completed to today's date (YYYY-MM-DD format)
+
+Do NOT auto-commit.
 
 ### Phase 9: Done
 
