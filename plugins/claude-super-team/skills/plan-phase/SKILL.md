@@ -2,8 +2,16 @@
 name: plan-phase
 description: Create execution plans (PLAN.md files) for a roadmap phase. Spawns a planner agent to decompose phase goals into executable plans with tasks, dependencies, and wave structure. Includes plan verification loop. Use after /create-roadmap to plan a specific phase before execution. Supports --all to plan every unplanned phase sequentially. Supports gap closure mode (--gaps) for fixing verification failures.
 argument-hint: "[phase number | --all] [--gaps] [--skip-verify]"
-allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *)
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh)
 ---
+
+<!-- Dynamic context injection: pre-load core planning files -->
+!`cat .planning/PROJECT.md 2>/dev/null`
+!`cat .planning/ROADMAP.md 2>/dev/null`
+!`cat .planning/STATE.md 2>/dev/null`
+
+<!-- Structured data: phase planning status, roadmap phases -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"`
 
 ## Objective
 
@@ -20,12 +28,10 @@ Create executable PLAN.md files for a roadmap phase by spawning a planner agent,
 
 ### Phase 1: Validate Environment
 
-```bash
-[ ! -f .planning/ROADMAP.md ] && echo "ERROR: No roadmap found. Run /create-roadmap first." && exit 1
-[ ! -f .planning/PROJECT.md ] && echo "ERROR: No project found. Run /new-project first." && exit 1
-```
+PROJECT.md, ROADMAP.md, and STATE.md are pre-loaded via dynamic context injection. If their contents are empty/missing from the injection, show the appropriate error and exit:
 
-You MUST run these checks before proceeding.
+- No ROADMAP.md content: "ERROR: No roadmap found. Run /create-roadmap first."
+- No PROJECT.md content: "ERROR: No project found. Run /new-project first."
 
 ### Phase 2: Parse Arguments
 
@@ -61,20 +67,13 @@ fi
 
 Skip this phase if `--all` is not set.
 
-Parse all phases from ROADMAP.md:
+Use the pre-loaded **PHASE_STATUS** and **ROADMAP_PHASES** data from the gather script. Each PHASE_STATUS line shows:
 
-```bash
-grep -E "^#+.*Phase [0-9]+(\.[0-9]+)?" .planning/ROADMAP.md
+```
+{dir_name}|plans={N}|context={N}|research={N}|verification={N}
 ```
 
-For each phase found, check if PLAN.md files already exist:
-
-```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE_PADDED}-* 2>/dev/null | head -1)
-ls "${PHASE_DIR}"/*-PLAN.md 2>/dev/null
-```
-
-Build a `phases_to_plan` list containing only phases that have no existing PLAN.md files.
+Cross-reference ROADMAP_PHASES (phases listed in ROADMAP.md) against PHASE_STATUS (phases with directories). Build a `phases_to_plan` list containing only phases where `plans=0`.
 
 **If the list is empty:** Show "All phases already planned. Nothing to do." and exit.
 

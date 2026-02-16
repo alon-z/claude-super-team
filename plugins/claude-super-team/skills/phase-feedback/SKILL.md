@@ -2,8 +2,16 @@
 name: phase-feedback
 description: Collect user feedback on a just-executed phase and either apply a quick fix directly or plan a feedback subphase for execution. For trivial changes (single-file quick fixes), applies the change inline. For anything larger, creates a feedback subphase with a plan and directs the user to run /execute-phase. Use after /execute-phase when the user wants changes to delivered work. Requires .planning/PROJECT.md and .planning/ROADMAP.md.
 argument-hint: "[phase number] [feedback description]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *), Bash(bash *gather-data.sh)
 ---
+
+<!-- Dynamic context injection: pre-load core planning files -->
+!`cat .planning/PROJECT.md 2>/dev/null`
+!`cat .planning/ROADMAP.md 2>/dev/null`
+!`cat .planning/STATE.md 2>/dev/null`
+
+<!-- Structured data: executed phases, current phase, subphase numbers -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/phase-feedback/gather-data.sh"`
 
 ## Objective
 
@@ -20,21 +28,19 @@ Collect feedback on a just-executed phase, then route based on scope:
 
 ### Step 1: Validate Environment
 
-```bash
-[ ! -f .planning/PROJECT.md ] && echo "ERROR: No project found. Run /new-project first." && exit 1
-[ ! -f .planning/ROADMAP.md ] && echo "ERROR: No roadmap found. Run /create-roadmap first." && exit 1
-```
+PROJECT.md, ROADMAP.md, and STATE.md are pre-loaded via dynamic context injection. If their contents are empty/missing from the injection, show the appropriate error and exit:
 
-You MUST run both checks before proceeding.
+- No PROJECT.md content: "ERROR: No project found. Run /new-project first."
+- No ROADMAP.md content: "ERROR: No roadmap found. Run /create-roadmap first."
 
 ### Step 2: Identify Parent Phase
 
 Parse `$ARGUMENTS` for a phase number. If present, use it as `$PARENT_PHASE`.
 
-If no phase number in arguments, auto-detect:
+If no phase number in arguments, auto-detect using pre-loaded data:
 
-1. Read `.planning/STATE.md` for the most recently executed phase
-2. Look for the most recent SUMMARY.md across `.planning/phases/*/`
+1. Use the **CURRENT_PHASE** value from the gather script
+2. Use the **EXECUTED_PHASES** list from the gather script (phases with SUMMARY.md files)
 3. If ambiguous, ask the user:
 
 ```
@@ -196,16 +202,11 @@ Never auto-commit. **STOP here -- do not continue to Step 7.**
 
 ### Step 7: Determine Subphase Number
 
-```bash
-# Find existing subphases of the parent
-EXISTING=$(ls -d .planning/phases/${PARENT_NUM}.*-* 2>/dev/null | grep -oE "${PARENT_NUM}\.[0-9]+" | grep -oE "\.[0-9]+" | tr -d '.' | sort -n | tail -1)
+Use the pre-loaded **SUBPHASES** list from the gather script to find existing subphases of the parent. Each line is a directory name containing `.` (e.g., `02.1-feedback-fix-layout`).
 
-if [ -z "$EXISTING" ]; then
-  DECIMAL=1
-else
-  DECIMAL=$((EXISTING + 1))
-fi
+Filter to subphases matching `${PARENT_NUM}.*`. Find the highest decimal. Set `DECIMAL` to `highest + 1` (or `1` if none exist).
 
+```
 FEEDBACK_PHASE="${PARENT_PHASE}.${DECIMAL}"
 FEEDBACK_PHASE_PADDED=$(printf "%02d.%s" "$PARENT_PHASE" "$DECIMAL")
 ```
@@ -246,7 +247,9 @@ Success Criteria:
 
 Use Edit tool to insert at correct positions. Do NOT renumber or move existing phases.
 
-**9c. Update STATE.md** -- set current phase to the feedback subphase so `/execute-phase` picks it up.
+**9c. Revert parent phase completion** -- In the `## Phases` checklist, change the parent phase entry from `- [x]` back to `- [ ]`. In the `## Progress` table, update the parent phase row: set Status back to "In Progress" and clear the Completed date. The parent phase is not truly complete until its feedback subphase is also done.
+
+**9d. Update STATE.md** -- set current phase to the feedback subphase so `/execute-phase` picks it up.
 
 ### Step 10: Detect Research Need
 

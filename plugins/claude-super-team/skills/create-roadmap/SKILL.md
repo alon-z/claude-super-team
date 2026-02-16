@@ -2,8 +2,15 @@
 name: create-roadmap
 description: Create or modify project roadmap with phased delivery plan and state tracking. Reads .planning/PROJECT.md (required) and optionally .planning/REQUIREMENTS.md. Produces .planning/ROADMAP.md and .planning/STATE.md. Use after /new-project to define phases, success criteria, and delivery order. Also use to add phases, insert urgent phases with decimal numbering, reorder phases, or replace an existing roadmap. Pass modification intent as arguments (e.g., "add a security phase", "insert urgent auth fix after phase 2", "reorder to prioritize payments").
 argument-hint: "[modification description]"
-allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(test *)
+allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(test *), Bash(bash *gather-data.sh)
 ---
+
+<!-- Dynamic context injection: pre-load core planning files -->
+!`cat .planning/PROJECT.md 2>/dev/null`
+!`cat .planning/ROADMAP.md 2>/dev/null`
+
+<!-- Structured data: file existence flags, existing phases, highest phase number -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/create-roadmap/gather-data.sh"`
 
 ## Objective
 
@@ -18,29 +25,13 @@ Derive phases from requirements -- don't impose arbitrary structure. Each phase 
 
 ### Phase 1: Setup Checks
 
-**Execute before any interaction:**
+Use the pre-loaded **STRUCTURE** data from dynamic context injection. The flags are already computed:
 
-1. **Require PROJECT.md:**
+- `HAS_PROJECT` -- if `false`, show "ERROR: No project found. Run /new-project first." and exit
+- `HAS_ROADMAP` -- determines whether to create new or modify existing (Phase 2)
+- `HAS_REQUIREMENTS`, `HAS_RESEARCH`, `HAS_CODEBASE` -- which optional context to load in Phase 3
 
-   ```bash
-   [ ! -f .planning/PROJECT.md ] && echo "ERROR: No project found. Run /new-project first." && exit 1
-   ```
-
-2. **Check for existing roadmap:**
-
-   ```bash
-   [ -f .planning/ROADMAP.md ] && echo "ROADMAP_EXISTS=true" || echo "ROADMAP_EXISTS=false"
-   ```
-
-3. **Detect available context:**
-
-   ```bash
-   [ -f .planning/REQUIREMENTS.md ] && echo "HAS_REQUIREMENTS=true" || echo "HAS_REQUIREMENTS=false"
-   [ -f .planning/research/SUMMARY.md ] && echo "HAS_RESEARCH=true" || echo "HAS_RESEARCH=false"
-   [ -d .planning/codebase ] && echo "HAS_CODEBASE=true" || echo "HAS_CODEBASE=false"
-   ```
-
-**You MUST run all bash commands above before proceeding.**
+PROJECT.md and ROADMAP.md contents are also pre-loaded above. No Bash calls needed for setup.
 
 ### Phase 2: Handle Existing Roadmap
 

@@ -2,8 +2,15 @@
 name: discuss-phase
 description: Gather implementation decisions through adaptive questioning before planning. Identifies gray areas in a phase, deep-dives each with the user, and creates CONTEXT.md that constrains downstream planning. Use after /create-roadmap and before /plan-phase to lock decisions and clarify ambiguities.
 argument-hint: "<phase number>"
-allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Task, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *)
+allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Task, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *), Bash(bash *gather-data.sh)
 ---
+
+<!-- Dynamic context injection: pre-load core planning files -->
+!`cat .planning/PROJECT.md 2>/dev/null`
+!`cat .planning/ROADMAP.md 2>/dev/null`
+
+<!-- Structured data: cross-phase artifact inventory, codebase docs -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/discuss-phase/gather-data.sh"`
 
 ## Objective
 
@@ -18,11 +25,7 @@ Capture user implementation decisions before planning begins. Creates CONTEXT.md
 
 ### Phase 1: Validate Phase Number
 
-```bash
-[ ! -f .planning/ROADMAP.md ] && echo "ERROR: No roadmap found. Run /create-roadmap first." && exit 1
-```
-
-You MUST run this check before proceeding.
+PROJECT.md and ROADMAP.md are pre-loaded via dynamic context injection. If ROADMAP.md content is empty/missing, show "ERROR: No roadmap found. Run /create-roadmap first." and exit.
 
 Parse phase number from `$ARGUMENTS`. If not provided or invalid, show available phases from ROADMAP.md and exit.
 
@@ -123,11 +126,13 @@ Before exploring the codebase, understand what earlier phases will create. This 
 
 **Process:**
 
-1. List all phase directories with a lower phase number than the current one:
+1. Use the pre-loaded **PHASE_ARTIFACTS** data from the gather script. Each line shows:
 
-```bash
-ls -d .planning/phases/*/ 2>/dev/null | sort
 ```
+{dir_name}|status={executed|planned|discussed|not_started}|summaries={N}|plans={N}|context={N}|research={N}
+```
+
+Filter to phases with a lower number than the current one.
 
 2. For each earlier phase, load the most informative artifact available (in priority order):
    - **SUMMARY.md** (phase already executed -- shows what was actually built)

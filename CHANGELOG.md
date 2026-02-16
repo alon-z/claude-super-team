@@ -2,6 +2,22 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.16] - 2026-02-16
+
+### claude-super-team
+- Added `/code` skill for interactive coding sessions with project context
+- Two modes: phase-linked (loads phase artifacts, creates REFINEMENT.md) and free-form (project awareness only)
+- Session logs tracked in `.planning/.sessions/` (gitignored)
+- Moved data gathering to dynamic context injection across 5 skills: `/create-roadmap`, `/discuss-phase`, `/execute-phase`, `/phase-feedback`, `/plan-phase` -- each now uses a `gather-data.sh` script instead of inline Bash checks
+- `/execute-phase` now auto-marks phases complete in ROADMAP.md (checks off Phases checklist, updates Progress table)
+- `/phase-feedback` now reverts parent phase completion in ROADMAP.md when creating a feedback subphase
+- Updated `/progress` Route C to offer `/code` as a phase refinement alternative
+- Updated `/cst-help` skill reference, workflow-guide, and troubleshooting with `/code` documentation
+
+### marketplace-utils
+- Added `/release` skill for automated release ceremony: detects changes, bumps versions, updates docs, syncs marketplace, commits, pushes, and opens PR
+- Bumped version to 1.0.2
+
 ## [1.0.15] - 2026-02-13
 
 ### claude-super-team

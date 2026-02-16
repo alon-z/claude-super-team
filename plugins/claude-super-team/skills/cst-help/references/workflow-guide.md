@@ -34,6 +34,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 ```
 /quick-plan           → Insert lightweight phase (decimal numbering: 4.1)
 /phase-feedback       → Quick fix or plan feedback subphase (creates subphase like 4.1 for non-trivial changes)
+/code [N] [desc]      → Interactive coding session with project context (.planning/.sessions/)
 /add-security-findings → Integrate security audit into roadmap
 ```
 
@@ -146,6 +147,15 @@ Plans grouped for execution:
    → If ideas approved, offers to invoke /create-roadmap to add as phases
 ```
 
+### Interactive Coding
+
+```
+# Just want to code with project context
+/code                    → Free-form session
+/code 3                  → Refine Phase 3 interactively
+/code fix the login bug  → Free-form with focus description
+```
+
 ### Inserting Urgent Work
 
 ```
@@ -236,6 +246,8 @@ Phases define **observable, user-verifiable outcomes**, not task lists.
 ├── STATE.md                             # Current position, decisions
 ├── IDEAS.md                             # Brainstormed ideas (from /brainstorm)
 ├── SECURITY-AUDIT.md                    # Security findings (optional)
+├── .sessions/                           # Coding session logs (gitignored)
+│   └── 2026-02-16-1430-phase-3-refinement.md
 ├── codebase/                            # Codebase map (brownfield only)
 │   ├── STACK.md
 │   ├── ARCHITECTURE.md
