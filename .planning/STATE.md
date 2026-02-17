@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 4 -- Harden Fragile Areas
+**Current focus:** Phase 7 -- Efficiency Regression Detection
 
 ## Current Position
 
-Phase: 3 of 5 (completed through 3)
+Phase: 6 of 7 (completed through 6)
 Status: Executed and Verified
-Last activity: 2026-02-12 -- Phase 3 executed (teams mode, opus, 1 wave, 4 plans)
+Last activity: 2026-02-17 -- Phase 6 executed (teams mode, opus, 1 wave, 2 plans)
 
 ## Preferences
 
@@ -31,9 +31,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - Phase 3: Applied all 33 audit gaps across 15 skills + 1 agent. Blanket Bash eliminated from all 14 skills. marketplace-manager got allowed-tools. linear-sync got Skill tool. map-codebase downgraded to sonnet. add-security-findings redesigned for dual-mode auto-invocation. phase-researcher got maxTurns + memory.
 
+- Phase 6: Added hook-based telemetry capture. telemetry.sh shell script captures 6 event types as JSONL. 4 orchestrator skills (execute-phase, plan-phase, research-phase, brainstorm) wired via 24 hook declarations in YAML frontmatter. Zero token cost, fail-safe, async for high-frequency events.
+
 ### Blockers/Concerns
 
 None.
 
 ---
-*Last updated: 2026-02-12 -- Phase 3 executed and verified*
+*Last updated: 2026-02-17 -- Phase 6 executed and verified*

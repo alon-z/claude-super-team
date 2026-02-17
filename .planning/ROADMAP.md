@@ -15,6 +15,8 @@ Evolve the Claude Super Team plugin marketplace from a working but unoptimized s
 - [ ] **Phase 3: Apply Audit Recommendations** - Implement reclassifications, add missing features, fix frontmatter gaps
 - [ ] **Phase 4: Harden Fragile Areas** - Address tech debt, phase numbering, state coordination, and large file decomposition
 - [ ] **Phase 5: Workflow Validation & Gap Closure** - Dogfood updated marketplace on a real project, discover and fix remaining gaps
+- [x] **Phase 6: Hook-Based Telemetry Capture** - Add passive telemetry to orchestrator skills via shared shell script and skill-scoped hooks
+- [ ] **Phase 7: Efficiency Regression Detection** - Create /metrics skill for resource reporting and threshold-based violation detection
 
 ## Phase Details
 
@@ -100,6 +102,25 @@ Success Criteria:
   2. Any newly discovered gaps are documented with proposed solutions
   3. At least one gap is addressed and the fix is integrated
 
+### Phase 6: Hook-Based Telemetry Capture
+**Goal**: Add passive, zero-token-cost telemetry to orchestrator skills via a shared shell script called by skill-scoped hooks
+**Depends on**: Phase 5
+**Requirements**: Add missing capabilities (Active req 4)
+**Success Criteria** (what must be TRUE when this phase completes):
+  1. A `telemetry.sh` script exists in `plugins/claude-super-team/scripts/` that captures timing, agent spawns, tool usage, outcomes, and token usage
+  2. Orchestrator skills (plan-phase, execute-phase, research-phase, brainstorm) declare hooks in YAML frontmatter that call `telemetry.sh` at skill start/end and key lifecycle points
+  3. Telemetry data accumulates in `.planning/.telemetry/` in a format validated by research (JSONL, SQLite, or CSV)
+  4. Hook script gracefully no-ops when `.planning/` or `.planning/.telemetry/` directories don't exist
+
+### Phase 7: Efficiency Regression Detection
+**Goal**: Create a `/metrics` skill that reads telemetry data, compares against configurable absolute thresholds, and reports resource usage and violations
+**Depends on**: Phase 6
+**Requirements**: Add missing capabilities (Active req 4)
+**Success Criteria** (what must be TRUE when this phase completes):
+  1. A `/metrics` skill exists that reads `.planning/.telemetry/` data and generates per-phase and per-skill resource summaries
+  2. Absolute thresholds are configurable via `.planning/.telemetry/config.json`
+  3. The skill flags threshold violations and presents them alongside the summary report
+
 ## Progress
 
 | Phase | Status | Completed |
@@ -116,6 +137,8 @@ Success Criteria:
 | 3. Apply Audit Recommendations | Not started | - |
 | 4. Harden Fragile Areas | Not started | - |
 | 5. Workflow Validation & Gap Closure | Not started | - |
+| 6. Hook-Based Telemetry Capture | Complete | 2026-02-17 |
+| 7. Efficiency Regression Detection | Not started | - |
 
 ---
 *Created: 2026-02-11*
