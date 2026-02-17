@@ -3,6 +3,37 @@ name: brainstorm
 description: "Run a structured brainstorming session for project features, improvements, and architecture. Two modes: Interactive (collaborative Q&A) or Autonomous (3 parallel agents analyze codebase and generate ideas). Captures decisions in IDEAS.md, optionally updates ROADMAP.md. Invoke explicitly with /brainstorm -- not for casual ideation mentions."
 argument-hint: "[optional topic or focus area]"
 allowed-tools: Read, Write, Glob, Grep, AskUserQuestion, Task, Skill, Bash(test *), Bash(ls *), Bash(cat *)
+hooks:
+  SessionStart:
+    - matcher: ""
+      hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_start brainstorm'
+          once: true
+  Stop:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_end brainstorm'
+  SubagentStart:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_spawn brainstorm'
+          async: true
+  SubagentStop:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_complete brainstorm'
+          async: true
+  PostToolUse:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_use brainstorm'
+          async: true
+  PostToolUseFailure:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_failure brainstorm'
+          async: true
 ---
 
 ## Objective

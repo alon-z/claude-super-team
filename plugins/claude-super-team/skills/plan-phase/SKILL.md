@@ -3,6 +3,37 @@ name: plan-phase
 description: Create execution plans (PLAN.md files) for a roadmap phase. Spawns a planner agent to decompose phase goals into executable plans with tasks, dependencies, and wave structure. Includes plan verification loop. Use after /create-roadmap to plan a specific phase before execution. Supports --all to plan every unplanned phase sequentially. Supports gap closure mode (--gaps) for fixing verification failures.
 argument-hint: "[phase number | --all] [--gaps] [--skip-verify]"
 allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh)
+hooks:
+  SessionStart:
+    - matcher: ""
+      hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_start plan-phase'
+          once: true
+  Stop:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_end plan-phase'
+  SubagentStart:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_spawn plan-phase'
+          async: true
+  SubagentStop:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_complete plan-phase'
+          async: true
+  PostToolUse:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_use plan-phase'
+          async: true
+  PostToolUseFailure:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_failure plan-phase'
+          async: true
 ---
 
 <!-- Dynamic context injection: pre-load core planning files -->
