@@ -14,6 +14,35 @@ hooks:
       hooks:
         - type: command
           command: '{ echo "=== STATE ==="; cat .planning/STATE.md 2>/dev/null; echo "=== PROJECT ==="; cat .planning/PROJECT.md 2>/dev/null; echo "=== EXEC PROGRESS ==="; find .planning/phases -name "EXEC-PROGRESS.md" -exec cat {} \; 2>/dev/null; echo "=== PLANS ==="; PHASE_DIR=$(find .planning/phases -name "EXEC-PROGRESS.md" -exec dirname {} \; 2>/dev/null | head -1); [ -n "$PHASE_DIR" ] && cat "$PHASE_DIR"/*-PLAN.md 2>/dev/null; }'
+    - matcher: ""
+      hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_start execute-phase'
+          once: true
+  Stop:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_end execute-phase'
+  SubagentStart:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_spawn execute-phase'
+          async: true
+  SubagentStop:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_complete execute-phase'
+          async: true
+  PostToolUse:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_use execute-phase'
+          async: true
+  PostToolUseFailure:
+    - hooks:
+        - type: command
+          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_failure execute-phase'
+          async: true
 ---
 
 <!-- Dynamic context injection: pre-load core planning files -->
