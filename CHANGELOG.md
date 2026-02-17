@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.17] - 2026-02-17
+
+### claude-super-team
+- Added hook-based telemetry capture for passive, zero-token-cost event tracking
+- Created `telemetry.sh` shell script that captures 6 event types (skill_start, skill_end, agent_spawn, agent_complete, tool_use, tool_failure) as JSONL
+- Script features: session file persistence via CLAUDE_ENV_FILE, graceful no-op when `.planning/` missing, jq-based extraction with grep/sed fallback, never writes to stdout, always exits 0
+- Added 24 telemetry hook declarations across 4 orchestrator skills: `/execute-phase`, `/plan-phase`, `/research-phase`, `/brainstorm`
+- Hook configuration: SessionStart (with `once: true`), Stop, SubagentStart/SubagentStop (async), PostToolUse/PostToolUseFailure (async)
+- Existing `/execute-phase` compaction resilience hooks (PreCompact, SessionStart compact matcher) preserved unchanged
+- Telemetry data accumulates in `.planning/.telemetry/` (gitignored)
+
 ## [1.0.16] - 2026-02-16
 
 ### claude-super-team
