@@ -127,7 +127,7 @@ Success Criteria:
 **Depends on**: Phase 7
 **Requirements**: Add missing capabilities (Active req 4)
 **Success Criteria** (what must be TRUE when this phase completes):
-  1. A `/build` skill exists that accepts a project idea (and optional target directory) as input and autonomously orchestrates: `/new-project` -> `/brainstorm` (autonomous mode) -> `/create-roadmap` -> and for each phase: `/discuss-phase` -> `/research-phase` -> `/plan-phase` -> `/execute-phase`
+  1. A `/build` skill exists that accepts a project idea as input and autonomously orchestrates: `/new-project` -> `/brainstorm` (autonomous mode) -> `/create-roadmap` -> and for each phase: `/discuss-phase` -> `/research-phase` -> `/plan-phase` -> `/execute-phase`
   2. The skill makes autonomous decisions at every AskUserQuestion checkpoint, using LLM reasoning to select the best option without user intervention
   3. The skill maintains a durable `BUILD-STATE.md` file that tracks the exact pipeline position (which skill, which phase, which step), all decisions made, and all validation results -- enabling full recovery after any context compaction
   4. After each phase execution, the skill runs self-validation: builds the project, runs tests (if any exist), checks for errors, and uses `/phase-feedback` autonomously to fix issues before proceeding to the next phase

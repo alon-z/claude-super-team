@@ -9,7 +9,7 @@ A Claude Code plugin marketplace containing three plugins that provide a structu
 ## Repository Structure
 
 - `.claude-plugin/marketplace.json` -- marketplace manifest registering all plugins
-- `plugins/claude-super-team/` -- core planning and execution plugin (14 skills)
+- `plugins/claude-super-team/` -- core planning and execution plugin (15 skills)
 - `plugins/claude-super-team/agents/` -- custom subagent definitions (e.g., `phase-researcher`)
 - `plugins/marketplace-utils/` -- marketplace management utility plugin (2 skills)
 - `plugins/task-management/` -- Linear sync and GitHub issue management plugin (2 skills)
@@ -34,6 +34,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /phase-feedback       --> feedback-driven subphase: plans + executes modifications with opus agents (e.g., 4.1)
 /code [N] [description] --> .planning/.sessions/ (session log) + optional {NN}-REFINEMENT.md
 /add-security-findings --> .planning/SECURITY-AUDIT.md + roadmap integration
+/build [idea or PRD]  --> .planning/BUILD-STATE.md + BUILD-REPORT.md (autonomous full pipeline, chains all skills)
 /cst-help [question]  --> context-aware help, troubleshooting, skill reference
 ```
 
