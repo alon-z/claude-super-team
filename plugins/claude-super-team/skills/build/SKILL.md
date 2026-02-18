@@ -13,16 +13,18 @@ hooks:
     - matcher: "compact"
       hooks:
         - type: command
-          command: '{ echo "=== BUILD STATE ==="; cat .planning/BUILD-STATE.md 2>/dev/null; echo "=== PROJECT ==="; cat .planning/PROJECT.md 2>/dev/null; echo "=== ROADMAP ==="; cat .planning/ROADMAP.md 2>/dev/null; echo "=== STATE ==="; cat .planning/STATE.md 2>/dev/null; echo "=== BUILD PREFERENCES ==="; cat .planning/build-preferences.md 2>/dev/null; cat ~/.claude/build-preferences.md 2>/dev/null; }'
+          command: 'echo "=== BUILD STATE (resume from here) ==="; cat .planning/BUILD-STATE.md 2>/dev/null || echo "No build state found"; echo "=== RUN Step 0 to reload full context ==="'
 ---
 
-<!-- Dynamic context injection: pre-load build state, preferences, git status -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/build/gather-data.sh"`
+## Step 0: Load Context
 
-<!-- Core planning files (if they exist -- they won't on first run) -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
+Run the gather script to load build state, preferences, git status, and planning files:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/build/gather-data.sh"
+```
+
+Parse the output sections (BUILD_STATE, PREFERENCES, GIT, PROJECT, BROWNFIELD) before proceeding.
 
 ## AUTONOMOUS OPERATION -- CRITICAL INSTRUCTION
 
@@ -67,7 +69,7 @@ Build a complete application from a project idea or PRD to working, validated co
 
 ### Step 1: Detect Resume vs Fresh Start
 
-Check the pre-loaded BUILD_STATE section from gather-data.sh output injected above.
+Check the BUILD_STATE section from the gather-data.sh output.
 
 **If BUILD-STATE.md EXISTS and Status is `in_progress`:**
 
@@ -80,14 +82,15 @@ Read('.planning/BUILD-STATE.md')
 1. Determine current position from the Pipeline Progress and Phase Progress tables.
 2. Find the first row with status `in_progress` -- that is where to resume.
 3. Read the `Compaction count` field. Increment it by 1 and write back to BUILD-STATE.md.
-4. Check if a `build/*` branch exists (from gather-data.sh GIT section `BUILD_BRANCHES`):
+4. **Reconcile stale state:** Use the PHASE_COMPLETION section from gather-data.sh to sync ROADMAP.md and STATE.md with filesystem reality. For each phase with status `complete` in PHASE_COMPLETION that isn't marked `[x]` in ROADMAP.md, update ROADMAP.md (checkbox + progress table) and STATE.md (current position). This ensures planning files are accurate before resuming.
+5. Check if a `build/*` branch exists (from gather-data.sh GIT section `BUILD_BRANCHES`):
    - If a `build/*` branch exists, handle resume:
      - Check if execution completed on that branch: do SUMMARY.md files exist for all plans in the phase directory?
      - If yes: squash-merge the branch to main (see Step 9j) and continue to the next phase.
      - If no: checkout the branch and resume execution from Step 9g.
-5. Re-read `references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
-6. Skip to the appropriate step below based on current position.
-7. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
+6. Re-read `references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
+7. Skip to the appropriate step below based on current position.
+8. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
 
 **If BUILD-STATE.md does NOT exist or Status is `complete` or `failed`:**
 
@@ -141,7 +144,7 @@ Stop execution.
 
 ### Step 3: Load Preferences
 
-Read build preferences from both locations (if they exist). These are pre-loaded by gather-data.sh in the PREFERENCES section above.
+Read build preferences from both locations (if they exist). These are in the PREFERENCES section of the gather-data.sh output.
 
 1. **Global preferences:** `~/.claude/build-preferences.md` (from `GLOBAL_PREFS` in gather-data.sh output)
 2. **Project preferences:** `.planning/build-preferences.md` (from `PROJECT_PREFS` in gather-data.sh output)
@@ -181,7 +184,9 @@ Populate the Session section:
 
 Populate the Build Preferences section from Step 3 resolved values.
 
-Set Pipeline Progress "input-detection" row to `complete`.
+Set Pipeline Progress "input-detection" row to `complete`, with `Started` and `Completed` set to the current timestamp (HH:MM).
+
+**Timestamp convention:** Throughout the entire build, whenever you update a Pipeline Progress or Phase Progress row to `in_progress`, record the current time in the `Started` column (HH:MM format). When you update a row to `complete`, `skipped`, or `failed`, record the current time in the `Completed` column. This applies to all steps below.
 
 Write to `.planning/BUILD-STATE.md`:
 
@@ -320,7 +325,7 @@ Extract phase numbers, names, goals, and success criteria from the roadmap.
 
 Update BUILD-STATE.md:
 - Set Pipeline Progress "create-roadmap" row to `complete`.
-- Populate the Phase Progress table with one row per phase from ROADMAP.md. All columns set to `pending`.
+- Populate the Phase Progress table with one row per phase from ROADMAP.md. All step columns set to `pending`, `Started` and `Completed` set to `-`.
 - Set Current stage to `phase-execution`.
 
 ---
@@ -332,6 +337,8 @@ For each phase N in ROADMAP.md (sequential, in order):
 #### 9a. Update BUILD-STATE.md
 
 Set `Current phase` to N. Set `Current stage` to `phase-{N}-pipeline`.
+
+Set the Phase Progress row's `Started` column to the current time (HH:MM).
 
 Write BUILD-STATE.md.
 
@@ -609,7 +616,24 @@ Log: `Merge conflict for phase {N}. Branch deleted, changes lost. Phase marked i
 
 Update Phase Progress: set Git Merge to `complete` (or `failed` if merge failed), Status to `complete` (or `incomplete`).
 
-#### 9k. Update BUILD-STATE.md
+#### 9k. Sync Planning State Files
+
+After each phase completes (whether via successful merge or failure), explicitly sync ROADMAP.md and STATE.md to reflect reality. Do NOT rely on execute-phase having done this -- it may not have.
+
+**ROADMAP.md sync:**
+1. In the **Phases** checklist: change `- [ ]` to `- [x]` for the completed phase entry
+2. In the **Progress** table: set Status to "Complete" and Completed to today's date (YYYY-MM-DD format)
+
+**STATE.md sync:**
+1. Set "Phase:" in Current Position to {N+1} (the next phase number)
+2. Set "Status:" to the appropriate value for the next phase (e.g., "Ready to plan" or "Ready to execute")
+3. Update "Last activity:" to today's date with a brief note
+
+These updates happen on the main branch (after the squash-merge in Step 9j).
+
+#### 9l. Update BUILD-STATE.md
+
+Set the Phase Progress row's `Completed` column to the current time (HH:MM).
 
 Write the full updated BUILD-STATE.md with all progress changes from this phase iteration.
 

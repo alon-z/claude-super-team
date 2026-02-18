@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute plan index and preferences for /execute-phase
 
+echo "=== PROJECT ==="
+cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+echo "=== STATE ==="
+cat .planning/STATE.md 2>/dev/null || echo "(missing)"
+
 # Preferences from STATE.md
 echo "=== PREFERENCES ==="
 grep -E '^execution-model:' .planning/STATE.md 2>/dev/null || echo "execution-model: unset"
@@ -25,6 +32,35 @@ if [ -d .planning/phases ]; then
     done
   done
 fi
+
+# Computed phase completion from filesystem (source of truth)
+echo "=== PHASE_COMPLETION ==="
+if [ -d .planning/phases ]; then
+  for dir in .planning/phases/*/; do
+    [ -d "$dir" ] || continue
+    name=$(basename "$dir")
+    plans=$(find "$dir" -maxdepth 1 -name "*-PLAN.md" 2>/dev/null | wc -l | tr -d " ")
+    summaries=$(find "$dir" -maxdepth 1 -name "*-SUMMARY.md" 2>/dev/null | wc -l | tr -d " ")
+    if [ "$plans" -gt 0 ] && [ "$summaries" -ge "$plans" ]; then
+      echo "${name}|complete|plans=${plans}|summaries=${summaries}"
+    elif [ "$summaries" -gt 0 ]; then
+      echo "${name}|partial|plans=${plans}|summaries=${summaries}"
+    elif [ "$plans" -gt 0 ]; then
+      echo "${name}|planned|plans=${plans}|summaries=${summaries}"
+    else
+      echo "${name}|empty|plans=0|summaries=0"
+    fi
+  done
+fi
+
+# Roadmap checkbox status (may be stale -- compare with PHASE_COMPLETION)
+echo "=== ROADMAP_CHECKED ==="
+echo -n "CHECKED: "
+grep -E '^\s*- \[x\]' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{print $2}' | tr '\n' ' '
+echo
+echo -n "UNCHECKED: "
+grep -E '^\s*- \[ \]' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{print $2}' | tr '\n' ' '
+echo
 
 # Git branch for branch guard
 echo "=== GIT ==="

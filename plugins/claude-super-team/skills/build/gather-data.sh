@@ -45,10 +45,45 @@ fi
 
 # === PROJECT ===
 echo "=== PROJECT ==="
-[ -f .planning/PROJECT.md ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"
-[ -f .planning/ROADMAP.md ] && echo "HAS_ROADMAP=true" || echo "HAS_ROADMAP=false"
-[ -f .planning/STATE.md ] && echo "HAS_STATE=true" || echo "HAS_STATE=false"
+if [ -f .planning/PROJECT.md ]; then
+  echo "HAS_PROJECT=true"
+  cat .planning/PROJECT.md
+else
+  echo "HAS_PROJECT=false"
+fi
+if [ -f .planning/ROADMAP.md ]; then
+  echo "HAS_ROADMAP=true"
+  cat .planning/ROADMAP.md
+else
+  echo "HAS_ROADMAP=false"
+fi
+if [ -f .planning/STATE.md ]; then
+  echo "HAS_STATE=true"
+  cat .planning/STATE.md
+else
+  echo "HAS_STATE=false"
+fi
 [ -d .planning/codebase ] && echo "HAS_CODEBASE=true" || echo "HAS_CODEBASE=false"
+
+# === PHASE_COMPLETION === (filesystem source of truth for phase status)
+echo "=== PHASE_COMPLETION ==="
+if [ -d .planning/phases ]; then
+  for dir in .planning/phases/*/; do
+    [ -d "$dir" ] || continue
+    name=$(basename "$dir")
+    plans=$(find "$dir" -maxdepth 1 -name "*-PLAN.md" 2>/dev/null | wc -l | tr -d " ")
+    summaries=$(find "$dir" -maxdepth 1 -name "*-SUMMARY.md" 2>/dev/null | wc -l | tr -d " ")
+    if [ "$plans" -gt 0 ] && [ "$summaries" -ge "$plans" ]; then
+      echo "${name}|complete|plans=${plans}|summaries=${summaries}"
+    elif [ "$summaries" -gt 0 ]; then
+      echo "${name}|partial|plans=${plans}|summaries=${summaries}"
+    elif [ "$plans" -gt 0 ]; then
+      echo "${name}|planned|plans=${plans}|summaries=${summaries}"
+    else
+      echo "${name}|empty|plans=0|summaries=0"
+    fi
+  done
+fi
 
 # === BROWNFIELD ===
 echo "=== BROWNFIELD ==="
