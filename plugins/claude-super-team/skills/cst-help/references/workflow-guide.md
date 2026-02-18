@@ -38,6 +38,18 @@ Claude Super Team is a structured project planning and execution workflow for so
 /add-security-findings → Integrate security audit into roadmap
 ```
 
+### Full Automation
+
+```
+/build [idea or PRD]  → Autonomously chains entire pipeline from idea to working application
+                        Runs: /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap
+                        Then per phase: [/discuss-phase] -> [/research-phase] -> /plan-phase -> /execute-phase
+                        Creates .planning/BUILD-STATE.md (compaction resilience, auto-resume)
+                        Creates .planning/BUILD-REPORT.md (final summary with decisions and validation)
+                        Manages git branches per phase (build/{NN}-{slug}), squash-merges to main
+                        Supports: build-preferences.md for tech stack and style preferences
+```
+
 ## Key Concepts
 
 ### Phases
@@ -246,6 +258,9 @@ Phases define **observable, user-verifiable outcomes**, not task lists.
 ├── STATE.md                             # Current position, decisions
 ├── IDEAS.md                             # Brainstormed ideas (from /brainstorm)
 ├── SECURITY-AUDIT.md                    # Security findings (optional)
+├── BUILD-STATE.md                       # Build pipeline state and recovery (from /build)
+├── BUILD-REPORT.md                      # Final build summary (from /build)
+├── build-preferences.md                 # Per-project build preferences (optional)
 ├── .sessions/                           # Coding session logs (gitignored)
 │   └── 2026-02-16-1430-phase-3-refinement.md
 ├── codebase/                            # Codebase map (brownfield only)
