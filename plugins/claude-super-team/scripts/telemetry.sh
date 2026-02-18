@@ -48,14 +48,22 @@ fi
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # --- Determine output file path ---
+# Use session_id for a deterministic filename so all hooks in the same session
+# write to the same file, regardless of CLAUDE_ENV_FILE availability.
 if [ -n "${TELEMETRY_FILE:-}" ]; then
   OUTFILE="${TELEMETRY_FILE}"
+elif [ "${SESSION_ID}" != "unknown" ]; then
+  # Truncate session_id to first 12 chars for reasonable filenames
+  SHORT_ID="${SESSION_ID:0:12}"
+  OUTFILE="${TELEMETRY_DIR}/session-${SHORT_ID}.jsonl"
 else
+  # Last resort: timestamp-based (creates one file per hook invocation)
   DATE_SLUG=$(date -u +"%Y-%m-%dT%H-%M-%S")
   OUTFILE="${TELEMETRY_DIR}/${SKILL_NAME}-${DATE_SLUG}.jsonl"
 fi
 
 # --- Persist TELEMETRY_FILE for session (skill_start only) ---
+# Belt-and-suspenders: also set via CLAUDE_ENV_FILE when available
 if [ "${EVENT_TYPE}" = "skill_start" ] && [ -n "${CLAUDE_ENV_FILE:-}" ] && [ -z "${TELEMETRY_FILE:-}" ]; then
   echo "export TELEMETRY_FILE=\"${OUTFILE}\"" >> "${CLAUDE_ENV_FILE}" 2>/dev/null
 fi

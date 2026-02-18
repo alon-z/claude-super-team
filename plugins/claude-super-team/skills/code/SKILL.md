@@ -2,7 +2,7 @@
 name: code
 description: Interactive coding session with project context. Applies changes through direct conversation and tracks modifications in a session log. Use for ad-hoc coding, phase refinement, or any work you want to do conversationally without pre-planning.
 argument-hint: "[phase number] [description of what to work on]"
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *)
+allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *), Bash(bash *gather-data.sh)
 ---
 
 <!-- Dynamic context injection: pre-load core planning files -->

@@ -3,37 +3,6 @@ name: research-phase
 description: Research how to implement a phase before planning. Spawns a custom phase-researcher agent that investigates ecosystem, architecture patterns, libraries, and pitfalls. Firecrawl is preloaded via the agent definition. Produces RESEARCH.md consumed by /plan-phase planner. Use after /discuss-phase and before /plan-phase.
 argument-hint: "<phase number>"
 allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(bash *gather-data.sh)
-hooks:
-  SessionStart:
-    - matcher: ""
-      hooks:
-        - type: command
-          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_start research-phase'
-          once: true
-  Stop:
-    - hooks:
-        - type: command
-          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh skill_end research-phase'
-  SubagentStart:
-    - hooks:
-        - type: command
-          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_spawn research-phase'
-          async: true
-  SubagentStop:
-    - hooks:
-        - type: command
-          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh agent_complete research-phase'
-          async: true
-  PostToolUse:
-    - hooks:
-        - type: command
-          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_use research-phase'
-          async: true
-  PostToolUseFailure:
-    - hooks:
-        - type: command
-          command: '${CLAUDE_PLUGIN_ROOT}/scripts/telemetry.sh tool_failure research-phase'
-          async: true
 ---
 
 <!-- Dynamic context injection: pre-load core planning files -->
