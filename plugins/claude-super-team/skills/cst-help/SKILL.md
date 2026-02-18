@@ -7,8 +7,8 @@ argument-hint: "[question]"
 ---
 
 <!-- Dynamic context injection: pre-load project state before skill body executes -->
-!`ls .planning/ 2>/dev/null`
-!`ls .planning/phases/ 2>/dev/null`
+!`ls .planning/ 2>/dev/null || true`
+!`ls .planning/phases/ 2>/dev/null || true`
 
 ## Objective
 

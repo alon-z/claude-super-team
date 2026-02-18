@@ -2,8 +2,16 @@
 name: research-phase
 description: Research how to implement a phase before planning. Spawns a custom phase-researcher agent that investigates ecosystem, architecture patterns, libraries, and pitfalls. Firecrawl is preloaded via the agent definition. Produces RESEARCH.md consumed by /plan-phase planner. Use after /discuss-phase and before /plan-phase.
 argument-hint: "<phase number>"
-allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *)
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(bash *gather-data.sh)
 ---
+
+<!-- Dynamic context injection: pre-load core planning files -->
+!`cat .planning/PROJECT.md 2>/dev/null`
+!`cat .planning/ROADMAP.md 2>/dev/null`
+!`cat .planning/STATE.md 2>/dev/null`
+
+<!-- Structured data: phase artifacts, roadmap phases, codebase docs -->
+!`bash "${CLAUDE_PLUGIN_ROOT}/skills/research-phase/gather-data.sh"`
 
 ## Objective
 
@@ -20,59 +28,44 @@ Research ecosystem, libraries, architecture patterns, and pitfalls for a phase b
 
 ## Process
 
-### Phase 1: Validate Phase Number
+### Phase 1: Validate Environment
 
-```bash
-[ ! -f .planning/ROADMAP.md ] && echo "ERROR: No roadmap found. Run /create-roadmap first." && exit 1
-[ ! -f .planning/PROJECT.md ] && echo "ERROR: No project found. Run /new-project first." && exit 1
-```
+PROJECT.md, ROADMAP.md, and STATE.md are pre-loaded via dynamic context injection. If their contents are empty/missing from the injection, show the appropriate error and exit:
 
-You MUST run these checks before proceeding.
+- No PROJECT.md content: "ERROR: No project found. Run /new-project first."
+- No ROADMAP.md content: "ERROR: No roadmap found. Run /create-roadmap first."
 
-Parse phase number from `$ARGUMENTS`. If not provided or invalid, show available phases from ROADMAP.md and exit.
+### Phase 1.5: Parse Phase Number
+
+Parse phase number from `$ARGUMENTS`. If not provided or invalid, use **ROADMAP_PHASES** from the gather script to show available phases and exit.
 
 Normalize phase to zero-padded format:
 
-```bash
+```
 # Handle decimal phase numbers (e.g., 2.1 from inserted phases)
-if echo "$PHASE_NUM" | grep -q '\.'; then
-  INT_PART=$(echo "$PHASE_NUM" | cut -d. -f1)
-  DEC_PART=$(echo "$PHASE_NUM" | cut -d. -f2)
-  PHASE=$(printf "%02d.%s" "$INT_PART" "$DEC_PART")
-else
-  PHASE=$(printf "%02d" "$PHASE_NUM")
-fi
+2   -> 02
+2.1 -> 02.1
 ```
 
-Validate phase exists in ROADMAP.md:
+Validate phase exists using **ROADMAP_PHASES** from the gather script. If not found, show available phases and exit.
 
-```bash
-grep -A5 "Phase ${PHASE_NUM}" .planning/ROADMAP.md
+Find or create the phase directory using **PHASE_ARTIFACTS** from the gather script. Each line shows:
+
+```
+{dir_name}|context={N}|research={N}|plans={N}|summaries={N}
 ```
 
-If not found, show available phases and exit.
-
-Create phase directory if needed:
+Match on the phase prefix (e.g., `02-` or `02.1-`). If no directory exists, create it:
 
 ```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
-if [ -z "$PHASE_DIR" ]; then
-  PHASE_NAME=$(grep "Phase ${PHASE_NUM}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | sed 's/ *-.*//' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-  mkdir -p ".planning/phases/${PHASE}-${PHASE_NAME}"
-  PHASE_DIR=".planning/phases/${PHASE}-${PHASE_NAME}"
-fi
+mkdir -p ".planning/phases/${PHASE}-${phase_name}"
 ```
 
 ### Phase 2: Check Existing Research
 
-Check if RESEARCH.md already exists:
+Use **PHASE_ARTIFACTS** from the gather script. The `research` count for the matched phase directory tells you if RESEARCH.md exists (research > 0).
 
-```bash
-RESEARCH_FILE=$(ls "${PHASE_DIR}"/*-RESEARCH.md 2>/dev/null | head -1)
-[ -n "$RESEARCH_FILE" ] && echo "RESEARCH_EXISTS=true" || echo "RESEARCH_EXISTS=false"
-```
-
-**If RESEARCH_EXISTS=true:** Use AskUserQuestion:
+**If research exists:** Use AskUserQuestion:
 
 - header: "Research"
 - question: "RESEARCH.md already exists for this phase. What do you want to do?"
@@ -102,20 +95,20 @@ To plan with current research: /plan-phase {N}
 
 **On "Update research":** Load existing RESEARCH.md content to pass as context to the researcher agent. Continue to Phase 3.
 
-**If RESEARCH_EXISTS=false:** Continue to Phase 3.
+**If no research exists:** Continue to Phase 3.
 
 ### Phase 3: Load Phase Context
 
-Read and store these files for embedding in the agent prompt:
+PROJECT.md, ROADMAP.md, and STATE.md are already available from dynamic context injection. Gather additional files for embedding in the agent prompt:
 
-**Required:**
+**Already injected (use directly):**
 
-- `.planning/ROADMAP.md` -- phase goals, success criteria
 - `.planning/PROJECT.md` -- project vision, requirements
-
-**Optional (use if exists):**
-
+- `.planning/ROADMAP.md` -- phase goals, success criteria
 - `.planning/STATE.md` -- current position, accumulated decisions
+
+**Read if exists (check PHASE_ARTIFACTS and CODEBASE_DOCS from gather script):**
+
 - `${PHASE_DIR}/*-CONTEXT.md` -- user decisions from /discuss-phase (CRITICAL: constrains research scope)
 - `.planning/codebase/STACK.md` -- existing technology stack
 - `.planning/codebase/ARCHITECTURE.md` -- existing architecture patterns
