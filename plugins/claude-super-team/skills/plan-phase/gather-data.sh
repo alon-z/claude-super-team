@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute phase planning status for /plan-phase
 
+echo "=== PROJECT ==="
+cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+echo "=== STATE ==="
+cat .planning/STATE.md 2>/dev/null || echo "(missing)"
+
 # Per-phase planning status (critical for --all mode)
 echo "=== PHASE_STATUS ==="
 if [ -d .planning/phases ]; then

@@ -6,14 +6,15 @@ context: fork
 model: haiku
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
-!`cat .planning/SECURITY-AUDIT.md 2>/dev/null | head -20`
+## Step 0: Load Context
 
-<!-- Structured data: structure flags, phase map, summaries, sync check, git -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, BUILD_STATE_FILE, STRUCTURE, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD, GIT) before proceeding.
 
 ## Objective
 
@@ -45,7 +46,37 @@ Exit skill.
 |-----------|---------|--------|
 | `HAS_PROJECT=false` | Brand new project | Show: "Run /new-project to initialize" |
 | `HAS_PROJECT=true` but `HAS_ROADMAP=false` | Project defined, needs roadmap | Go to **Route: Between Milestones** |
-| All three `true` | Active project | Continue to Phase 2 |
+| All three `true` | Active project | Continue to Phase 1b |
+
+### Phase 1b: Detect Build Mode
+
+Check the **BUILD** section from gather-data.sh output.
+
+**If `HAS_BUILD_STATE=true` and `BUILD_STATUS=in_progress`:**
+
+This project is being built autonomously by `/build`. Set a `BUILD_MODE=true` flag for use in later phases. Extract key build state:
+
+- `BUILD_STAGE` -- current pipeline stage (e.g., `new-project`, `brainstorm`, `phase-3-pipeline`)
+- `BUILD_PHASE` -- current phase number being processed
+- `BUILD_COMPACTIONS` -- how many context compactions have occurred
+- `BUILD_STARTED` -- when the build started
+- `BUILD_INPUT` -- the original idea/PRD (truncated)
+- `BUILD_PIPELINE` -- pipeline progress rows
+- `BUILD_INCOMPLETE` -- any incomplete phases so far
+
+**If `HAS_BUILD_STATE=true` and `BUILD_STATUS=complete`:**
+
+Set `BUILD_MODE=false`. The build finished. Note the completed build for the status report.
+
+**If `HAS_BUILD_STATE=true` and `BUILD_STATUS=partial` or `BUILD_STATUS=failed`:**
+
+Set `BUILD_MODE=false`. The build ended with issues. Note for the status report and routing.
+
+**If `HAS_BUILD_STATE=false`:**
+
+Set `BUILD_MODE=false`. Standard manual workflow.
+
+Continue to Phase 2.
 
 ### Phase 2: Detect Planning File Sync Issues
 
@@ -120,6 +151,37 @@ Example: 7 of 10 plans done = `███████░░░` 70%
 **Progress:** {bar} {completed}/{total} plans
 **Phase:** {current_phase_num} of {total_phases} -- {current_phase_name}
 
+### Autonomous Build  (only show if BUILD_MODE=true)
+
+/build is actively running this project autonomously.
+
+| Field | Value |
+|-------|-------|
+| Status | {BUILD_STATUS} |
+| Stage | {BUILD_STAGE} |
+| Building Phase | {BUILD_PHASE} |
+| Started | {BUILD_STARTED} |
+| Compactions | {BUILD_COMPACTIONS} |
+| Input | {BUILD_INPUT} |
+
+Pipeline:
+{For each BUILD_PIPELINE row, show: stage -- status}
+
+{If BUILD_INCOMPLETE has entries:}
+Incomplete phases: {list from BUILD_INCOMPLETE}
+
+---
+
+### Build Result  (only show if BUILD_MODE=false AND HAS_BUILD_STATE=true)
+
+/build completed with status: {BUILD_STATUS}
+
+{If BUILD_STATUS=complete:} All phases built and validated successfully.
+{If BUILD_STATUS=partial:} Build finished with some incomplete phases. Review BUILD-REPORT.md.
+{If BUILD_STATUS=failed:} Build failed. Review BUILD-REPORT.md for errors.
+
+---
+
 ### Sync Issues
 
 - Directory `02.1-security-hardening` has no matching entry in ROADMAP.md
@@ -182,7 +244,11 @@ Omit any section with no content.
 
 Use current phase status to determine routing. Append routing block after status report.
 
-**Routing priority (first match wins):**
+**If `BUILD_MODE=true`:** Skip normal routing. Use **Route F: Build In Progress** instead.
+
+**If `BUILD_MODE=false` and `HAS_BUILD_STATE=true` and `BUILD_STATUS=partial`:** Use **Route G: Build Needs Attention** instead.
+
+**Otherwise, routing priority (first match wins):**
 
 | Current phase status | Route |
 |----------------------|-------|
@@ -315,6 +381,50 @@ No .planning/ or no PROJECT.md.
   /new-project
 ```
 
+### Route F: Build In Progress
+
+/build is actively running. Do not suggest manual actions that would conflict.
+
+```
+### Next
+
+▸ **/build is running autonomously**
+
+Currently at stage: {BUILD_STAGE}
+{If BUILD_PHASE != N/A: "Building phase: {BUILD_PHASE}"}
+Compactions survived: {BUILD_COMPACTIONS}
+
+The build is running without user intervention. You can:
+  - Wait for it to complete
+  - Check BUILD-STATE.md for detailed progress
+  - Interrupt and resume later with: /build (auto-resumes)
+```
+
+### Route G: Build Needs Attention
+
+/build finished but with issues.
+
+```
+### Next
+
+⚠ **/build finished with status: {BUILD_STATUS}**
+
+{If BUILD_STATUS=partial:}
+  Some phases are incomplete. Review the report and fix remaining issues:
+    cat .planning/BUILD-REPORT.md
+
+  Options:
+    /phase-feedback {N}   -- fix a specific incomplete phase
+    /build                -- re-run to resume from where it left off
+
+{If BUILD_STATUS=failed:}
+  The build hit a blocking error. Review the report:
+    cat .planning/BUILD-REPORT.md
+
+  Fix the blocker, then:
+    /build                -- auto-resumes from last position
+```
+
 ## Edge Cases
 
 **Blockers present:** Highlight blockers in status report before offering next action. Ask user if they want to address blockers first.
@@ -328,5 +438,6 @@ No .planning/ or no PROJECT.md.
 - [ ] Planning structure validated
 - [ ] Sync issues detected and reported when found
 - [ ] Current position clear with recent work, decisions, blockers
-- [ ] Smart routing provided based on project state
+- [ ] Build mode detected and reported when BUILD-STATE.md exists with in_progress status
+- [ ] Smart routing provided based on project state (including build-aware routes)
 - [ ] User knows exact next action

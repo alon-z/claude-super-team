@@ -137,7 +137,7 @@ This is the ONLY question asked before Claude takes over. After this, Claude wor
 
 Spawn 3 parallel analysis agents via the Task tool. Each agent receives the full project context (PROJECT.md content, ROADMAP.md content, codebase docs content) inlined in its prompt.
 
-**Agent 1: Codebase Explorer** (subagent_type: "Explore", thoroughness: "very thorough")
+**Agent 1: Codebase Explorer** (subagent_type: "Explore", thoroughness: "very thorough", model: "opus")
 
 ```
 Prompt: Deeply explore this codebase to find opportunities for improvement and new features.
@@ -196,7 +196,7 @@ Be opinionated. Take strong positions. Propose things the user hasn't thought of
 Generate at least 8-12 ideas. Quality over quantity, but don't hold back.
 ```
 
-**Agent 3: Architecture Reviewer** (subagent_type: "everything-claude-code:architect")
+**Agent 3: Architecture Reviewer** (subagent_type: "everything-claude-code:architect", model: "opus")
 
 ```
 Prompt: Review this project's architecture and propose improvements.

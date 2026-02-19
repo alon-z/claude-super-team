@@ -5,13 +5,15 @@ argument-hint: "[phase number] [feedback description]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *), Bash(bash *gather-data.sh)
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
+## Step 0: Load Context
 
-<!-- Structured data: executed phases, current phase, subphase numbers -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/phase-feedback/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/phase-feedback/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STATE, EXECUTED_PHASES, CURRENT_PHASE, SUBPHASES) before proceeding.
 
 ## Objective
 

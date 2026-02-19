@@ -5,13 +5,15 @@ argument-hint: "[phase number] [description of what to work on]"
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *), Bash(bash *gather-data.sh)
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
+## Step 0: Load Context
 
-<!-- Structured data: executed phases, current phase, recent sessions -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/code/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/code/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STATE, EXECUTED_PHASES, CURRENT_PHASE, RECENT_SESSIONS) before proceeding.
 
 ## Objective
 

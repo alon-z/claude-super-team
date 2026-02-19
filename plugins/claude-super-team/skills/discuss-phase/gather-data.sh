@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute cross-phase artifact inventory for /discuss-phase
 
+echo "=== PROJECT ==="
+cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+
 # Per-phase artifact inventory with status
 echo "=== PHASE_ARTIFACTS ==="
 if [ -d .planning/phases ]; then

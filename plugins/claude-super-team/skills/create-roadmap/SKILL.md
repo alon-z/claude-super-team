@@ -5,12 +5,15 @@ argument-hint: "[modification description]"
 allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(test *), Bash(bash *gather-data.sh)
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
+## Step 0: Load Context
 
-<!-- Structured data: file existence flags, existing phases, highest phase number -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/create-roadmap/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/create-roadmap/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STRUCTURE, EXISTING_PHASES, HIGHEST_PHASE, DECIMAL_PHASES) before proceeding.
 
 ## Objective
 

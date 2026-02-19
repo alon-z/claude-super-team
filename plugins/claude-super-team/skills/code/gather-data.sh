@@ -4,6 +4,14 @@
 
 P=.planning
 
+# === PLANNING_FILES ===
+echo "=== PROJECT ==="
+cat "$P/PROJECT.md" 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat "$P/ROADMAP.md" 2>/dev/null || echo "(missing)"
+echo "=== STATE ==="
+cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
+
 # === EXECUTED_PHASES ===
 echo "=== EXECUTED_PHASES ==="
 if [ -d "$P/phases" ]; then

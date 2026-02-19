@@ -5,13 +5,15 @@ argument-hint: "<phase number>"
 allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(bash *gather-data.sh)
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
+## Step 0: Load Context
 
-<!-- Structured data: phase artifacts, roadmap phases, codebase docs -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/research-phase/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/research-phase/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STATE, PREREQUISITES, PHASE_ARTIFACTS, ROADMAP_PHASES, CODEBASE_DOCS) before proceeding.
 
 ## Objective
 

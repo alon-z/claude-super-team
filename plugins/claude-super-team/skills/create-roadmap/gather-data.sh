@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute planning structure for /create-roadmap
 
+echo "=== PROJECT ==="
+cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+
 echo "=== STRUCTURE ==="
 [ -f .planning/PROJECT.md ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"
 [ -f .planning/ROADMAP.md ] && echo "HAS_ROADMAP=true" || echo "HAS_ROADMAP=false"
