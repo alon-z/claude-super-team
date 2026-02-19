@@ -376,7 +376,8 @@ For more: see references/troubleshooting.md
 /plan-phase [N]
   Create execution plans for phase
   → Creates .planning/phases/{NN}-{name}/*-PLAN.md
-  Options: --gaps (create gap closure plans), --all (plan all phases)
+  → Planner has built-in pre-flight checklist (checker skipped by default)
+  Options: --gaps (create gap closure plans), --all (plan all phases), --verify (run checker agent)
 
 /execute-phase [N]
   Execute plans, simplify code, and verify phase goals
@@ -424,6 +425,12 @@ For more: see references/troubleshooting.md
   → Phase-linked: loads phase context, creates REFINEMENT.md when done
   → Free-form: code with project awareness, session log only
   → Session logs tracked in .planning/.sessions/
+
+/optimize-artifacts [path]
+  Rewrite PLAN.md and RESEARCH.md files to be concise
+  → Replaces verbose code blocks with prose + critical snippets only
+  → Processes files in parallel per phase directory
+  → Defaults to .planning/ in current directory
 
 /add-security-findings
   Integrate security audit into roadmap

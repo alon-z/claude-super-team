@@ -490,7 +490,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 ### Use `/plan-phase` when:
 - Phase is defined in roadmap
 - Ready to break phase into executable plans
-- Optionally: use `--gaps` for fixing verification failures
+- Optionally: use `--gaps` for fixing verification failures, `--verify` to run checker agent (skipped by default)
 
 ### Use `/execute-phase` when:
 - Plans exist for the phase

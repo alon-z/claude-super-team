@@ -155,7 +155,7 @@ Decompose a roadmap phase into executable tasks and dependencies.
 
 - `--all` — Plan all unplanned phases sequentially
 - `--gaps` — Fix verification failures (gap closure mode)
-- `--skip-verify` — Skip plan verification
+- `--verify` — Run plan checker verification (skipped by default)
 
 **What it does:**
 

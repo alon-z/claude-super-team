@@ -48,7 +48,7 @@ Your RESEARCH.md is consumed by the planner agent which uses specific sections:
 | `## Architecture Patterns` | Task structure follows these patterns |
 | `## Don't Hand-Roll` | Tasks NEVER build custom solutions for listed problems |
 | `## Common Pitfalls` | Verification steps check for these |
-| `## Code Examples` | Task actions reference these patterns |
+| `## Key Patterns` | Critical snippets task actions reference (prose-first, not full implementations) |
 
 **Be prescriptive, not exploratory.** "Use X" not "Consider X or Y." Your research becomes instructions.
 
@@ -512,7 +512,7 @@ Research is complete when:
 - [ ] Architecture patterns documented
 - [ ] Don't-hand-roll items listed
 - [ ] Common pitfalls catalogued
-- [ ] Code examples provided from verified sources
+- [ ] Key patterns documented (critical snippets only, not full implementations)
 - [ ] All findings have confidence levels
 - [ ] Context7 used for known library documentation before falling back to web research
 - [ ] Firecrawl used for ecosystem discovery and novel tech research
@@ -606,13 +606,17 @@ Use this template when writing RESEARCH.md:
 
 ---
 
-## Code Examples
+## Key Patterns
 
-{Verified patterns from official sources. Include source URL.}
+{Only non-obvious patterns the executor would likely get wrong. Each snippet should be under 10 lines -- just enough to show the critical syntax or wiring, not a full implementation. Include source URL.}
 
-### {Example Name}
+### {Pattern Name}
 
-{code}
+{1-2 sentence description of why this pattern matters}
+
+```
+{short snippet -- the critical lines only}
+```
 
 Source: {URL}
 

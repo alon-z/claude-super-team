@@ -427,10 +427,7 @@ Invoke:
 Skill('plan-phase', '{N}')
 ```
 
-Answer any AskUserQuestion calls autonomously per the decision guide:
-
-- **Plan verification:** Always select **"Verify plans"**.
-- **Plan revision:** Select **"Accept plans"** unless the checker found critical issues (security vulnerabilities, missing core requirements, architectural violations). If critical: select **"Revise"** (one revision max, then accept regardless).
+Answer any AskUserQuestion calls autonomously per the decision guide. Plan checker is skipped by default (planner has built-in pre-flight checklist). If the skill asks about existing plans or research, prefer continuing without delay.
 
 Log decisions in BUILD-STATE.md Decisions Log.
 
