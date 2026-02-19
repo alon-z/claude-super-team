@@ -73,6 +73,18 @@
 - Run `/research-phase N` to investigate ecosystem
 - Then run `/plan-phase N` again
 
+#### "Research agent not using Context7"
+
+**Symptom:** Research takes long and only uses Firecrawl even for known libraries
+
+**Cause:** Context7 may not have the library indexed, or the question is ecosystem discovery (expected Firecrawl usage)
+
+**Solution:**
+- Context7 is used for specific named library documentation (e.g., "how to configure SSO in better-auth")
+- Firecrawl is expected for ecosystem discovery questions (e.g., "best auth library for Next.js")
+- If Context7 can't resolve a library, the agent automatically falls back to Firecrawl -- this is normal
+- Check RESEARCH.md metadata section for `Context7 libraries queried` count
+
 #### "Research found conflicts with CONTEXT.md decisions"
 
 **Symptom:** `/research-phase` reports chosen libraries are deprecated or better alternatives exist
@@ -336,6 +348,44 @@
 - Remove superseded sessions
 - Track approved ideas in ROADMAP.md
 
+### Build Automation
+
+#### "/build stopped or seems stuck"
+
+**Symptom:** `/build` stopped mid-pipeline or appears to have stalled
+
+**Solution:**
+- Check `.planning/BUILD-STATE.md` to see exactly where the pipeline stopped
+- Re-invoke `/build` -- it reads BUILD-STATE.md and auto-resumes from the last completed step
+- If BUILD-STATE.md is missing or corrupt, start fresh with a new `/build` invocation
+
+#### "BUILD-STATE.md shows incomplete phases"
+
+**Symptom:** BUILD-STATE.md lists phases as incomplete after `/build` finished
+
+**Solution:**
+- Review `.planning/BUILD-REPORT.md` for details on what succeeded and what failed
+- Use `/phase-feedback` manually on incomplete phases to address remaining issues
+- Run `/progress` to see overall project state
+
+#### "Build preferences not being used"
+
+**Symptom:** `/build` ignores tech stack or style preferences
+
+**Solution:**
+- Check file locations: `~/.claude/build-preferences.md` (global) or `.planning/build-preferences.md` (per-project)
+- Ensure the file uses plain markdown with clear preference declarations
+- Per-project preferences override global preferences
+
+#### "Git branch conflicts during squash-merge"
+
+**Symptom:** `/build` reports merge conflicts when squash-merging phase branches
+
+**Solution:**
+- `/build` operates locally and never pushes -- check `git status` for conflict markers
+- Resolve conflicts manually, then re-invoke `/build` to continue from where it stopped
+- If needed, use `git log --oneline --graph` to understand branch state
+
 ### Interactive Coding
 
 #### "When to use /code vs /phase-feedback"
@@ -472,6 +522,12 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Want Claude to autonomously analyze the project for opportunities
 - Need a structured way to capture and decide on ideas
 - Want to feed approved ideas directly into the roadmap
+
+### Use `/build` when:
+- Want full automation from idea to working code with zero intervention
+- Starting a greenfield project and want the entire pipeline handled autonomously
+- Want to let Claude make all implementation decisions end-to-end
+- Need compaction-resilient, resumable full-pipeline execution
 
 ### Use `/add-security-findings` when:
 - Have security audit results

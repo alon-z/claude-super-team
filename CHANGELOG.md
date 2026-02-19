@@ -2,6 +2,31 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.19] - 2026-02-19
+
+### claude-super-team
+- Added Context7 MCP integration to `phase-researcher` agent for fast, indexed library documentation lookups
+- Agent now intelligently routes research questions: Context7 for known library docs (configuration, API, patterns), Firecrawl for ecosystem discovery and novel tech
+- Added `mcp__context7__resolve-library-id` and `mcp__context7__query-docs` to agent tool list
+- Updated source hierarchy: Context7 indexed docs are highest priority, official docs via Firecrawl/WebFetch are second
+- Updated RESEARCH.md metadata template with Context7 availability and library query count
+- Updated researcher-guide.md reference copy to mirror agent changes
+- Updated /cst-help workflow-guide and troubleshooting with Context7 documentation
+
+## [1.0.18] - 2026-02-18
+
+### claude-super-team
+- Added `/build` skill for autonomous full-pipeline application building from idea to working code
+- Chains all 14 claude-super-team skills via Skill tool with zero user intervention
+- Maintains BUILD-STATE.md for compaction resilience and auto-resume across context compactions
+- Adaptive pipeline depth: LLM decides per-phase whether to run discuss/research or skip to plan/execute
+- Git autonomy: feature branch per phase execution, squash-merge to main, never pushes
+- Adaptive validation with bounded auto-fix (3 attempts) on final build/test failure
+- One feedback attempt per failed phase, then mark incomplete and continue
+- build-preferences.md support (global ~/.claude/ and per-project .planning/) for tech stack and style preferences
+- BUILD-REPORT.md generated at completion with full decisions log and low-confidence decision highlights
+- Updated /cst-help with /build documentation, troubleshooting entries, and workflow guide updates
+
 ## [1.0.17] - 2026-02-17
 
 ### claude-super-team

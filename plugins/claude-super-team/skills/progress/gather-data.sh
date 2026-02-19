@@ -4,6 +4,17 @@
 
 P=.planning
 
+echo "=== PROJECT ==="
+cat "$P/PROJECT.md" 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat "$P/ROADMAP.md" 2>/dev/null || echo "(missing)"
+echo "=== STATE ==="
+cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
+echo "=== SECURITY_AUDIT ==="
+head -20 "$P/SECURITY-AUDIT.md" 2>/dev/null || echo "(missing)"
+echo "=== BUILD_STATE_FILE ==="
+cat "$P/BUILD-STATE.md" 2>/dev/null || echo "(missing)"
+
 # === STRUCTURE ===
 echo "=== STRUCTURE ==="
 [ -d "$P" ] && echo "PLANNING_DIR=exists" || echo "PLANNING_DIR=missing"
@@ -58,6 +69,32 @@ echo
 
 grep -E '^\s*- \[x\] Phase' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "CHECKED: %s\n", $2}'
 grep -E '^\s*- \[ \] Phase' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "UNCHECKED: %s\n", $2}'
+
+# === BUILD ===
+echo "=== BUILD ==="
+if [ -f "$P/BUILD-STATE.md" ]; then
+  echo "HAS_BUILD_STATE=true"
+  status=$(grep -E '^- \*\*Status:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //')
+  echo "BUILD_STATUS=$status"
+  stage=$(grep -E '^- \*\*Current stage:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //')
+  echo "BUILD_STAGE=$stage"
+  phase=$(grep -E '^- \*\*Current phase:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //')
+  echo "BUILD_PHASE=$phase"
+  compactions=$(grep -E '^- \*\*Compaction count:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //')
+  echo "BUILD_COMPACTIONS=$compactions"
+  started=$(grep -E '^- \*\*Started:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //')
+  echo "BUILD_STARTED=$started"
+  input=$(grep -E '^- \*\*Input:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //' | head -c 100)
+  echo "BUILD_INPUT=$input"
+  # Extract pipeline progress rows (stage|status format)
+  echo "BUILD_PIPELINE:"
+  awk '/## Pipeline Progress/,/^## [^P]/' "$P/BUILD-STATE.md" 2>/dev/null | grep '^|' | grep -v '^\| Stage' | grep -v '^|---' | sed 's/| */|/g; s/ *|/|/g'
+  # Count incomplete phases
+  echo "BUILD_INCOMPLETE:"
+  awk '/## Incomplete Phases/,/^## /' "$P/BUILD-STATE.md" 2>/dev/null | grep -v '^#' | grep -v '^$' | head -5
+else
+  echo "HAS_BUILD_STATE=false"
+fi
 
 # === GIT ===
 echo "=== GIT ==="

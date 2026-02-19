@@ -5,13 +5,15 @@ argument-hint: "[phase number | --all] [--gaps] [--skip-verify]"
 allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh)
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
+## Step 0: Load Context
 
-<!-- Structured data: phase planning status, roadmap phases -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STATE, PHASE_STATUS, ROADMAP_PHASES) before proceeding.
 
 ## Objective
 
@@ -266,31 +268,19 @@ Parse the planner's output:
 
 Skip if `--skip-verify` flag was set.
 
-Read `references/plan-checker-guide.md`. Read all PLAN.md files just created:
-
-```bash
-PLANS_CONTENT=$(cat "${PHASE_DIR}"/*-PLAN.md 2>/dev/null)
-```
-
-Spawn via Task tool:
+Spawn via Task tool using the custom `plan-checker` agent (read-only, no Bash access).
+The agent has its own instructions -- no need to embed the checker guide.
 
 ```
 Task(
-  subagent_type: "general-purpose"
-  model: "sonnet"
+  subagent_type: "plan-checker"
   description: "Verify Phase {N} plans"
   prompt: """
-  You are a plan checker. Follow these instructions:
+  Verify the plans for Phase {phase_number}.
 
-  {plan_checker_guide_content}
-
-  ---
-
-  Phase: {phase_number}
   Phase goal (from roadmap): {phase_goal}
 
-  Plans to verify:
-  {plans_content}
+  Plans directory: {phase_dir}
 
   Requirements (if exists):
   {requirements_content}

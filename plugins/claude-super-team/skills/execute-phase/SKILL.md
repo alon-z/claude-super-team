@@ -13,16 +13,18 @@ hooks:
     - matcher: "compact"
       hooks:
         - type: command
-          command: '{ echo "=== STATE ==="; cat .planning/STATE.md 2>/dev/null; echo "=== PROJECT ==="; cat .planning/PROJECT.md 2>/dev/null; echo "=== EXEC PROGRESS ==="; find .planning/phases -name "EXEC-PROGRESS.md" -exec cat {} \; 2>/dev/null; echo "=== PLANS ==="; PHASE_DIR=$(find .planning/phases -name "EXEC-PROGRESS.md" -exec dirname {} \; 2>/dev/null | head -1); [ -n "$PHASE_DIR" ] && cat "$PHASE_DIR"/*-PLAN.md 2>/dev/null; }'
+          command: 'echo "=== EXEC PROGRESS (resume from here) ==="; find .planning/phases -name "EXEC-PROGRESS.md" -exec cat {} \; 2>/dev/null || echo "No execution progress file found"; echo "=== RUN Step 0 to reload full context ==="'
 ---
 
-<!-- Dynamic context injection: pre-load core planning files -->
-!`cat .planning/PROJECT.md 2>/dev/null`
-!`cat .planning/ROADMAP.md 2>/dev/null`
-!`cat .planning/STATE.md 2>/dev/null`
+## Step 0: Load Context
 
-<!-- Structured data: plan index with wave/gap/completion metadata, preferences, branch -->
-!`bash "${CLAUDE_PLUGIN_ROOT}/skills/execute-phase/gather-data.sh"`
+Run the gather script to load planning files and structured data:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/skills/execute-phase/gather-data.sh"
+```
+
+Parse the output sections (PROJECT, ROADMAP, STATE, PREFERENCES, PHASE_PLANS, PHASE_COMPLETION, ROADMAP_CHECKED, GIT) before proceeding.
 
 ## Objective
 
@@ -43,6 +45,36 @@ PROJECT.md, ROADMAP.md, and STATE.md are pre-loaded via dynamic context injectio
 
 - No ROADMAP.md content: "ERROR: No roadmap found. Run /create-roadmap first."
 - No PROJECT.md content: "ERROR: No project found. Run /new-project first."
+
+### Phase 1.1: Reconcile Stale State
+
+Use the **PHASE_COMPLETION** and **ROADMAP_CHECKED** sections from the gather script to detect and fix desync between filesystem reality and planning files.
+
+**PHASE_COMPLETION** shows the actual status of each phase directory based on SUMMARY.md file counts:
+- `complete` = all plans have summaries (phase was fully executed)
+- `partial` = some summaries exist (execution was interrupted)
+- `planned` = plans exist but no summaries (not yet executed)
+- `empty` = directory exists but no plans
+
+**ROADMAP_CHECKED** shows which phases ROADMAP.md marks as `[x]` vs `[ ]`.
+
+**Compare and fix:**
+
+For each phase in PHASE_COMPLETION with status `complete`:
+1. Check if ROADMAP.md has it marked as `[x]`. If not (still `[ ]`), fix it:
+   - In the **Phases** checklist: change `- [ ]` to `- [x]` for that phase's entry
+   - In the **Progress** table: set Status to "Complete" and Completed to today's date
+
+For each phase in PHASE_COMPLETION with status `complete` or `partial`:
+2. Check if STATE.md's "Current Position" Phase number is behind the actual progress. If the current phase in STATE.md is equal to or lower than a completed phase, update STATE.md to point to the next incomplete phase.
+
+**If any fixes were applied**, print:
+
+```
+Reconciled stale state: {N} phases marked complete in ROADMAP.md, STATE.md updated to phase {M}.
+```
+
+**If no desync detected**, skip silently.
 
 ### Phase 1.5: Branch Guard
 

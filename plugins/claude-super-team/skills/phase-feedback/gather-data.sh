@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute executed phases and subphase numbers for /phase-feedback
 
+echo "=== PROJECT ==="
+cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+echo "=== STATE ==="
+cat .planning/STATE.md 2>/dev/null || echo "(missing)"
+
 # Executed phases (those with SUMMARY.md files)
 echo "=== EXECUTED_PHASES ==="
 if [ -d .planning/phases ]; then

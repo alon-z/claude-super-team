@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 7 -- Efficiency Regression Detection
+**Current focus:** Complete -- all planned phases executed
 
 ## Current Position
 
-Phase: 6 of 7 (completed through 6)
+Phase: 8 of 8 (completed through 8)
 Status: Executed and Verified
-Last activity: 2026-02-17 -- Phase 6 executed (teams mode, opus, 1 wave, 2 plans)
+Last activity: 2026-02-18 -- Phase 8 executed (teams + task mode, opus, 3 waves, 4 plans)
 
 ## Preferences
 
@@ -33,9 +33,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - Phase 6: Added hook-based telemetry capture. telemetry.sh shell script captures 6 event types as JSONL. 4 orchestrator skills (execute-phase, plan-phase, research-phase, brainstorm) wired via 24 hook declarations in YAML frontmatter. Zero token cost, fail-safe, async for high-frequency events.
 
+- Phase 8: Created /build skill for autonomous full-pipeline application building. 869-line SKILL.md with 13-step process, compaction resilience hooks, autonomous AskUserQuestion handling via decision guide, adaptive pipeline depth/validation heuristics, git branch-per-phase with squash-merge, bounded auto-fix loops. Foundation: gather-data.sh, 3 asset templates, 2 reference guides. Integration: cst-help updated, version bumped to 1.0.18, changelog/docs updated.
+
 ### Blockers/Concerns
 
 None.
 
 ---
-*Last updated: 2026-02-17 -- Phase 6 executed and verified*
+*Last updated: 2026-02-18 -- Phase 8 executed and verified*

@@ -3,6 +3,13 @@
 
 P=.planning
 
+echo "=== PROJECT ==="
+cat "$P/PROJECT.md" 2>/dev/null || echo "(missing)"
+echo "=== ROADMAP ==="
+cat "$P/ROADMAP.md" 2>/dev/null || echo "(missing)"
+echo "=== STATE ==="
+cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
+
 # === PREREQUISITES ===
 echo "=== PREREQUISITES ==="
 [ -f "$P/PROJECT.md" ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"

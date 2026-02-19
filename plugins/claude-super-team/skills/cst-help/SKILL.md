@@ -124,6 +124,9 @@ Read `references/workflow-guide.md` for details if needed. Answer only what was 
 **Ad-hoc skills:**
 `/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
 
+**Full automation:**
+`/build` (chains entire pipeline from idea to working application -- zero user intervention, compaction-resilient, auto-validates and auto-fixes)
+
 **Example answers:**
 - "After creating a new phase?" → Run `/discuss-phase N` to clarify decisions, then `/research-phase N` to investigate the ecosystem, then `/plan-phase N`.
 - "Difference between discuss-phase and plan-phase?" → `/discuss-phase` gathers user decisions before planning. `/plan-phase` creates executable plans with tasks and waves.
@@ -429,6 +432,18 @@ For more: see references/troubleshooting.md
     Autonomous -- auto-invoked after security scan, extracts findings from context
   → Creates .planning/SECURITY-AUDIT.md
   → Adds security phases to roadmap
+
+## Full Automation
+
+/build [idea or PRD path]
+  Autonomously build entire application from idea to working code
+  → Chains all skills with zero user intervention
+  → Manages git branches per phase, squash-merges to main, never pushes
+  → Validates output after each phase, auto-fixes failures (bounded retries)
+  → Creates .planning/BUILD-STATE.md for compaction resilience and auto-resume
+  → Creates .planning/BUILD-REPORT.md at completion with decisions log
+  → Supports build-preferences.md for tech stack and style preferences
+  → Adaptive pipeline: LLM decides per-phase whether to discuss/research or skip
 
 ## Help
 

@@ -22,6 +22,7 @@ The main plugin. Provides a sequential pipeline of skills for planning and deliv
 | `/quick-plan` | Insert a lightweight phase with decimal numbering |
 | `/phase-feedback` | Feedback-driven subphase with opus agents |
 | `/code [N]` | Interactive coding session with project context |
+| `/build [idea or PRD]` | Autonomously build entire application from idea to working code |
 | `/add-security-findings` | Integrate security audit results into the roadmap |
 | `/cst-help [question]` | Get help, troubleshooting, and skill reference |
 
@@ -60,6 +61,10 @@ claude mcp add-plugin /path/to/claude-super-team/plugins/claude-super-team
 ```
 
 ## How It Works
+
+**Full automation:** Run `/build` with a project idea or PRD path and the entire pipeline runs autonomously -- from project definition through brainstorming, roadmap creation, and phased execution. Zero user intervention required. Creates BUILD-STATE.md for compaction resilience and BUILD-REPORT.md with a complete decisions log.
+
+**Step-by-step control:**
 
 1. **Define** your project with `/new-project`
 2. **Map** an existing codebase with `/map-codebase` (optional)

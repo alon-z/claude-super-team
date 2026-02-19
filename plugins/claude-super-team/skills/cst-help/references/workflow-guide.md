@@ -13,6 +13,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 /discuss-phase [N]    → Explore codebase, gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
                         Recommends /research-phase next if no RESEARCH.md exists
 /research-phase [N]   → Research ecosystem and patterns (.planning/phases/NN-name/NN-RESEARCH.md)
+                        Uses Context7 for known library docs, Firecrawl for ecosystem discovery
                         Checks findings against CONTEXT.md, suggests /discuss-phase if conflicts found
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)
@@ -36,6 +37,18 @@ Claude Super Team is a structured project planning and execution workflow for so
 /phase-feedback       → Quick fix or plan feedback subphase (creates subphase like 4.1 for non-trivial changes)
 /code [N] [desc]      → Interactive coding session with project context (.planning/.sessions/)
 /add-security-findings → Integrate security audit into roadmap
+```
+
+### Full Automation
+
+```
+/build [idea or PRD]  → Autonomously chains entire pipeline from idea to working application
+                        Runs: /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap
+                        Then per phase: [/discuss-phase] -> [/research-phase] -> /plan-phase -> /execute-phase
+                        Creates .planning/BUILD-STATE.md (compaction resilience, auto-resume)
+                        Creates .planning/BUILD-REPORT.md (final summary with decisions and validation)
+                        Manages git branches per phase (build/{NN}-{slug}), squash-merges to main
+                        Supports: build-preferences.md for tech stack and style preferences
 ```
 
 ## Key Concepts
@@ -246,6 +259,9 @@ Phases define **observable, user-verifiable outcomes**, not task lists.
 ├── STATE.md                             # Current position, decisions
 ├── IDEAS.md                             # Brainstormed ideas (from /brainstorm)
 ├── SECURITY-AUDIT.md                    # Security findings (optional)
+├── BUILD-STATE.md                       # Build pipeline state and recovery (from /build)
+├── BUILD-REPORT.md                      # Final build summary (from /build)
+├── build-preferences.md                 # Per-project build preferences (optional)
 ├── .sessions/                           # Coding session logs (gitignored)
 │   └── 2026-02-16-1430-phase-3-refinement.md
 ├── codebase/                            # Codebase map (brownfield only)

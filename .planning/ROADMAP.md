@@ -17,6 +17,7 @@ Evolve the Claude Super Team plugin marketplace from a working but unoptimized s
 - [ ] **Phase 5: Workflow Validation & Gap Closure** - Dogfood updated marketplace on a real project, discover and fix remaining gaps
 - [x] **Phase 6: Hook-Based Telemetry Capture** - Add passive telemetry to orchestrator skills via shared shell script and skill-scoped hooks
 - [ ] **Phase 7: Efficiency Regression Detection** - Create /metrics skill for resource reporting and threshold-based violation detection
+- [x] **Phase 8: Full Auto Mode** - Create /build skill that autonomously chains all pipeline skills to go from idea to fully built and validated application
 
 ## Phase Details
 
@@ -121,6 +122,17 @@ Success Criteria:
   2. Absolute thresholds are configurable via `.planning/.telemetry/config.json`
   3. The skill flags threshold violations and presents them alongside the summary report
 
+### Phase 8: Full Auto Mode
+**Goal**: Create a `/build` skill that autonomously chains the entire planning pipeline -- from idea to fully built and validated application -- using all claude-super-team skills with no user intervention, surviving many context compactions and self-validating its output at each stage
+**Depends on**: Phase 7
+**Requirements**: Add missing capabilities (Active req 4)
+**Success Criteria** (what must be TRUE when this phase completes):
+  1. A `/build` skill exists that accepts a project idea as input and autonomously orchestrates: `/new-project` -> `/brainstorm` (autonomous mode) -> `/create-roadmap` -> and for each phase: `/discuss-phase` -> `/research-phase` -> `/plan-phase` -> `/execute-phase`
+  2. The skill makes autonomous decisions at every AskUserQuestion checkpoint, using LLM reasoning to select the best option without user intervention
+  3. The skill maintains a durable `BUILD-STATE.md` file that tracks the exact pipeline position (which skill, which phase, which step), all decisions made, and all validation results -- enabling full recovery after any context compaction
+  4. After each phase execution, the skill runs self-validation: builds the project, runs tests (if any exist), checks for errors, and uses `/phase-feedback` autonomously to fix issues before proceeding to the next phase
+  5. At completion, the user has a working application that builds and passes its own tests, with all `.planning/` artifacts documenting the full journey from idea to delivery
+
 ## Progress
 
 | Phase | Status | Completed |
@@ -139,6 +151,7 @@ Success Criteria:
 | 5. Workflow Validation & Gap Closure | Not started | - |
 | 6. Hook-Based Telemetry Capture | Complete | 2026-02-17 |
 | 7. Efficiency Regression Detection | Not started | - |
+| 8. Full Auto Mode | Complete | 2026-02-18 |
 
 ---
 *Created: 2026-02-11*

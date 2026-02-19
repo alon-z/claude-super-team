@@ -5,7 +5,6 @@ argument-hint: "[optional: topic to update e.g. 'db and auth', or 'refresh' to r
 context: fork
 model: sonnet
 allowed-tools: Read, Glob, Grep, Write, Task, Bash(ls *), Bash(rm *), Bash(mkdir *), Bash(wc *), Bash(grep *)
-disable-model-invocation: true
 ---
 
 <objective>
