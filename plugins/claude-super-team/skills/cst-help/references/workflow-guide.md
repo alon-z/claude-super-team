@@ -13,6 +13,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 /discuss-phase [N]    → Explore codebase, gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
                         Recommends /research-phase next if no RESEARCH.md exists
 /research-phase [N]   → Research ecosystem and patterns (.planning/phases/NN-name/NN-RESEARCH.md)
+                        Uses Context7 for known library docs, Firecrawl for ecosystem discovery
                         Checks findings against CONTEXT.md, suggests /discuss-phase if conflicts found
 /plan-phase [N]       → Create execution plans (.planning/phases/NN-name/*-PLAN.md)
 /execute-phase [N]    → Execute plans and verify (.planning/phases/NN-name/*-SUMMARY.md + *-VERIFICATION.md)

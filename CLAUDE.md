@@ -42,7 +42,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 
 - **Phase numbering**: Directories use zero-padded format (`01-foundation`, `02-auth`). Inserted phases use decimals (`02.1-security-hardening`).
 - **Never auto-commit**: All skills tell the user how to commit but never run `git commit` automatically (exception: `/new-project` commits if it initialized a new git repo).
-- **Agent orchestration**: `/plan-phase`, `/execute-phase`, and `/research-phase` spawn subagents via the Task tool. Planners and researchers get opus, checkers get sonnet. `/research-phase` uses a custom `phase-researcher` agent (`agents/phase-researcher.md`) with preloaded Firecrawl skill; other skills embed context inline in prompts (no `@` file references across Task boundaries).
+- **Agent orchestration**: `/plan-phase`, `/execute-phase`, and `/research-phase` spawn subagents via the Task tool. Planners and researchers get opus, checkers get sonnet. `/research-phase` uses a custom `phase-researcher` agent (`agents/phase-researcher.md`) with Context7 MCP for known library documentation and preloaded Firecrawl skill for ecosystem discovery; other skills embed context inline in prompts (no `@` file references across Task boundaries).
 - **Wave-based execution**: Plans group into waves. Plans within a wave run in parallel; waves run sequentially.
 - **Goal-backward success criteria**: Each phase defines observable, user-verifiable outcomes -- not task lists.
 - **State tracking**: `STATE.md` tracks current phase position, decisions, and blockers. `ROADMAP.md` tracks phase completion.

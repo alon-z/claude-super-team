@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.19] - 2026-02-19
+
+### claude-super-team
+- Added Context7 MCP integration to `phase-researcher` agent for fast, indexed library documentation lookups
+- Agent now intelligently routes research questions: Context7 for known library docs (configuration, API, patterns), Firecrawl for ecosystem discovery and novel tech
+- Added `mcp__context7__resolve-library-id` and `mcp__context7__query-docs` to agent tool list
+- Updated source hierarchy: Context7 indexed docs are highest priority, official docs via Firecrawl/WebFetch are second
+- Updated RESEARCH.md metadata template with Context7 availability and library query count
+- Updated researcher-guide.md reference copy to mirror agent changes
+- Updated /cst-help workflow-guide and troubleshooting with Context7 documentation
+
 ## [1.0.18] - 2026-02-18
 
 ### claude-super-team

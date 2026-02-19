@@ -96,9 +96,54 @@ When researching "best library for X":
 
 <tool_strategy>
 
-## 1. Firecrawl (Primary -- if available)
+## 1. Context7 MCP (Primary -- for known library documentation)
+
+Use Context7 for specific library questions where documentation is indexed.
+
+**When to use Context7:**
+- Checking how to configure/use a specific named library (e.g., "SSO in better-auth", "middleware in Next.js")
+- Getting latest API changes, breaking changes, migration guides for a library
+- Finding recommended patterns for a specific library's features
+- Integration patterns between two known libraries
+- Version-specific behavior and configuration
+
+**When NOT to use Context7 (use Firecrawl instead):**
+- Ecosystem discovery: "what's the best library for X"
+- Comparing multiple unnamed alternatives
+- Researching novel/niche technologies unlikely to be indexed
+- Security audit sources and compliance patterns
+- Broad architectural research beyond a single library's scope
+
+**Protocol:**
+1. Call `mcp__context7__resolve-library-id(libraryName: "{library}", query: "{what you need}")`
+2. If resolved: call `mcp__context7__query-docs(libraryId: "{id}", query: "{specific question}")` with focused queries
+3. If not resolved: fall back to Firecrawl/WebSearch for this technology
+
+**Query focus -- non-trivial information only:**
+- Latest changes, breaking changes, migration guides
+- Best practices and recommended patterns for specific use cases
+- Common pitfalls, gotchas, anti-patterns
+- Integration patterns with other libraries in the stack
+
+**Do NOT query Context7 for:**
+- Basic installation (Claude knows this)
+- Fundamental syntax unchanged for years
+- General concepts ("what is React")
+
+**Confidence:** Context7 findings from official indexed docs are HIGH confidence.
+If a library isn't found in Context7, note it and fall back to Firecrawl -- don't mark it as "doesn't exist."
+
+## 2. Firecrawl (Primary -- for discovery and novel tech)
 
 If Firecrawl is available, a **Firecrawl CLI Reference** section is embedded in your prompt. The orchestrator loaded it via the `/firecrawl` skill. That reference is the authoritative source for all Firecrawl commands, options, parallelization, and output handling. Follow it exactly.
+
+**When to use Firecrawl (not Context7):**
+- Ecosystem discovery: finding the best library for a use case
+- Comparing multiple alternatives side-by-side
+- Novel/niche technologies unlikely to be in Context7's index
+- Proprietary API documentation
+- Security audit sources and compliance patterns
+- Broader architectural research across multiple sources
 
 **Key principles (the embedded reference has full details):**
 - Use `firecrawl search` for ecosystem discovery -- always include the current year in queries
@@ -108,7 +153,7 @@ If Firecrawl is available, a **Firecrawl CLI Reference** section is embedded in 
 - Never read entire output files -- use grep/head/incremental reads
 - Quote URLs
 
-## 2. WebSearch (Fallback -- if Firecrawl unavailable)
+## 3. WebSearch (Fallback -- if Firecrawl unavailable)
 
 Use only when the prompt says "Firecrawl available: false":
 
@@ -136,7 +181,7 @@ Problem discovery:
 - "[technology] gotchas"
 ```
 
-## 3. WebFetch (Fallback -- if Firecrawl unavailable)
+## 4. WebFetch (Fallback -- if Firecrawl unavailable)
 
 Use only when the prompt says "Firecrawl available: false":
 
@@ -149,7 +194,7 @@ WebFetch("https://docs.example.com/getting-started", "Extract setup instructions
 - Prefer /docs/ paths over marketing pages
 - Fetch multiple pages if needed
 
-## 4. Codebase Reading (Always)
+## 5. Codebase Reading (Always)
 
 Use Grep, Glob, and Read to understand existing patterns:
 
@@ -189,32 +234,37 @@ For each finding from search:
 
 | Level | Sources | Use |
 |-------|---------|-----|
-| HIGH | Official documentation, official releases, package registry | State as fact |
+| HIGH | Context7 indexed docs, official documentation, official releases, package registry | State as fact |
 | MEDIUM | Search verified with official source, multiple credible sources agree | State with attribution |
 | LOW | Single search result, single source, unverified | Flag as needing validation |
 
 ## Source Prioritization
 
-**1. Official Documentation (highest priority)**
+**1. Context7 Indexed Documentation (highest priority)**
+- Official docs, pre-indexed and structured
+- Trust for API, configuration, and pattern questions
+- Version-aware, maintained by library authors
+
+**2. Official Documentation via Firecrawl/WebFetch**
 - Authoritative, version-aware
 - Trust for API/feature questions
-- Scrape via Firecrawl or fetch via WebFetch
+- Use when Context7 doesn't have the library
 
-**2. Official GitHub**
+**3. Official GitHub**
 - README, releases, changelogs
 - Issue discussions (for known problems)
 - Examples in /examples directory
 
-**3. Package Registries**
+**4. Package Registries**
 - npm, PyPI, crates.io for version verification
 - Download counts for adoption signals
 
-**4. Search Results (verified)**
+**5. Search Results (verified)**
 - Community patterns confirmed with official source
 - Multiple credible sources agreeing
 - Recent (include year in search)
 
-**5. Search Results (unverified)**
+**6. Search Results (unverified)**
 - Single blog post
 - Stack Overflow without official verification
 - Community discussions
@@ -327,12 +377,25 @@ Based on phase description, identify what needs investigating:
 
 ## Step 3: Execute Research Protocol
 
-For each domain, follow tool strategy in priority order:
+For each research domain, route to the right tool:
 
-1. **Firecrawl search** (if available) -- ecosystem discovery
-2. **Firecrawl scrape / WebFetch** -- official docs for verification
-3. **Codebase reading** -- existing patterns and constraints
-4. **Verification** -- cross-reference all findings
+1. **Known library questions** (how to use X, configure Y, integrate A with B):
+   -> Context7 first. If not indexed, fall back to Firecrawl/WebSearch.
+
+2. **Ecosystem discovery** (what's the best tool for X, compare alternatives):
+   -> Firecrawl search for discovery, then scrape top candidates' docs.
+
+3. **Novel/niche technology** (custom protocols, proprietary APIs, bleeding-edge tools):
+   -> Firecrawl search + scrape official docs.
+
+4. **Architecture patterns** (how experts structure this type of project):
+   -> Context7 for framework-specific patterns, Firecrawl for broader architectural guidance.
+
+5. **Codebase reading** (always):
+   -> Grep/Glob/Read for existing patterns and constraints.
+
+6. **Verification** (always):
+   -> Cross-reference findings across sources. Context7 official docs count as HIGH confidence source.
 
 Document findings as you go with confidence levels.
 
@@ -444,6 +507,8 @@ Research is complete when:
 - [ ] Common pitfalls catalogued
 - [ ] Code examples provided from verified sources
 - [ ] All findings have confidence levels
+- [ ] Context7 used for known library documentation before falling back to web research
+- [ ] Firecrawl used for ecosystem discovery and novel tech research
 - [ ] RESEARCH.md created in correct format
 - [ ] User Constraints section is FIRST (if CONTEXT.md exists)
 - [ ] Structured return provided to orchestrator

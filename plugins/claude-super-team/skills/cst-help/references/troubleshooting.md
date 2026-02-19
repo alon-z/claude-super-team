@@ -73,6 +73,18 @@
 - Run `/research-phase N` to investigate ecosystem
 - Then run `/plan-phase N` again
 
+#### "Research agent not using Context7"
+
+**Symptom:** Research takes long and only uses Firecrawl even for known libraries
+
+**Cause:** Context7 may not have the library indexed, or the question is ecosystem discovery (expected Firecrawl usage)
+
+**Solution:**
+- Context7 is used for specific named library documentation (e.g., "how to configure SSO in better-auth")
+- Firecrawl is expected for ecosystem discovery questions (e.g., "best auth library for Next.js")
+- If Context7 can't resolve a library, the agent automatically falls back to Firecrawl -- this is normal
+- Check RESEARCH.md metadata section for `Context7 libraries queried` count
+
 #### "Research found conflicts with CONTEXT.md decisions"
 
 **Symptom:** `/research-phase` reports chosen libraries are deprecated or better alternatives exist
