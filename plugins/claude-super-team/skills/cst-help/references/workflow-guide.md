@@ -225,6 +225,7 @@ Plans grouped for execution:
 - Wave structure enables parallel execution
 - Verification ensures phase goals achieved
 - Requires code-simplifier plugin: `/plugin install code-simplifier@claude-plugins-official`
+- **Agent lifecycle**: Press ESC to cancel the main thread without killing background agents. Use ctrl+f to kill all background agents. Shift+Down navigates between teammates.
 
 ### Compaction Resilience
 

@@ -269,6 +269,15 @@
 
 ### Agent and Execution Errors
 
+#### "Need to stop background agents during execution"
+
+**Symptom:** Background agents running and you want to cancel them
+
+**Solution:**
+- Press ESC to cancel the main thread only (background agents keep running)
+- Press ctrl+f to kill all background agents
+- Use Shift+Down to navigate between teammates
+
 #### "Agent task failed or timed out"
 
 **Symptom:** Task tool returns error during planning/execution
