@@ -2,6 +2,25 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.21] - 2026-02-20
+
+### claude-super-team
+- Added "Code in Actions" section to planner guide: actions are prose-first with critical snippets only (non-obvious API patterns, exact constants, tricky wiring -- max ~10 lines each)
+- Renamed `## Code Examples` to `## Key Patterns` in researcher template: same conciseness rules apply, eliminates full implementations from RESEARCH.md
+- Updated planner guide Research Fidelity section to reference `Key Patterns` and discourage expanding snippets into full code
+- Added `/optimize-artifacts` skill: rewrites existing PLAN.md and RESEARCH.md files to be concise, processing phase directories in parallel with sonnet agents
+- Added `disable-model-invocation: true` to `/optimize-artifacts` (user-only, not auto-invocable)
+- Updated `/cst-help` skill reference with `/optimize-artifacts` entry
+
+## [1.0.20] - 2026-02-20
+
+### claude-super-team
+- Optimized plan-phase speed: flipped checker from default to opt-in (`--verify` flag)
+- Added pre-flight checklist to planner guide covering the 6 most common checker dimensions (task completeness, scope, dependencies, key links, must-haves, context compliance)
+- Eliminates 3 out of 4 agent spawns in the common case (planner only, no checker/revision loop)
+- Updated /build skill to not request verification by default
+- Updated /cst-help skill reference, workflow-guide, and troubleshooting with new `--verify` flag
+
 ## [1.0.19] - 2026-02-19
 
 ### claude-super-team

@@ -1,7 +1,7 @@
 ---
 name: plan-phase
-description: Create execution plans (PLAN.md files) for a roadmap phase. Spawns a planner agent to decompose phase goals into executable plans with tasks, dependencies, and wave structure. Includes plan verification loop. Use after /create-roadmap to plan a specific phase before execution. Supports --all to plan every unplanned phase sequentially. Supports gap closure mode (--gaps) for fixing verification failures.
-argument-hint: "[phase number | --all] [--gaps] [--skip-verify]"
+description: Create execution plans (PLAN.md files) for a roadmap phase. Spawns a planner agent to decompose phase goals into executable plans with tasks, dependencies, and wave structure. Planner includes built-in pre-flight checklist for quality (checker skipped by default, opt-in with --verify). Use after /create-roadmap to plan a specific phase before execution. Supports --all to plan every unplanned phase sequentially. Supports gap closure mode (--gaps) for fixing verification failures.
+argument-hint: "[phase number | --all] [--gaps] [--verify]"
 allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh)
 ---
 
@@ -19,7 +19,8 @@ Parse the output sections (PROJECT, ROADMAP, STATE, PHASE_STATUS, ROADMAP_PHASES
 
 Create executable PLAN.md files for a roadmap phase by spawning a planner agent, then verifying plans with a checker agent.
 
-**Flow:** Load context -> Spawn planner -> Verify plans -> Revision loop (if needed) -> Done
+**Flow:** Load context -> Spawn planner (with built-in pre-flight checklist) -> Done
+**Flow (with --verify):** Load context -> Spawn planner -> Verify plans -> Revision loop (if needed) -> Done
 
 **Why agents:** Planning burns context fast. The planner gets a fresh context with all project files + methodology. The checker gets fresh context with just the plans. Main context stays lean.
 
@@ -42,13 +43,13 @@ Extract from $ARGUMENTS:
 - Phase number (integer). If not provided, detect next unplanned phase from roadmap.
 - `--all` flag: Plan all unplanned phases sequentially
 - `--gaps` flag: Gap closure mode (reads VERIFICATION.md, creates fix plans)
-- `--skip-verify` flag: Skip the checker verification loop
+- `--verify` flag: Run the checker verification loop (skipped by default)
 
 **Validations:**
 
 - `--all` + phase number: ERROR -- mutually exclusive. Show: "Cannot combine --all with a specific phase number."
 - `--all` + `--gaps`: ERROR -- gap closure is phase-specific. Show: "Cannot combine --all with --gaps. Run gap closure on a specific phase."
-- `--all` + `--skip-verify`: Valid.
+- `--all` + `--verify`: Valid.
 
 If `--all` is set, skip the phase number normalization below and proceed to Phase 2.5.
 
@@ -254,7 +255,7 @@ Task(
 
 Parse the planner's output:
 
-**`## PLANNING COMPLETE`:** Plans created. Continue to Phase 7 (unless --skip-verify).
+**`## PLANNING COMPLETE`:** Plans created. Continue to Phase 7 (if --verify), otherwise skip to Phase 9.
 
 **`## REVISION COMPLETE`:** Plans revised. Continue to Phase 7 for re-verification.
 
@@ -266,7 +267,7 @@ Parse the planner's output:
 
 ### Phase 7: Spawn Plan Checker
 
-Skip if `--skip-verify` flag was set.
+Skip unless `--verify` flag was set.
 
 Spawn via Task tool using the custom `plan-checker` agent (read-only, no Bash access).
 The agent has its own instructions -- no need to embed the checker guide.
@@ -464,7 +465,7 @@ Incomplete:
 - [ ] All available context loaded and embedded in agent prompts
 - [ ] Planner agent spawned with full context + planner guide + plan template
 - [ ] PLAN.md files created in phase directory
-- [ ] Plan checker spawned (unless --skip-verify)
+- [ ] Plan checker spawned (if --verify)
 - [ ] Verification passed OR user override OR max iterations with user decision
 - [ ] User sees clear completion summary with wave structure
 - [ ] User told how to commit (never auto-commit)

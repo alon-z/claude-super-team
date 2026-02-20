@@ -37,7 +37,7 @@ If RESEARCH.md exists from /research-phase, it contains investigated findings:
 - **Architecture Patterns section** = FOLLOW THESE structures. Task `<files>` should match.
 - **Don't Hand-Roll section** = NEVER build custom solutions for listed problems. Use recommended libraries.
 - **Common Pitfalls section** = ADD verification steps checking for these in task `<verify>` blocks.
-- **Code Examples section** = REFERENCE these patterns in task `<action>` blocks.
+- **Key Patterns section** = REFERENCE these critical snippets in task `<action>` blocks. These are non-obvious patterns only -- do not expand them into full implementations.
 - **User Constraints section** = Same as CONTEXT.md decisions -- already LOCKED.
 
 Research findings are advisory (not locked like CONTEXT.md decisions), but deviation should be justified in the plan.
@@ -50,9 +50,10 @@ Every task has four required fields:
 - Good: `src/app/api/auth/login/route.ts`
 - Bad: "the auth files"
 
-**action:** Specific implementation instructions.
+**action:** Prose implementation instructions. Describe what to build, not the code -- the executor reads the codebase and writes its own. Include code snippets ONLY for critical patterns the executor would likely get wrong (see "Code in Actions" below).
 - Good: "Create POST endpoint accepting {email, password}, validate with bcrypt, return JWT in httpOnly cookie with 15-min expiry. Use jose library (not jsonwebtoken -- CommonJS issues with Edge runtime)."
 - Bad: "Add authentication"
+- Bad: A full file implementation in a code block
 
 **verify:** How to prove the task is complete.
 - Good: `npm test` passes, `curl -X POST /api/auth/login` returns 200 with Set-Cookie header
@@ -63,6 +64,28 @@ Every task has four required fields:
 - Bad: "Authentication is complete"
 
 **The test:** Could a different Claude instance execute this task without clarifying questions? If not, add specificity.
+
+## Code in Actions
+
+Actions are prose instructions, not code dumps. The executor reads the codebase, understands existing patterns, and writes its own code. Pre-written implementations are wasted tokens -- the planner pays to generate them, and the executor either copies them blindly (losing codebase-aware judgment) or ignores them and rewrites from scratch.
+
+**Include code only when it prevents a likely mistake:**
+
+| Include | Example | Why |
+|---------|---------|-----|
+| Non-obvious API patterns | `export default { port, fetch: app.fetch }` | Framework-specific; executor might use the wrong pattern |
+| Critical type shapes | `{ type: "register", machine_id: string }` | Protocol contract that must be matched exactly |
+| Tricky config/wiring | `platform() === "darwin" ? "macos" : "linux"` | Non-obvious mapping the executor wouldn't guess |
+| Exact constants from requirements | `const BACKOFF = [1000, 2000, 4000, 8000, 30000]` | Specific values that matter for behavior |
+
+**Never include:**
+
+- Full file implementations (the executor writes these)
+- Boilerplate (imports, class scaffolding, standard patterns)
+- Test implementations (describe what to test, not the test code)
+- Code the executor will trivially derive from the action prose
+
+**Rule of thumb:** If a snippet is >10 lines, it's probably too much. A good action block is mostly prose with targeted snippets only where the executor would otherwise get it wrong.
 
 ## Task Types
 
@@ -205,6 +228,45 @@ Triggered when orchestrator provides checker feedback. Make targeted updates, no
 2. Group by plan and dimension
 3. Make targeted edits (add missing fields, fix dependencies, split oversized plans)
 4. Do NOT rewrite plans for minor issues
+
+## Pre-flight Checklist
+
+Before returning PLANNING COMPLETE, run this checklist against every plan. These are the issues most frequently caught by plan verification -- catching them here eliminates the revision loop.
+
+**Task completeness (most common failure):**
+- [ ] Every `auto` task has all four fields: `<files>`, `<action>`, `<verify>`, `<done>`
+- [ ] No `<verify>` block says just "It works" or "Check it" -- must be a concrete command or observable check
+- [ ] No `<action>` block is a single vague sentence -- must have specific implementation steps
+- [ ] `<done>` criteria are measurable states, not task descriptions
+
+**Scope sanity:**
+- [ ] No plan has more than 3 tasks (split if 4+)
+- [ ] No plan touches more than 8 files (split if 10+)
+- [ ] No single task touches more than 5 files
+
+**Dependency correctness:**
+- [ ] Every `depends_on` reference points to a plan that exists
+- [ ] Wave numbers are consistent: if plan X depends on plan Y, X.wave > Y.wave
+- [ ] No circular dependencies
+- [ ] Same-wave plans have zero file overlap in `files_modified`
+
+**Key links (second most common failure):**
+- [ ] Components are imported where they're used (not just created)
+- [ ] API routes are called from somewhere (not just defined)
+- [ ] State stores are connected to UI (not just created)
+- [ ] Each `must_haves.key_links` entry has a corresponding task action that creates the wiring
+
+**Must-haves derivation:**
+- [ ] Truths are user-observable ("User can log in"), not implementation-focused ("bcrypt installed")
+- [ ] Every artifact has a corresponding file in some task's `<files>`
+- [ ] Key links connect artifacts that are created by different tasks/plans
+
+**Context compliance (if CONTEXT.md provided):**
+- [ ] Every locked decision has at least one implementing task
+- [ ] No task implements a deferred idea
+- [ ] No task contradicts a locked decision
+
+If any check fails, fix it before returning. Do NOT rely on the checker to catch these -- getting them right on the first pass saves an entire revision cycle.
 
 ## Structured Returns
 

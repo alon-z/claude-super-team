@@ -8,7 +8,7 @@ Companion to [ORCHESTRATION-REFERENCE.md](./ORCHESTRATION-REFERENCE.md). This do
 - **Documented but unused**: Confirmed capability not leveraged by this marketplace (Phase 2 adoption opportunity)
 - **Unverified**: Found in single source only; needs empirical verification
 
-Generated: 2026-02-11 | Claude Code version: 2.1.39
+Generated: 2026-02-11 | Claude Code version: 2.1.49 (updated 2026-02-20)
 
 ---
 
@@ -109,7 +109,7 @@ Generated: 2026-02-11 | Claude Code version: 2.1.39
 
 All hook capabilities are **Documented but unused** in this marketplace. See ORCH-REF "Hooks System" for detailed event tables, matcher syntax, and handler types.
 
-### Hook Events (15 Total)
+### Hook Events (16 Total)
 
 | Capability             | Description                                              | Status                | ORCH-REF Section | Notes                                        |
 |------------------------|----------------------------------------------------------|---------------------- |------------------|----------------------------------------------|
@@ -127,6 +127,7 @@ All hook capabilities are **Documented but unused** in this marketplace. See ORC
 | `TeammateIdle`         | Fires when teammate goes idle (teams)                    | Documented but unused | Hooks System     | Prevent idle or inject feedback              |
 | `TaskCompleted`        | Fires when team task completed (teams)                   | Documented but unused | Hooks System     | Validate before marking done                 |
 | `PreCompact`           | Fires before context compaction                          | Documented but unused | Hooks System     | Custom compaction instructions               |
+| `ConfigChange`         | Fires when config files change during session            | Documented but unused | Not covered      | Added v2.1.49; security auditing, block settings changes |
 | `Setup`                | Fires via `--init`/`--maintenance`                       | Documented but unused | Hooks System     | Project initialization automation            |
 
 ### Handler Types & Fields
@@ -155,7 +156,7 @@ All hook capabilities are **Documented but unused** in this marketplace. See ORC
 
 ### Expanded Notes
 
-**Hook input/output specifics**: Command handlers receive JSON on stdin with fields including `hook_event_name`, `tool_use_id`, `agent_transcript_path`. Output JSON can include `updatedInput` (modify tool input), `additionalContext` (inject context), `permissionDecision` (allow/deny). Environment variables `CLAUDE_PROJECT_DIR` and `CLAUDE_ENV_FILE` are available. Source: code.claude.com/docs/en/hooks.
+**Hook input/output specifics**: Command handlers receive JSON on stdin with fields including `hook_event_name`, `tool_use_id`, `agent_transcript_path`. As of v2.1.47, `Stop` and `SubagentStop` hooks also receive `last_assistant_message` containing the final assistant response text. Output JSON can include `updatedInput` (modify tool input), `additionalContext` (inject context), `permissionDecision` (allow/deny). Environment variables `CLAUDE_PROJECT_DIR` and `CLAUDE_ENV_FILE` are available. Source: code.claude.com/docs/en/hooks.
 
 ---
 
@@ -410,7 +411,7 @@ All session capabilities are **Documented but unused** by this marketplace. See 
 | `--fork-session`     | Divergent branch on resume                     | Documented but unused | Session Management  | New session ID, preserved context    |
 | Checkpointing        | Automatic file edit tracking                   | Documented but unused | Not covered         | See expanded note                    |
 | `/rewind`            | Restore to previous checkpoint                 | Documented but unused | Not covered         | Undo file changes                    |
-| `Esc+Esc`            | Quick access to checkpoint restore             | Documented but unused | Not covered         | Shortcut for /rewind                 |
+| `Esc+Esc`            | Quick access to checkpoint restore             | Documented but unused | Not covered         | Shortcut for /rewind; ESC no longer kills background agents (use ctrl+f) |
 | Restore options      | Restore code only, conversation, or both       | Documented but unused | Not covered         | Granular undo control                |
 | Summarize-from-here  | Partial context summarization                  | Documented but unused | Not covered         | Selective compaction                 |
 | `--remote`           | Create web session                             | Documented but unused | Session Management  | Remote execution                     |
@@ -560,14 +561,14 @@ Capability areas to re-check when Claude Code updates. These are fast-moving or 
 
 | Area               | What to Check                                                      | Last Verified |
 |--------------------|--------------------------------------------------------------------|---------------|
-| Agent Teams        | New team tools, teammate modes, team-scoped hooks                  | 2026-02-11    |
-| Hooks              | New hook events, handler types, input/output fields                | 2026-02-11    |
-| Plugin system      | New component types, manifest fields, distribution methods         | 2026-02-11    |
-| Skills frontmatter | New fields, variable substitution enhancements                     | 2026-02-11    |
-| CLI flags          | New flags, especially `--from-pr`, `--remote` evolution            | 2026-02-11    |
+| Agent Teams        | New team tools, teammate modes, team-scoped hooks                  | 2026-02-20    |
+| Hooks              | New hook events, handler types, input/output fields                | 2026-02-20    |
+| Plugin system      | New component types, manifest fields, distribution methods         | 2026-02-20    |
+| Skills frontmatter | New fields, variable substitution enhancements                     | 2026-02-20    |
+| CLI flags          | New flags, especially `--from-pr`, `--remote` evolution            | 2026-02-20    |
 | Output Styles      | New predefined styles, frontmatter fields                          | 2026-02-11    |
 | MCP                | New MCP features, auto:N syntax, MCPSearch evolution               | 2026-02-11    |
-| Session management | Checkpointing improvements, remote session features                | 2026-02-11    |
+| Session management | Checkpointing improvements, remote session features                | 2026-02-20    |
 | Agent SDK          | New SDK features, Python SDK maturity                              | 2026-02-11    |
 | Memory             | Auto Memory improvements, modular rules enhancements               | 2026-02-11    |
 
