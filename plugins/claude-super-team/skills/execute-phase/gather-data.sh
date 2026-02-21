@@ -14,10 +14,11 @@ if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
   cat .planning/STATE.md 2>/dev/null || echo "(missing)"
 fi
 
-# Preferences from STATE.md
+# Preferences from STATE.md and environment
 echo "=== PREFERENCES ==="
 grep -E '^execution-model:' .planning/STATE.md 2>/dev/null || echo "execution-model: unset"
 grep -E '^simplifier:' .planning/STATE.md 2>/dev/null || echo "simplifier: unset"
+[ "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-}" = "1" ] && echo "teams-available: true" || echo "teams-available: false"
 
 # Plan discovery with metadata for all phases
 echo "=== PHASE_PLANS ==="
