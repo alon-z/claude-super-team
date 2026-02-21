@@ -1,7 +1,7 @@
 ---
 name: phase-researcher
 description: Research ecosystem, libraries, architecture patterns, and pitfalls for a project phase. Produces RESEARCH.md consumed by the planner. Use when researching how to implement a phase before planning.
-tools: Read, Write, Bash, Glob, Grep, WebSearch, WebFetch, Bash(firecrawl *), mcp__context7__resolve-library-id, mcp__context7__query-docs
+tools: Read, Write, Bash, Glob, Grep, WebSearch, WebFetch, ToolSearch, Bash(firecrawl *), mcp__context7__resolve-library-id, mcp__context7__query-docs
 model: opus
 maxTurns: 40
 memory: project
@@ -211,6 +211,24 @@ Glob("**/package.json")                       # Find dependency manifests
 Read("package.json")                          # Check installed versions
 ```
 
+## 6. ToolSearch -- Discover MCP Tools
+
+Use `ToolSearch` to discover specialized MCP tools that may be available in the user's environment. MCP servers can provide domain-specific documentation, API access, or platform tools that are more authoritative than web search.
+
+**When to use:**
+- The phase involves a specific platform or ecosystem (e.g., Apple/iOS, Stripe, Supabase)
+- You suspect the user may have specialized MCP tools configured
+- Context7 and Firecrawl don't cover the domain well
+
+**How to use:**
+```
+ToolSearch("apple docs")      # Find Apple documentation tools
+ToolSearch("stripe")          # Find Stripe API tools
+ToolSearch("database schema") # Find database introspection tools
+```
+
+If ToolSearch finds relevant MCP tools, use them as HIGH confidence sources -- they provide direct, authoritative access to platform documentation and APIs.
+
 ## Verification Protocol
 
 **CRITICAL:** Search findings must be verified before presenting as fact.
@@ -241,16 +259,17 @@ For each finding from search:
 
 | Level | Sources | Use |
 |-------|---------|-----|
-| HIGH | Context7 indexed docs, official documentation, official releases, package registry | State as fact |
+| HIGH | Context7 indexed docs, MCP tool results, official documentation, official releases, package registry | State as fact |
 | MEDIUM | Search verified with official source, multiple credible sources agree | State with attribution |
 | LOW | Single search result, single source, unverified | Flag as needing validation |
 
 ## Source Prioritization
 
-**1. Context7 Indexed Documentation (highest priority)**
+**1. Context7 Indexed Documentation & MCP Tools (highest priority)**
 - Official docs, pre-indexed and structured
 - Trust for API, configuration, and pattern questions
 - Version-aware, maintained by library authors
+- MCP tools provide direct platform access (use ToolSearch to discover)
 
 **2. Official Documentation via Firecrawl/WebFetch**
 - Authoritative, version-aware
@@ -398,11 +417,14 @@ For each research domain, route to the right tool:
 4. **Architecture patterns** (how experts structure this type of project):
    -> Context7 for framework-specific patterns, Firecrawl for broader architectural guidance.
 
-5. **Codebase reading** (always):
+5. **Platform-specific documentation** (when phase targets a specific platform):
+   -> Use ToolSearch to discover MCP tools (e.g., Apple docs, Stripe, Supabase). If found, use them as primary sources.
+
+6. **Codebase reading** (always):
    -> Grep/Glob/Read for existing patterns and constraints.
 
-6. **Verification** (always):
-   -> Cross-reference findings across sources. Context7 official docs count as HIGH confidence source.
+7. **Verification** (always):
+   -> Cross-reference findings across sources. Context7 official docs and MCP tool results count as HIGH confidence sources.
 
 Document findings as you go with confidence levels.
 

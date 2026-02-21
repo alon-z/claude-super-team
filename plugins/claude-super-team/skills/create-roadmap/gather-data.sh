@@ -2,9 +2,13 @@
 # gather-data.sh - Pre-compute planning structure for /create-roadmap
 
 echo "=== PROJECT ==="
-cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
+  cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+fi
 echo "=== ROADMAP ==="
-cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
+  cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+fi
 
 echo "=== STRUCTURE ==="
 [ -f .planning/PROJECT.md ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"

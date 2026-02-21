@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.23] - 2026-02-21
+
+### claude-super-team
+- Added conditional gather scripts: all 9 `gather-data.sh` scripts now support `SKIP_PROJECT`, `SKIP_ROADMAP`, `SKIP_STATE` env vars to skip re-dumping files already in context, reducing redundant token usage during `/build` pipeline and after compaction resume
+- Updated `/build` SKILL.md with "Context-Aware Gathering" section: instructs Claude to prefix child skill gather commands with skip flags when core planning files are already loaded
+- Added context-aware skip guidance to Step 0 of all 8 child skill SKILL.md files (create-roadmap, discuss-phase, execute-phase, plan-phase, phase-feedback, progress, code, research-phase)
+- Added `ToolSearch` to `phase-researcher` agent tools: agent can now discover platform-specific MCP servers (e.g., Apple docs, Stripe, Supabase) at research time
+- Added section 6 "ToolSearch -- Discover MCP Tools" to researcher tool strategy with when/how guidance and MCP tool results treated as HIGH confidence sources
+- Updated `phase-researcher` source hierarchy and execution flow routing to include MCP tool discovery step for platform-specific phases
+
 ## [1.0.22] - 2026-02-21
 
 ### claude-super-team

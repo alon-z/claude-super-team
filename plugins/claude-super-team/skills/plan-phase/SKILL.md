@@ -15,6 +15,8 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"
 
 Parse the output sections (PROJECT, ROADMAP, STATE, PHASE_STATUS, ROADMAP_PHASES) before proceeding.
 
+**Context-aware skip:** If PROJECT.md, ROADMAP.md, or STATE.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"`. Only set flags for files genuinely already in context.
+
 ## Objective
 
 Create executable PLAN.md files for a roadmap phase by spawning a planner agent, then verifying plans with a checker agent.
