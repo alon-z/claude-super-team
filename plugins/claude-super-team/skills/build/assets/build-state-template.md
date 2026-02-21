@@ -3,7 +3,8 @@
 ## Session
 - **Started:** {timestamp}
 - **Input:** {user_input}
-- **Input source:** {inline|file|both}
+- **Input source:** {inline|file|both|extend}
+- **Build mode:** {fresh|extend}
 - **Status:** {not_started|in_progress|complete|failed}
 - **Current stage:** {pipeline_stage}
 - **Current phase:** {N|N/A}

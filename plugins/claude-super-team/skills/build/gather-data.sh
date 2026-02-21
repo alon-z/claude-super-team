@@ -45,17 +45,15 @@ fi
 
 # === PROJECT ===
 echo "=== PROJECT ==="
-if [ -f .planning/PROJECT.md ]; then
-  echo "HAS_PROJECT=true"
+[ -f .planning/PROJECT.md ] && HAS_PROJECT=true || HAS_PROJECT=false
+[ -f .planning/ROADMAP.md ] && HAS_ROADMAP=true || HAS_ROADMAP=false
+echo "HAS_PROJECT=$HAS_PROJECT"
+if [ "$HAS_PROJECT" = "true" ]; then
   cat .planning/PROJECT.md
-else
-  echo "HAS_PROJECT=false"
 fi
-if [ -f .planning/ROADMAP.md ]; then
-  echo "HAS_ROADMAP=true"
+echo "HAS_ROADMAP=$HAS_ROADMAP"
+if [ "$HAS_ROADMAP" = "true" ]; then
   cat .planning/ROADMAP.md
-else
-  echo "HAS_ROADMAP=false"
 fi
 if [ -f .planning/STATE.md ]; then
   echo "HAS_STATE=true"
@@ -83,6 +81,19 @@ if [ -d .planning/phases ]; then
       echo "${name}|empty|plans=0|summaries=0"
     fi
   done
+fi
+
+# === EXTEND ===
+echo "=== EXTEND ==="
+if [ -f .planning/BUILD-STATE.md ]; then
+  STATUS=$(grep -m1 "^\- \*\*Status:\*\*" .planning/BUILD-STATE.md | sed 's/.*\*\* //')
+  if [ "$STATUS" = "complete" ] && [ "$HAS_PROJECT" = "true" ] && [ "$HAS_ROADMAP" = "true" ]; then
+    echo "EXTEND_CANDIDATE=true"
+  else
+    echo "EXTEND_CANDIDATE=false"
+  fi
+else
+  echo "EXTEND_CANDIDATE=false"
 fi
 
 # === BROWNFIELD ===
