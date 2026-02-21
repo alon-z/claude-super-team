@@ -2,6 +2,11 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.24] - 2026-02-21
+
+### claude-super-team
+- Added `teams-available` flag to `/execute-phase` gather-data.sh: detects `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` env var and outputs availability in the PREFERENCES section
+
 ## [1.0.23] - 2026-02-21
 
 ### claude-super-team
