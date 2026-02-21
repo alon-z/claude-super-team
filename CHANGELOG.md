@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.25] - 2026-02-21
+
+### claude-super-team
+- execute-phase: Teams mode teammates now evaluate newly created/modified directories for strategic CLAUDE.md files after each task; task-execution-guide defines concise rules (max 3-5 lines, most dirs skip, critical non-obvious context only)
+- research-phase: New Phase 3.5 scans prior RESEARCH.md files from completed phases and selectively includes relevant ones in the researcher agent prompt (0-3 files max, orchestrator judges relevance by phase goal comparison)
+
+### marketplace-utils
+- release: PR title now derived from commit messages following repo convention `[plugin] (type): Description (vX.Y.Z)` instead of static "Release vX.Y.Z"
+
 ## [1.0.24] - 2026-02-21
 
 ### claude-super-team

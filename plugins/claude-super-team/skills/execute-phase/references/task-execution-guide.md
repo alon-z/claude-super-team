@@ -64,6 +64,38 @@ If the plan type is `tdd`, follow RED-GREEN-REFACTOR:
 2. **GREEN:** Implement minimal code to pass. Commit: `feat({phase}-{plan}): {task-name}`
 3. **REFACTOR:** Clean up if needed. Commit: `refactor({phase}-{plan}): {task-name}`
 
+## Strategic CLAUDE.md Files
+
+After completing your task, evaluate whether any directory you created or heavily modified warrants a CLAUDE.md file. These files help the next developer who enters the directory understand critical, non-obvious context.
+
+**When to create one:** Only when the directory contains something a developer MUST know that is not obvious from reading the code -- e.g., a non-standard auth flow, a critical ordering constraint, an unusual data format, a gotcha that would cause bugs if missed.
+
+**When NOT to create one:** Do not create CLAUDE.md files for straightforward code, standard patterns, or directories where the code is self-explanatory. Most directories do NOT need one.
+
+**Rules:**
+- Maximum 3-5 lines. One-liners are preferred.
+- No boilerplate, no headers, no formatting fluff. Just the critical facts.
+- If a CLAUDE.md already exists in the directory, append your line(s) to it rather than overwriting.
+- Do not duplicate what the code already says. Only capture what you CANNOT see from reading the code.
+
+**Examples:**
+
+```
+# src/auth/CLAUDE.md
+Refresh tokens use rotating scheme -- old token invalidated on use. See /api/auth/refresh.
+Session cookie is httpOnly + secure + sameSite=strict. Never expose token to client JS.
+```
+
+```
+# src/db/migrations/CLAUDE.md
+Migrations run in alphabetical order. Prefix with timestamp, not sequence number.
+```
+
+```
+# src/payments/CLAUDE.md
+Stripe webhook signature verification is mandatory. Raw body must be preserved (no JSON parsing middleware).
+```
+
 ## Self-Check
 
 Before reporting completion, verify:

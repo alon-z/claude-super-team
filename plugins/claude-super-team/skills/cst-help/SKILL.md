@@ -371,6 +371,7 @@ For more: see references/troubleshooting.md
 
 /research-phase [N]
   Research ecosystem, libraries, patterns before planning
+  → Automatically includes relevant RESEARCH.md files from prior phases (0-3 max, selected by goal relevance)
   → Creates .planning/phases/{NN}-{name}/{NN}-RESEARCH.md
 
 /plan-phase [N]
@@ -385,6 +386,7 @@ For more: see references/troubleshooting.md
   → Logs execution mode (team/task) and how to change it
   → Single-plan waves auto-downgrade from teams to task mode
   → Runs code-simplifier on each plan's output before summary (togglable via `simplifier` preference in STATE.md)
+  → Creates strategic CLAUDE.md files in source dirs where critical non-obvious context exists (max 3-5 lines)
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
   -> Compaction resilient: hooks re-inject execution state after context compaction
   -> Set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to control when compaction triggers (user-configured)

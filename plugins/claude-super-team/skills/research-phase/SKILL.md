@@ -117,6 +117,26 @@ PROJECT.md, ROADMAP.md, and STATE.md are already available from dynamic context 
 - `.planning/codebase/STACK.md` -- existing technology stack
 - `.planning/codebase/ARCHITECTURE.md` -- existing architecture patterns
 
+### Phase 3.5: Collect Relevant Prior Research
+
+Scan for RESEARCH.md files from other completed phases and select only those relevant to the current phase goal. This prevents re-researching topics already investigated while keeping context lean.
+
+**Process:**
+
+1. Use **PHASE_ARTIFACTS** from the gather script. For each phase directory where `research > 0` (excluding the current phase), note the phase name and directory.
+2. For each prior RESEARCH.md, read only the first 20 lines (which contain the frontmatter and key findings summary).
+3. Compare each prior phase's goal (from ROADMAP.md) against the current phase's goal. A prior research is **relevant** if:
+   - It covers a domain the current phase touches (e.g., prior auth research is relevant to a login redesign phase)
+   - It evaluated libraries/patterns the current phase will build on or modify
+   - It contains architectural decisions that constrain the current phase
+4. A prior research is **NOT relevant** if:
+   - The prior phase covers an unrelated domain (e.g., payment research is irrelevant to a UI theming phase)
+   - The prior phase's work is complete and the current phase neither extends nor modifies it
+
+**Output:** Build a `prior_research` block containing only relevant entries. For each relevant prior RESEARCH.md, read the full file and include it. If no prior research is relevant, set `prior_research` to empty.
+
+Expect 0-2 relevant files in most cases. If more than 3 are relevant, include only the top 3 most related to avoid bloating agent context.
+
 ### Phase 4: Spawn Researcher Agent
 
 Spawn the custom `phase-researcher` agent via Task tool. The agent definition already contains the full research methodology, RESEARCH.md template, and preloaded Firecrawl skill. Only pass dynamic per-invocation context:
@@ -137,6 +157,13 @@ Task(
   Existing stack: {stack_content}
   Existing architecture: {architecture_content}
   Existing research (if updating): {existing_research_content}
+  Prior phase research (relevant only):
+  {prior_research or "None -- no prior research is relevant to this phase."}
+  ---
+  Prior research notes: If prior phase research is included above, use it as
+  baseline knowledge. Do not re-research topics already covered there unless
+  you have reason to believe the findings are outdated. Focus your effort on
+  what is NEW for this phase.
   ---
   Write RESEARCH.md to: {path}
   Return RESEARCH COMPLETE or RESEARCH BLOCKED when done.
@@ -267,6 +294,7 @@ To commit when ready:
 - [ ] Phase directory created
 - [ ] Existing research handled (update/view/replace offered)
 - [ ] All available context loaded and embedded in agent prompt
+- [ ] Prior RESEARCH.md files scanned; only relevant ones included (0-3 max)
 - [ ] Custom `phase-researcher` agent spawned with dynamic context
 - [ ] RESEARCH.md created in phase directory
 - [ ] User sees completion summary with key findings and confidence
