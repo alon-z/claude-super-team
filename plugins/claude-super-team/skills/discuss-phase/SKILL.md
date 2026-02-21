@@ -15,6 +15,8 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/discuss-phase/gather-data.sh"
 
 Parse the output sections (PROJECT, ROADMAP, PHASE_ARTIFACTS, CODEBASE_DOCS) before proceeding.
 
+**Context-aware skip:** If PROJECT.md or ROADMAP.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/discuss-phase/gather-data.sh"`. Only set flags for files genuinely already in context.
+
 ## Objective
 
 Capture user implementation decisions before planning begins. Creates CONTEXT.md that locks decisions, defines discretion boundaries, and defers scope creep.

@@ -49,15 +49,15 @@ echo "=== PROJECT ==="
 [ -f .planning/ROADMAP.md ] && HAS_ROADMAP=true || HAS_ROADMAP=false
 echo "HAS_PROJECT=$HAS_PROJECT"
 if [ "$HAS_PROJECT" = "true" ]; then
-  cat .planning/PROJECT.md
+  if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else cat .planning/PROJECT.md; fi
 fi
 echo "HAS_ROADMAP=$HAS_ROADMAP"
 if [ "$HAS_ROADMAP" = "true" ]; then
-  cat .planning/ROADMAP.md
+  if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else cat .planning/ROADMAP.md; fi
 fi
 if [ -f .planning/STATE.md ]; then
   echo "HAS_STATE=true"
-  cat .planning/STATE.md
+  if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else cat .planning/STATE.md; fi
 else
   echo "HAS_STATE=false"
 fi

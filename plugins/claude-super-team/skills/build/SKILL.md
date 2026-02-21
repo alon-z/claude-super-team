@@ -26,6 +26,20 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/build/gather-data.sh"
 
 Parse the output sections (BUILD_STATE, PREFERENCES, GIT, PROJECT, BROWNFIELD) before proceeding.
 
+### Context-Aware Gathering
+
+After Step 0 completes, PROJECT.md, ROADMAP.md, and STATE.md are in your conversation context. When child skills (invoked via `Skill()`) run their own `gather-data.sh` in their Step 0, these files would be re-dumped redundantly, wasting context tokens.
+
+**Rule:** When a child skill's Step 0 runs `bash "${CLAUDE_PLUGIN_ROOT}/skills/.../gather-data.sh"`, prefix it with skip flags for files already in context:
+
+```bash
+SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/.../gather-data.sh"
+```
+
+This applies to all child skill invocations throughout the build pipeline (Steps 5-9). It also applies after compaction resume: once you've re-read the core files in Step 0, use skip flags for all subsequent `gather-data.sh` calls.
+
+Only skip files that are genuinely in your current context. If ROADMAP.md was just modified by a child skill (e.g., `/create-roadmap`), do NOT skip it on the next invocation -- you need the updated version.
+
 ## AUTONOMOUS OPERATION -- CRITICAL INSTRUCTION
 
 **YOU ARE RUNNING IN FULLY AUTONOMOUS MODE.**
@@ -89,8 +103,9 @@ Read('.planning/BUILD-STATE.md')
      - If yes: squash-merge the branch to main (see Step 9j) and continue to the next phase.
      - If no: checkout the branch and resume execution from Step 9g.
 6. Re-read `references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
-7. Skip to the appropriate step below based on current position.
-8. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
+7. Apply context-aware gathering: since Step 0 re-loaded core files, use `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1` when child skills run their `gather-data.sh`.
+8. Skip to the appropriate step below based on current position.
+9. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
 
 **Branch 2 -- EXTEND: `EXTEND_CANDIDATE=true` AND $ARGUMENTS is non-empty:**
 

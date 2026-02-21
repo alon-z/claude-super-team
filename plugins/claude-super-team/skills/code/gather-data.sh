@@ -6,11 +6,17 @@ P=.planning
 
 # === PLANNING_FILES ===
 echo "=== PROJECT ==="
-cat "$P/PROJECT.md" 2>/dev/null || echo "(missing)"
+if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
+  cat "$P/PROJECT.md" 2>/dev/null || echo "(missing)"
+fi
 echo "=== ROADMAP ==="
-cat "$P/ROADMAP.md" 2>/dev/null || echo "(missing)"
+if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
+  cat "$P/ROADMAP.md" 2>/dev/null || echo "(missing)"
+fi
 echo "=== STATE ==="
-cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
+if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
+  cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
+fi
 
 # === EXECUTED_PHASES ===
 echo "=== EXECUTED_PHASES ==="

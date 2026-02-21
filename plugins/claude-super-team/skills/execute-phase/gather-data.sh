@@ -2,11 +2,17 @@
 # gather-data.sh - Pre-compute plan index and preferences for /execute-phase
 
 echo "=== PROJECT ==="
-cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
+  cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+fi
 echo "=== ROADMAP ==="
-cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
+  cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+fi
 echo "=== STATE ==="
-cat .planning/STATE.md 2>/dev/null || echo "(missing)"
+if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
+  cat .planning/STATE.md 2>/dev/null || echo "(missing)"
+fi
 
 # Preferences from STATE.md
 echo "=== PREFERENCES ==="
