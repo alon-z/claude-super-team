@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.22] - 2026-02-21
+
+### claude-super-team
+- Added extend mode to `/build` skill: auto-detects completed prior builds and skips initialization stages (new-project, map-codebase, brainstorm) when adding a new feature
+- `gather-data.sh` now emits `EXTEND_CANDIDATE=true` when BUILD-STATE.md shows `Status: complete` with existing PROJECT.md and ROADMAP.md
+- Extend pipeline: invokes `/create-roadmap "add {feature}"` to append a new phase, then skips completed phases in the execution loop
+- `BUILD-STATE.md` gains a `Build mode: {fresh|extend}` field and `extend` as an input source option
+- Added Section 7 (Extend Mode) to `pipeline-guide.md` documenting detection, skipped stages, and pipeline flow
+- Added `/create-roadmap (Extend Mode)` decision table to `autonomous-decision-guide.md` for autonomous "Add a phase" and "Approve" answers
+
 ## [1.0.21] - 2026-02-20
 
 ### claude-super-team

@@ -67,11 +67,11 @@ Build a complete application from a project idea or PRD to working, validated co
 
 ## Process
 
-### Step 1: Detect Resume vs Fresh Start
+### Step 1: Detect Resume, Extend, or Fresh Start
 
-Check the BUILD_STATE section from the gather-data.sh output.
+Check the BUILD_STATE and EXTEND sections from the gather-data.sh output.
 
-**If BUILD-STATE.md EXISTS and Status is `in_progress`:**
+**Branch 1 -- RESUME: BUILD-STATE.md EXISTS and Status is `in_progress`:**
 
 This is a RESUME. Read BUILD-STATE.md fully:
 
@@ -92,11 +92,33 @@ Read('.planning/BUILD-STATE.md')
 7. Skip to the appropriate step below based on current position.
 8. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
 
-**If BUILD-STATE.md does NOT exist or Status is `complete` or `failed`:**
+**Branch 2 -- EXTEND: `EXTEND_CANDIDATE=true` AND $ARGUMENTS is non-empty:**
+
+This is an EXTEND. A prior build completed successfully and the user is adding a new feature. Skip to Step 1-E.
+
+**Branch 3 -- FRESH START: Everything else (BUILD-STATE.md does not exist, or Status is `complete`/`failed` without extend conditions):**
 
 This is a FRESH START. Continue to Step 2.
 
 If a stale BUILD-STATE.md exists (status `complete` or `failed`), note it in the output and start fresh.
+
+---
+
+### Step 1-E: Extend Mode Entry
+
+Print: `Extend mode: adding feature to existing project.`
+
+1. Read the previous BUILD-STATE.md to capture prior phase count and decisions:
+   ```
+   Read('.planning/BUILD-STATE.md')
+   ```
+2. Record the set of already-completed phases from the PHASE_COMPLETION section of gather-data.sh output. These phases will be skipped in the execution loop.
+3. Read the autonomous decision guide for the decision framework:
+   ```
+   Read('references/autonomous-decision-guide.md')
+   ```
+   (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/references/autonomous-decision-guide.md`)
+4. Skip to Step 4-E.
 
 ---
 
@@ -195,6 +217,48 @@ Write('.planning/BUILD-STATE.md', populated_template)
 ```
 
 Print: `BUILD-STATE.md initialized. Starting autonomous build pipeline.`
+
+---
+
+### Step 4-E: Initialize BUILD-STATE.md for Extend
+
+Read the template:
+
+```
+Read('assets/build-state-template.md')
+```
+
+(Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/assets/build-state-template.md`)
+
+Populate the Session section:
+- **Started:** current timestamp (YYYY-MM-DD HH:MM)
+- **Input:** $ARGUMENTS (the new feature description)
+- **Input source:** extend
+- **Build mode:** extend
+- **Status:** in_progress
+- **Current stage:** create-roadmap
+- **Current phase:** N/A
+- **Git main branch:** current branch from gather-data.sh `BRANCH` value (or "main" if not available)
+- **Compaction count:** 0
+
+Populate the Build Preferences section from Step 3 resolved values.
+
+Set Pipeline Progress rows:
+- `input-detection`: `skipped`, Notes: "Extend mode"
+- `new-project`: `skipped`, Notes: "Extend mode"
+- `map-codebase`: `skipped`, Notes: "Extend mode"
+- `brainstorm`: `skipped`, Notes: "Extend mode"
+- `create-roadmap`: `pending`
+
+Write to `.planning/BUILD-STATE.md`:
+
+```
+Write('.planning/BUILD-STATE.md', populated_template)
+```
+
+Print: `BUILD-STATE.md initialized (extend mode). Skipping to roadmap update.`
+
+Skip to Step 8-E.
 
 ---
 
@@ -330,9 +394,68 @@ Update BUILD-STATE.md:
 
 ---
 
+### Step 8-E: Invoke /create-roadmap (Extend Mode)
+
+Update BUILD-STATE.md: set Pipeline Progress "create-roadmap" row to `in_progress`, set Current stage to `create-roadmap`.
+
+Invoke /create-roadmap with the "add" modification intent, passing the user's feature description:
+
+```
+Skill('create-roadmap', 'add $ARGUMENTS')
+```
+
+This triggers /create-roadmap's "Add Phase" flow, which:
+- Reads existing ROADMAP.md
+- Finds the highest phase number
+- Derives a new phase from $ARGUMENTS
+- Appends to the roadmap
+
+Answer any AskUserQuestion calls autonomously per the decision guide (Section 3, "/create-roadmap (Extend Mode)"):
+- "Roadmap already exists. What would you like to do?" -> **"Add a phase"**
+- "Add this phase to the roadmap?" -> **"Approve"**
+
+Log decisions in BUILD-STATE.md Decisions Log.
+
+After completion, verify:
+
+```bash
+test -f .planning/ROADMAP.md
+```
+
+Read ROADMAP.md to determine the full list of phases:
+
+```
+Read('.planning/ROADMAP.md')
+```
+
+Extract all phase numbers, names, goals, and success criteria. Compare against the PHASE_COMPLETION data from gather-data.sh to identify which phases are new (not present in PHASE_COMPLETION or not marked `complete`).
+
+Update BUILD-STATE.md:
+- Set Pipeline Progress "create-roadmap" row to `complete`.
+- Populate the Phase Progress table with one row per phase from ROADMAP.md:
+  - For phases already completed (found in PHASE_COMPLETION with status `complete`): set all step columns to `skipped`, Status to `complete (prior)`.
+  - For new phases: set all step columns to `pending`, `Started` and `Completed` set to `-`.
+- Set Current stage to `phase-execution`.
+
+Print: `Roadmap updated. New phase(s) added. Skipping {N} completed phases.`
+
+Continue to Step 9 (the phase execution loop will skip completed phases automatically).
+
+---
+
 ### Step 9: Phase Execution Loop
 
 For each phase N in ROADMAP.md (sequential, in order):
+
+#### 9-pre. Skip Completed Phases (Extend Mode)
+
+Check PHASE_COMPLETION data from gather-data.sh for this phase. If the phase has status `complete`:
+
+1. Print: `Phase {N} already complete, skipping.`
+2. Set the Phase Progress row: all step columns to `skipped`, Status to `complete (prior)`.
+3. Continue to the next phase (skip steps 9a through 9l for this phase).
+
+If the phase is NOT complete, proceed normally:
 
 #### 9a. Update BUILD-STATE.md
 

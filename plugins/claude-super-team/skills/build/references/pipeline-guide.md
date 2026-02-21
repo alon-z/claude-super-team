@@ -252,7 +252,40 @@ if attempt >= max_attempts and still failing:
 - If an auto-fix would require a new dependency not in the project, log it rather than installing blindly
 - The 3-attempt limit is hard -- do not extend it
 
-## 7. Phase Feedback Flow
+## 7. Extend Mode
+
+When /build detects a completed prior build and new feature arguments, it enters extend mode.
+
+### Detection
+
+All of these must be true:
+
+- BUILD-STATE.md exists with Status: complete
+- HAS_PROJECT=true (PROJECT.md exists)
+- HAS_ROADMAP=true (ROADMAP.md exists)
+- $ARGUMENTS is non-empty (the new feature description)
+
+### Skipped Stages
+
+- /new-project -- PROJECT.md already exists
+- /map-codebase -- codebase already mapped
+- /brainstorm -- user has a specific feature, not ideating
+
+### Pipeline
+
+```
+1. Initialize BUILD-STATE.md with extend metadata (Build mode: extend)
+2. Invoke /create-roadmap "add {feature}" -- adds new phase(s) to existing roadmap
+3. Phase execution loop -- skip completed phases, execute new ones only
+4. Final validation -- always runs on full codebase
+5. BUILD-REPORT.md -- notes extend mode, references prior build
+```
+
+### Phase Execution in Extend Mode
+
+Already-completed phases (detected via PHASE_COMPLETION from gather-data.sh) are skipped in the execution loop. Only newly added phases run the full discuss/research/plan/execute pipeline. Pipeline Progress marks skipped stages as `skipped (extend)`.
+
+## 8. Phase Feedback Flow
 
 How /build invokes /phase-feedback after a per-phase validation failure.
 

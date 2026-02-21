@@ -61,6 +61,13 @@ When a child skill presents an AskUserQuestion, follow these steps exactly:
 | "Phase count / structure" | **Accept the LLM recommendation** | The roadmap skill reasons about phase decomposition well. Accept its proposed structure. |
 | "Confirm roadmap" / "Approve roadmap" | **Accept / Approve** | Move forward with the generated roadmap. |
 
+### /create-roadmap (Extend Mode)
+
+| Question Pattern | Autonomous Answer | Rationale |
+|---|---|---|
+| "Roadmap already exists. What would you like to do?" | **"Add a phase"** | Extend mode always adds, never replaces. |
+| "Add this phase to the roadmap?" | **"Approve"** | Accept the derived phase. Forward motion. |
+
 ### /discuss-phase
 
 | Question Pattern | Autonomous Answer | Rationale |

@@ -451,6 +451,7 @@ For more: see references/troubleshooting.md
   → Creates .planning/BUILD-REPORT.md at completion with decisions log
   → Supports build-preferences.md for tech stack and style preferences
   → Adaptive pipeline: LLM decides per-phase whether to discuss/research or skip
+  → Extend mode: re-run on completed build to add features (skips init, adds phase to roadmap)
 
 ## Help
 
