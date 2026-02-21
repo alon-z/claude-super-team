@@ -147,9 +147,18 @@ git commit -m "[marketplace-utils] (release): Bump to vNEW_VERSION
 
 ### 7c. Push and open PR
 
+Derive the PR title from the commit messages included in this release, following the repository's commit convention `[plugin] (type): Description`. Rules:
+
+1. If only one plugin changed, use: `[plugin-name] (release): Concise summary of changes (vNEW_VERSION)`
+2. If multiple plugins changed, use: `[claude-super-team] (release): Concise summary of main changes (vNEW_VERSION)`
+3. The summary must describe *what* changed (from the git log), not just "bump version". Keep it under 70 characters total.
+4. Examples:
+   - `[claude-super-team] (skill): Add brainstorm and improve execute-phase routing (v1.0.25)`
+   - `[marketplace-utils] (config): Fix audit sync and add release skill (v1.0.3)`
+
 ```bash
 git push -u origin release/vNEW_VERSION
-gh pr create --title "Release vNEW_VERSION" --body "<changelog section as PR body>"
+gh pr create --title "<derived title per rules above>" --body "<changelog section as PR body>"
 ```
 
 The PR body should include the full changelog section created in Phase 3, formatted as markdown.
