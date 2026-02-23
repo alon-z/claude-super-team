@@ -125,156 +125,15 @@ Extract the phase name for use in templates.
 
 ### Phase 3.5: Load Cross-Phase Context
 
-Before exploring the codebase, understand what earlier phases will create. This phase may depend on infrastructure, APIs, models, or patterns that don't exist yet but are planned.
-
-**Why:** Phase 5 might use an auth system being built in phase 3. Without cross-phase context, the discussion asks questions that were already answered or plans features that ignore what's coming.
-
-**Process:**
-
-1. Use the pre-loaded **PHASE_ARTIFACTS** data from the gather script. Each line shows:
-
-```
-{dir_name}|status={executed|planned|discussed|not_started}|summaries={N}|plans={N}|context={N}|research={N}
-```
-
-Filter to phases with a lower number than the current one.
-
-2. For each earlier phase, load the most informative artifact available (in priority order):
-   - **SUMMARY.md** (phase already executed -- shows what was actually built)
-   - **PLAN.md files** (phase planned but not executed -- shows what will be built, including specific APIs, models, endpoints, patterns)
-   - **CONTEXT.md** (phase discussed but not planned -- shows locked decisions)
-   - **ROADMAP.md entry** (fallback -- just the goal and success criteria)
-
-3. Build a concise "Prior Phase Summary" focusing on what each earlier phase provides that this phase might consume:
-   - APIs, endpoints, or services being created
-   - Data models, schemas, or database tables
-   - Shared utilities, middleware, or patterns
-   - Auth flows, permissions, or access control mechanisms
-   - Configuration, environment variables, or infrastructure
-
-```
-PRIOR PHASES FOR PHASE {N}:
-
-Phase 1 ({name}) [executed]:
-- Built: {key deliverables}
-- Provides: {what this phase can use}
-
-Phase 2 ({name}) [planned]:
-- Will build: {key deliverables from PLAN.md}
-- Will provide: {what this phase can piggyback on}
-
-Phase 3 ({name}) [discussed]:
-- Decided: {key decisions from CONTEXT.md}
-- Will provide: {expected deliverables based on decisions}
-```
-
-4. Identify **cross-phase dependencies** -- specific things this phase needs that an earlier phase creates. These feed directly into gray area generation (Phase 4) and deep-dive questions (Phase 6).
-
-**Skip this step** if the current phase is Phase 1 (no prior phases).
+Read `references/cross-phase-context.md` for the cross-phase artifact loading procedure.
 
 ### Phase 3.7: Gather Codebase Context
 
-Before identifying gray areas, explore the actual codebase to ground the discussion in reality.
-
-**Why:** Generic gray areas ("JWT vs sessions?") waste the user's time. Codebase-aware gray areas ("There's an existing `middleware/auth.ts` using Passport.js -- extend it or replace?") surface real decisions.
-
-**Step 1: Check for codebase mapping**
-
-```bash
-ls .planning/codebase/ 2>/dev/null
-```
-
-If `.planning/codebase/` exists, read the docs most relevant to this phase's domain:
-- Always read: `ARCHITECTURE.md`, `STACK.md`
-- Read `CONVENTIONS.md` if the phase involves writing new code patterns
-- Read `INTEGRATIONS.md` if the phase involves external services or APIs
-- Read `TESTING.md` if the phase has testing-related success criteria
-
-Store key findings (existing patterns, relevant files, tech choices) for use in Phase 4.
-
-**Step 2: Spawn Explore agent for targeted codebase analysis**
-
-Regardless of whether codebase mapping exists, spawn an Explore agent (subagent_type: "Explore") to find code directly relevant to this phase. The agent should:
-
-- Search for files, functions, and patterns related to the phase domain keywords
-- Identify existing implementations that the phase will extend, modify, or interact with
-- Note conventions, patterns, and tech choices already established in the codebase
-- Flag potential conflicts or constraints the user should know about
-
-**Prompt template for the Explore agent:**
-
-```
-Explore this codebase to find code relevant to implementing: "{phase_goal}"
-
-Phase success criteria:
-{list success criteria from roadmap}
-
-Find and report:
-1. Existing files/modules directly related to this phase's domain
-2. Patterns and conventions already established (naming, structure, error handling)
-3. Dependencies and tech choices relevant to this phase
-4. Integration points -- code this phase will need to interact with
-5. Potential constraints or conflicts (e.g., existing implementations that overlap)
-
-Be thorough but focused on what matters for planning this specific phase.
-Report findings as a structured summary, not raw file contents.
-```
-
-Use `subagent_type: "Explore"` and set thoroughness to "medium" in the prompt.
-
-**Step 3: Synthesize findings**
-
-Combine codebase mapping docs (if available) and Explore agent results into a concise "Codebase Context" summary:
-
-```
-CODEBASE CONTEXT FOR PHASE {N}:
-- Existing related code: {list key files/modules found}
-- Established patterns: {relevant conventions, tech choices}
-- Integration points: {code this phase will interact with}
-- Constraints: {things that limit implementation choices}
-```
-
-This summary feeds directly into Phase 4 to produce grounded gray areas.
+Read `references/codebase-exploration.md` for the Explore agent spawning and codebase analysis procedure.
 
 ### Phase 4: Identify Gray Areas
 
-**Domain-aware, codebase-aware, and cross-phase-aware analysis.** Don't use generic categories. Analyze this specific phase -- informed by codebase context (Phase 3.7) and prior phase plans (Phase 3.5) -- to find 3-4 actual ambiguities.
-
-**Process:**
-
-1. Read the phase goal, success criteria, codebase context (Phase 3.7), AND prior phase summary (Phase 3.5)
-2. Identify the domain (auth, payments, API design, data modeling, etc.)
-3. Derive 3-4 specific gray areas where reasonable people would disagree, grounded in what the codebase already has AND what earlier phases will create
-
-**Cross-phase-aware gray areas** leverage prior phase plans:
-- "Phase 3 plans a `PermissionService` with role-based access -- should this phase extend it with resource-level permissions or keep it role-only?" (cross-phase-aware)
-- "How should we handle permissions?" (generic, ignores prior phases, bad)
-
-**Codebase-grounded gray areas** reference actual code:
-- "The codebase uses Prisma with a `User` model but no role field -- how should we model permissions?" (grounded)
-- "How should we handle permissions?" (generic, bad)
-
-**Good gray areas** (domain-specific, phase-specific):
-- "Should password reset tokens expire after first use or after time limit?"
-- "Where should we validate payment amounts: client, API, or both?"
-- "Should deleted items be soft-deleted (flagged) or hard-deleted (removed)?"
-
-**Bad gray areas** (generic, could apply to any phase):
-- "What technologies should we use?"
-- "How should we structure the code?"
-- "What about performance?"
-
-**Anti-pattern: Pre-made category lists.** Every phase gets unique gray areas derived from its goal, not recycled from a template.
-
-**Domain examples:**
-
-| Domain | Example Gray Areas |
-|--------|-------------------|
-| Authentication | Token storage location, session duration, MFA approach, password requirements |
-| Payments | Idempotency strategy, refund flow, currency handling, failed payment retries |
-| Multi-tenancy | Tenant isolation level, shared vs separate DBs, cross-tenant references |
-| Search | Indexing approach, fuzzy match threshold, result ranking algorithm |
-| File uploads | Storage location, size limits, virus scanning, CDN strategy |
+Read `references/gray-area-methodology.md` for the domain-aware gray area identification methodology.
 
 ### Phase 5: Present Gray Areas and Gather Selection
 
@@ -293,62 +152,7 @@ Store the selected areas for the next phase.
 
 ### Phase 6: Deep-Dive Each Selected Area
 
-For each selected area from Phase 5, run this loop:
-
-**6.1. Generate 4 targeted questions** for this area. Questions should:
-- Progress from high-level to specific
-- Be answerable with concrete decisions, not philosophy
-- Build on previous answers within the same area
-
-Example for "Token storage location" area:
-1. "Where should access tokens be stored?"
-2. "Where should refresh tokens be stored?"
-3. "What's the acceptable token lifetime?"
-4. "How should expired tokens be handled?"
-
-**6.2. Ask each question sequentially** using AskUserQuestion with 2-4 options. Always include:
-- Concrete options (e.g., "httpOnly cookies", "localStorage", "sessionStorage")
-- "You decide" option (captures areas for Claude's Discretion)
-
-**6.3. After 4 questions, check if more needed** via AskUserQuestion:
-
-- header: "Continue"
-- question: "Anything else to clarify about {area name}?"
-- multiSelect: false
-- options:
-  - label: "All set"
-    description: "Move to next area"
-  - label: "Keep discussing"
-    description: "Ask more questions about this area"
-
-**On "Keep discussing":** Generate 2-4 more questions, ask them, then check again. Limit: 3 rounds per area.
-
-**6.4. Track decisions:**
-
-Build a structured record as you go:
-
-```
-{
-  "area": "{area name}",
-  "decisions": [
-    {"question": "...", "answer": "...", "rationale": "..." }
-  ],
-  "discretion": [ "..." ],  // "You decide" answers
-  "deferred": [ "..." ]      // Ideas mentioned but out of scope
-}
-```
-
-**Identifying deferred ideas:** If user mentions something clearly outside phase scope during discussion (e.g., "we should also add 2FA" when phase is just basic auth), acknowledge it and ask:
-
-- header: "Defer"
-- question: "'{idea}' sounds valuable but may be outside Phase {N} scope. How should we handle it?"
-- options:
-  - label: "Defer to later"
-    description: "Capture for future phase"
-  - label: "Include now"
-    description: "Expand this phase scope"
-
-If "Defer to later", add to deferred list. If "Include now", integrate into current area decisions.
+Read `references/deep-dive-methodology.md` for the deep-dive questioning loop procedure.
 
 ### Phase 7: Write CONTEXT.md
 

@@ -119,23 +119,7 @@ PROJECT.md, ROADMAP.md, and STATE.md are already available from dynamic context 
 
 ### Phase 3.5: Collect Relevant Prior Research
 
-Scan for RESEARCH.md files from other completed phases and select only those relevant to the current phase goal. This prevents re-researching topics already investigated while keeping context lean.
-
-**Process:**
-
-1. Use **PHASE_ARTIFACTS** from the gather script. For each phase directory where `research > 0` (excluding the current phase), note the phase name and directory.
-2. For each prior RESEARCH.md, read only the first 20 lines (which contain the frontmatter and key findings summary).
-3. Compare each prior phase's goal (from ROADMAP.md) against the current phase's goal. A prior research is **relevant** if:
-   - It covers a domain the current phase touches (e.g., prior auth research is relevant to a login redesign phase)
-   - It evaluated libraries/patterns the current phase will build on or modify
-   - It contains architectural decisions that constrain the current phase
-4. A prior research is **NOT relevant** if:
-   - The prior phase covers an unrelated domain (e.g., payment research is irrelevant to a UI theming phase)
-   - The prior phase's work is complete and the current phase neither extends nor modifies it
-
-**Output:** Build a `prior_research` block containing only relevant entries. For each relevant prior RESEARCH.md, read the full file and include it. If no prior research is relevant, set `prior_research` to empty.
-
-Expect 0-2 relevant files in most cases. If more than 3 are relevant, include only the top 3 most related to avoid bloating agent context.
+Read `references/prior-research-selection.md` for the prior research relevance criteria and selection procedure.
 
 ### Phase 4: Spawn Researcher Agent
 
@@ -197,43 +181,7 @@ Parse the researcher's output:
 
 ### Phase 6: Check for Decision Conflicts
 
-Before presenting the summary, compare research findings against CONTEXT.md decisions (if CONTEXT.md exists). Look for conflicts where research invalidates or challenges prior decisions:
-
-**Conflict types to detect:**
-- **Deprecated/abandoned packages:** A library chosen in CONTEXT.md is deprecated, unmaintained, or has known security issues
-- **Better alternatives discovered:** Research found a well-maintained package or built-in solution that replaces something the user planned to do manually
-- **API/compatibility issues:** A chosen approach won't work with the existing stack or has breaking changes in current versions
-- **Pattern mismatches:** Research reveals that a decided architecture pattern is anti-pattern for the chosen framework or ecosystem
-
-**Process:**
-
-1. Read the RESEARCH.md that was just created
-2. Read the phase CONTEXT.md (if it exists)
-3. Cross-reference: for each decision in CONTEXT.md, check if research findings contradict, deprecate, or offer a significantly better alternative
-4. Build a list of conflicts (if any)
-
-**If conflicts found**, present them and ask the user:
-
-Use AskUserQuestion:
-
-- header: "Conflicts"
-- question: "Research found findings that may affect decisions made during discussion:"
-- multiSelect: false
-- options:
-  - label: "Re-discuss (Recommended)"
-    description: "{Brief summary of conflicts, e.g., 'chosen package X is deprecated; found library Y that automates manual step Z'}"
-  - label: "Keep decisions"
-    description: "Proceed to planning with current context as-is"
-  - label: "Review first"
-    description: "Read both files before deciding"
-
-**On "Re-discuss":** Set next step to `/discuss-phase {N}` in the summary.
-
-**On "Keep decisions":** Set next step to `/plan-phase {N}` in the summary.
-
-**On "Review first":** Show paths to both RESEARCH.md and CONTEXT.md, set next step to `/discuss-phase {N}` (since they'll likely want to update after reviewing).
-
-**If no CONTEXT.md exists or no conflicts found**, set next step to `/plan-phase {N}`.
+Read `references/conflict-detection.md` for the decision conflict detection procedure and user routing.
 
 ### Phase 7: Done
 

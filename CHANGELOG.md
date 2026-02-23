@@ -2,6 +2,21 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.26] - 2026-02-22
+
+### claude-super-team
+- Slimmed 9 SKILL.md files by extracting heavy content into `references/*.md` files loaded via `Read()` on demand, reducing post-compaction "Skills restored" token cost by ~20K tokens per compaction (~40-60K saved across a typical `/build` session)
+- execute-phase: Extracted wave execution guide (5a-5h) and stale state reconciliation into 2 reference files (747 -> 429 lines)
+- brainstorm: Extracted interactive mode, autonomous mode, and context generation into 3 reference files (457 -> 168 lines)
+- discuss-phase: Extracted cross-phase context, codebase exploration, gray area methodology, and deep-dive methodology into 4 reference files (474 -> 279 lines)
+- phase-feedback: Extracted feedback collection, quick fix guide, and subphase guide into 3 reference files (449 -> 192 lines)
+- plan-phase: Extracted all-phases mode, checker loop, and context loading into 3 reference files (474 -> 241 lines)
+- new-project: Extracted questioning methodology and project writing guide into 2 reference files (369 -> 154 lines)
+- create-roadmap: Extracted roadmap modification procedures and phase derivation into 2 reference files (289 -> 166 lines)
+- research-phase: Extracted prior research selection and conflict detection into 2 reference files (304 -> 252 lines)
+- build: Removed 4 redundant summary sections that duplicated process steps (1029 -> 969 lines)
+- Total: 21 new reference files created, ~80KB saved from SKILL.md restored content
+
 ## [1.0.25] - 2026-02-21
 
 ### claude-super-team
