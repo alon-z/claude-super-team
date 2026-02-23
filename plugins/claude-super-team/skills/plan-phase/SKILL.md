@@ -70,38 +70,7 @@ fi
 
 ### Phase 2.5: Discover Unplanned Phases (--all mode only)
 
-Skip this phase if `--all` is not set.
-
-Use the pre-loaded **PHASE_STATUS** and **ROADMAP_PHASES** data from the gather script. Each PHASE_STATUS line shows:
-
-```
-{dir_name}|plans={N}|context={N}|research={N}|verification={N}
-```
-
-Cross-reference ROADMAP_PHASES (phases listed in ROADMAP.md) against PHASE_STATUS (phases with directories). Build a `phases_to_plan` list containing only phases where `plans=0`.
-
-**If the list is empty:** Show "All phases already planned. Nothing to do." and exit.
-
-**Otherwise:** Show a brief overview before starting:
-
-```
-Planning all unplanned phases:
-
-  Will plan:
-  - Phase 2: Authentication
-  - Phase 3: API Layer
-  - Phase 5: Notifications
-
-  Already planned (skipping):
-  - Phase 1: Foundation
-  - Phase 4: Dashboard
-```
-
-Initialize an empty `phase_results` list to collect per-phase outcomes for the combined summary.
-
-Initialize an empty `prior_plans_index` string. After each phase completes, append a one-line-per-plan entry (plan ID + objective) so later phase planners can reference earlier plans for correct `depends_on` values.
-
-Then loop over `phases_to_plan`, running Phases 3-8 for each. See Phase 3 for loop behavior.
+Read `references/all-phases-mode.md` for the --all mode discovery, end-of-phase bookkeeping, and combined summary procedures.
 
 ### Phase 3: Validate Phase and Create Directory
 
@@ -126,64 +95,7 @@ fi
 
 ### Phase 4: Load All Context
 
-Read and store these files for embedding in agent prompts:
-
-**Required:**
-
-- `.planning/ROADMAP.md` -- phase goals, success criteria
-- `.planning/PROJECT.md` -- project vision, requirements
-
-**Optional (use if exists):**
-
-- `.planning/STATE.md` -- current position, accumulated decisions
-- `${PHASE_DIR}/*-CONTEXT.md` -- user decisions from /discuss-phase (CRITICAL: constrains planning)
-- `${PHASE_DIR}/*-RESEARCH.md` -- research findings
-- `.planning/REQUIREMENTS.md` -- formal requirements
-- `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` -- codebase context
-
-**If CONTEXT.md does not exist,** show a brief informational note (not a blocker):
-
-```
-Note: No CONTEXT.md found. Run /discuss-phase {N} first to capture implementation
-decisions, or continue planning without it.
-```
-
-This is informational only -- plan-phase works fine without CONTEXT.md.
-
-**If RESEARCH.md does not exist,** show a brief informational note with offer:
-
-Use AskUserQuestion:
-
-- header: "Research"
-- question: "No RESEARCH.md found for this phase. Research helps the planner choose the right libraries, patterns, and avoid common pitfalls. Would you like to research first?"
-- options:
-  - label: "Research first (Recommended)"
-    description: "Run /research-phase {N} to investigate ecosystem, then return to planning"
-  - label: "Plan without research"
-    description: "Continue planning with existing knowledge only"
-
-**On "Research first":** Exit with message: "Run `/research-phase {N}` first, then come back to `/plan-phase {N}`."
-
-**On "Plan without research":** Continue to Phase 5.
-
-**For gap closure (--gaps only):**
-
-- `${PHASE_DIR}/*-VERIFICATION.md` -- verification failures to fix
-- `${PHASE_DIR}/*-UAT.md` -- UAT failures to fix
-
-Also check for existing plans:
-
-```bash
-ls "${PHASE_DIR}"/*-PLAN.md 2>/dev/null
-```
-
-If plans exist and NOT --gaps mode, use AskUserQuestion:
-
-- header: "Plans"
-- question: "Plans already exist for this phase. What do you want to do?"
-- options:
-  - "Replan from scratch" -- Delete existing and create new plans
-  - "Keep existing" -- Exit without changes
+Read `references/context-loading.md` for the detailed context loading procedure (required files, optional files, missing-context handling).
 
 ### Phase 5: Spawn Planner Agent
 
@@ -267,122 +179,11 @@ Parse the planner's output:
 - "Provide more context" -- User adds info, re-spawn
 - "Abort" -- Exit skill
 
-### Phase 7: Spawn Plan Checker
+### Phase 7-8: Plan Checker and Revision Loop
 
-Skip unless `--verify` flag was set.
+Read `references/checker-loop.md` for the plan checker verification and revision loop procedure (Phase 7-8). Skip unless --verify flag was set.
 
-Spawn via Task tool using the custom `plan-checker` agent (read-only, no Bash access).
-The agent has its own instructions -- no need to embed the checker guide.
-
-```
-Task(
-  subagent_type: "plan-checker"
-  description: "Verify Phase {N} plans"
-  prompt: """
-  Verify the plans for Phase {phase_number}.
-
-  Phase goal (from roadmap): {phase_goal}
-
-  Plans directory: {phase_dir}
-
-  Requirements (if exists):
-  {requirements_content}
-
-  Phase context (user decisions -- plans must honor these):
-  {context_md_content}
-
-  Verify these plans against all dimensions. Return VERIFICATION PASSED or ISSUES FOUND.
-  """
-)
-```
-
-### Phase 8: Handle Checker Return and Revision Loop
-
-**`## VERIFICATION PASSED`:** Plans verified. Continue to Phase 9.
-
-**`## ISSUES FOUND`:** Parse issues. Track iteration count (starts at 1).
-
-**If iteration_count < 3:**
-
-Show issues to user, then re-spawn planner in revision mode:
-
-```
-Task(
-  subagent_type: "general-purpose"
-  model: "opus"
-  description: "Revise Phase {N} plans"
-  prompt: """
-  You are a planner agent in REVISION mode. Follow these instructions:
-
-  {planner_guide_content}
-
-  ---
-
-  Phase: {phase_number}
-  Mode: revision
-
-  Existing plans:
-  {current_plans_content}
-
-  Checker issues to fix:
-  {structured_issues}
-
-  Phase context (user decisions):
-  {context_md_content}
-
-  Make targeted updates to address issues. Do NOT rewrite from scratch.
-  Return REVISION COMPLETE when done.
-  """
-)
-```
-
-After revision, re-spawn checker (back to Phase 7). Increment iteration_count.
-
-**If iteration_count >= 3:**
-
-Show remaining issues. Use AskUserQuestion:
-
-- header: "Issues"
-- question: "Max revision iterations reached. {N} issues remain."
-- options:
-  - "Proceed anyway" -- Accept plans with known issues
-  - "Provide guidance" -- Give direction for another attempt
-  - "Abort" -- Exit (in --all mode, this stops the entire loop)
-
-#### --all mode: End-of-Phase Bookkeeping
-
-After Phases 3-8 complete for one phase (whether verification passed, was skipped, or user overrode):
-
-**1. Update prior plans index.** Read all PLAN.md files just created for this phase and append one line per plan to `prior_plans_index`:
-
-```
-Phase {N} / {plan_id}: {objective from plan frontmatter}
-```
-
-This lightweight index is passed to subsequent phase planners so they can set correct cross-phase `depends_on` references.
-
-**2. Record result.** Append to `phase_results`:
-
-```
-{ phase_num, phase_name, plan_count, wave_count, verification: "Passed" | "Skipped" | "Passed with override" | "Failed" }
-```
-
-**3. Show progress:**
-
-```
-Phase {N} ({name}) planned. [{completed}/{total}]
-```
-
-**4. Error handling.** If the planner agent fails or the checker hits max iterations and the user chose "Abort" in the single-phase flow, use AskUserQuestion in --all mode instead:
-
-- header: "Phase failed"
-- question: "Phase {N} ({name}) failed. How do you want to proceed?"
-- options:
-  - "Skip and continue" -- Record as failed, move to next phase
-  - "Retry" -- Re-attempt this phase from Phase 3
-  - "Stop here" -- End loop, show partial summary with phases completed so far
-
-After the loop ends (all phases done or user chose "Stop here"), proceed to Phase 9.
+In --all mode, read `references/all-phases-mode.md` for end-of-phase bookkeeping after Phases 3-8 complete for each phase.
 
 ### Phase 9: Done
 
@@ -422,42 +223,7 @@ Verification: {Passed | Passed with override | Skipped}
 
 #### --all mode: Combined Summary
 
-Use `phase_results` collected during the loop to build a summary table:
-
-```
-All phases planned.
-
-| Phase | Name | Plans | Waves | Verification |
-|-------|------|-------|-------|--------------|
-| 1 | Foundation | 3 | 2 | Passed |
-| 2 | Auth | 2 | 1 | Passed |
-| 3 | API Layer | 4 | 3 | Skipped |
-
-Total: {N} plans across {M} phases
-
----
-
-## Next Steps
-
-**Execute the plans:**
-- Run /execute-phase 1
-
-**Review all plans:**
-- Read .planning/phases/*-PLAN.md
-
-**Commit if desired:**
-  git add .planning/phases/ && git commit -m "docs: plan all phases"
-
----
-```
-
-If some phases failed or were skipped (user chose "Skip and continue" or "Stop here"), note them:
-
-```
-Incomplete:
-- Phase 4 (Dashboard): Failed -- skipped
-- Phases 5-6: Not attempted (stopped early)
-```
+Read `references/all-phases-mode.md` for the combined summary table format and incomplete-phase notes.
 
 ## Success Criteria
 
