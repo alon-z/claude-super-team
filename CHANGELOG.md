@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.27] - 2026-02-25
+
+### claude-super-team
+- execute-phase: Fixed teams detection bug -- `teams-available` now read from gather script PREFERENCES section instead of directly checking the `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` environment variable (which is inaccessible to skills)
+- execute-phase: Added verification preference (`always|on-failure|disabled`) via gather-data.sh grep and new Phase 3.7 resolution step; Phase 6 now conditionally skips verifier when preference is `disabled` or `on-failure` with clean execution
+- execute-phase: `gather-data.sh` PREFERENCES section gains a `verification:` line (4 total: execution-model, simplifier, verification, teams-available)
+- /build: Enhanced adaptive pipeline depth heuristic with three new dimensions: Tech Stack Coverage (bias SIMPLE when all tech decisions specified in build-preferences), Project Complexity Class (standard vs complex classification after roadmap creation), and Cumulative Knowledge Discount (pattern-following later phases lean SIMPLE)
+- /build: Added `$PREF_VERIFICATION` preference resolution in Step 3, persisted to STATE.md in Step 4, and documented passthrough to execute-phase in Step 9g; complexity class logged to BUILD-STATE.md after Step 8
+- plan-phase: Strengthened wave batching rules in planner-guide.md with 4 explicit rules favoring same-wave placement, updated algorithm with read-conflict awareness, vertical slice examples with shared-read safety, and clear write-overlap vs read-overlap distinction
+
 ## [1.0.26] - 2026-02-22
 
 ### claude-super-team
