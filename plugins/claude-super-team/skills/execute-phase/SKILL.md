@@ -92,7 +92,7 @@ Extract from $ARGUMENTS:
 
 Set `EXEC_MODE` based on these conditions:
 - If `--team` flag is set: `EXEC_MODE=team`
-- Else if `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in environment: `EXEC_MODE=team`
+- Else if `teams-available: true` in the pre-loaded PREFERENCES section: `EXEC_MODE=team`
 - Else: `EXEC_MODE=task`
 
 When `EXEC_MODE=team`, waves use Agent Teams (TeamCreate + teammates) instead of parallel Task calls. This provides inter-agent messaging, shared task list coordination, and better progress visibility within waves.
@@ -119,14 +119,14 @@ After determining `EXEC_MODE`, print one message so the user understands which m
 Using teams mode (--team flag).
 ```
 
-**If `EXEC_MODE=team` triggered by environment variable:**
+**If `EXEC_MODE=team` triggered by PREFERENCES:**
 ```
-Using teams mode (CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1).
+Using teams mode (teams-available: true in preferences).
 ```
 
 **If `EXEC_MODE=task`:**
 ```
-Using task mode -- teams not enabled. Pass --team or set CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 to use teams.
+Using task mode -- teams not enabled. Pass --team to use teams.
 ```
 
 Print this once immediately after Phase 2 completes.
@@ -205,6 +205,26 @@ Log the resolved value:
 Simplifier: {enabled|disabled}
 ```
 
+### Phase 3.7: Resolve Verification Preference
+
+Use the pre-loaded **PREFERENCES** section from the gather script. Check the `verification` value.
+
+**If preference is set:** Use its value (`always`, `on-failure`, or `disabled`) as `$VERIFICATION_PREF`.
+
+**If preference is NOT set (missing or "unset"):** Default to `on-failure` silently (no user prompt).
+
+Log the resolved value:
+
+```
+Verification: {always|on-failure|disabled}
+```
+
+**Effect on Phase 6 (Verify Phase Goal):**
+
+- If `$VERIFICATION_PREF` is `always`: Run the verifier (current behavior).
+- If `$VERIFICATION_PREF` is `on-failure`: Skip the verifier ONLY when ALL of these are true: (1) all plans completed without errors in their SUMMARY.md files, (2) no spot-check failures occurred during wave execution, (3) `--skip-verify` was NOT explicitly set (respect explicit flags). If any plan had errors or spot-checks failed, run the verifier.
+- If `$VERIFICATION_PREF` is `disabled`: Skip the verifier entirely (same as `--skip-verify`).
+
 ### Phase 4: Group Plans by Wave
 
 Read `wave` field from each plan's YAML frontmatter. Group plans into waves.
@@ -279,7 +299,11 @@ Read `references/wave-execution-guide.md` for the detailed wave execution proced
 
 ### Phase 6: Verify Phase Goal
 
-Skip if `--skip-verify` flag was set.
+Skip if `--skip-verify` flag was set OR if `$VERIFICATION_PREF` is `disabled`.
+
+If `$VERIFICATION_PREF` is `on-failure`: Skip the verifier when all plans completed cleanly (no errors in SUMMARY.md files, no spot-check failures). Run the verifier if any plan reported errors or spot-checks failed.
+
+If `$VERIFICATION_PREF` is `always`: Always run the verifier (current default behavior).
 
 Read `references/verifier-guide.md`. Collect all must_haves from all plans. Read all SUMMARY.md files.
 

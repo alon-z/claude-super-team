@@ -18,6 +18,7 @@ fi
 echo "=== PREFERENCES ==="
 grep -E '^execution-model:' .planning/STATE.md 2>/dev/null || echo "execution-model: unset"
 grep -E '^simplifier:' .planning/STATE.md 2>/dev/null || echo "simplifier: unset"
+grep -E '^verification:' .planning/STATE.md 2>/dev/null || echo "verification: unset"
 [ "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-}" = "1" ] && echo "teams-available: true" || echo "teams-available: false"
 
 # Plan discovery with metadata for all phases
