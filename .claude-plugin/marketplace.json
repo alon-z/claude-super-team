@@ -1,6 +1,6 @@
 {
   "name": "claude-super-team",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "owner": {
     "name": "Alon Zusman"
   },
@@ -34,6 +34,14 @@
       "version": "1.0.0",
       "keywords": ["task-management", "linear", "github", "issues", "sync"],
       "category": "development"
+    },
+    {
+      "name": "masterclass",
+      "description": "Research-distilled expert knowledge on product design, marketing, psychology, and more. Each skill is a deep-dive masterclass synthesized from specialist research and talks.",
+      "source": "./plugins/masterclass",
+      "version": "1.0.0",
+      "keywords": ["masterclass", "product-design", "marketing", "research", "strategy", "expert-knowledge"],
+      "category": "knowledge"
     }
   ]
 }

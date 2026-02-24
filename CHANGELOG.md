@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.28] - 2026-02-25
+
+### masterclass
+- Added new `masterclass` plugin to the marketplace -- a knowledge plugin for research-distilled expert skills
+- Added `addictive-apps-design` skill: emotional design principles (micro-interactions, feedback loops, trust-building polish, premium feel) distilled from case studies on Duolingo, Phantom, and Revolut
+- Skill includes a 16-item review checklist for auditing existing implementations and a case studies reference file with outcome data and key lessons
+
 ## [1.0.27] - 2026-02-25
 
 ### claude-super-team
