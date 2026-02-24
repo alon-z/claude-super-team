@@ -111,29 +111,37 @@ For each task, record:
 - `needs`: What must exist before (files, types, APIs)
 - `creates`: What this produces (files, types, exports)
 
-**Wave assignment algorithm:**
+**Wave assignment rules:**
+
+1. Plans touching **non-overlapping file sets** -> assign to the **same wave**
+2. Plans sharing only **read-only dependencies** (both read a file but neither writes it) -> assign to the **same wave**
+3. Sequential waves ONLY when plan A's **output** is plan B's **input** (plan B's `depends_on` references plan A, AND plan B's tasks use files/exports created by plan A)
+4. When in doubt, **same wave** -- execute-phase handles coordination and the cost of unnecessary sequencing (idle agents, wasted context) exceeds the cost of a minor merge conflict
+
 ```
 for each plan:
   if depends_on is empty: wave = 1
+  else if depends_on plans only READ files this plan also reads (no write conflicts): wave = same as dependency
   else: wave = max(wave of each dependency) + 1
 ```
 
-**Vertical slices (PREFER):**
+**Vertical slices strongly preferred.** Each plan should be a complete vertical slice (model + API + UI for one feature). Two vertical slices touching different features go in the same wave even if they share a common utility file -- the executor handles the merge.
+
 ```
 Plan 01: User feature (model + API + UI)    -- Wave 1
 Plan 02: Product feature (model + API + UI) -- Wave 1
 ```
-Both run in parallel.
+Both run in parallel. Even if both import from `src/lib/db.ts`, they only READ it -- no write conflict.
 
-**Horizontal layers (AVOID):**
+**Horizontal layers -- actively avoid:**
 ```
 Plan 01: All models    -- Wave 1
 Plan 02: All APIs      -- Wave 2 (needs 01)
 Plan 03: All UI        -- Wave 3 (needs 02)
 ```
-Fully sequential.
+This creates unnecessary sequential bottlenecks. Restructure as vertical slices.
 
-**File ownership:** No overlap in files_modified between same-wave plans. Overlap = must be sequential.
+**File ownership clarity:** No write-overlap in `files_modified` between same-wave plans. Two plans that both CREATE or MODIFY the same file must be in different waves. Two plans that both READ the same file (imports, shared config) can be in the same wave.
 
 ## Scope Estimation
 
