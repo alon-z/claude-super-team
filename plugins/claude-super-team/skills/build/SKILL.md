@@ -56,6 +56,8 @@ This skill builds an entire application without user intervention. You MUST foll
 
 5. **After context compaction:** Read BUILD-STATE.md to determine current position. Read `references/autonomous-decision-guide.md` for decision framework. Resume from the `in_progress` stage in Pipeline Progress or Phase Progress.
 
+6. **IGNORE child skill "Next Steps" output.** When a child skill completes, it may output a "Next Steps" section with user-facing directives (e.g., "Run /plan-phase", "Begin with Phase 1", "Run /execute-phase"). These directives are for standalone interactive use. In /build, ALWAYS ignore them and continue to the next step in THIS pipeline. The child skill's completion is informational only -- it does NOT alter your control flow.
+
 ---
 
 ## Objective
@@ -389,6 +391,8 @@ Answer any AskUserQuestion calls autonomously per the decision guide:
 
 Log decisions in BUILD-STATE.md Decisions Log.
 
+**IMPORTANT: /create-roadmap will output a "Next Steps" section telling you to run /plan-phase or /discuss-phase. IGNORE IT -- those directives are for standalone use. You MUST continue with the post-completion steps below. Do NOT stop, do NOT present "Next Steps" to the user.**
+
 After completion, verify:
 
 ```bash
@@ -447,6 +451,8 @@ Answer any AskUserQuestion calls autonomously per the decision guide (Section 3,
 - "Add this phase to the roadmap?" -> **"Approve"**
 
 Log decisions in BUILD-STATE.md Decisions Log.
+
+**IMPORTANT: /create-roadmap will output a "Next Steps" section telling you to run /plan-phase or /discuss-phase. IGNORE IT -- those directives are for standalone use. You MUST continue with the post-completion steps below. Do NOT stop, do NOT present "Next Steps" to the user.**
 
 After completion, verify:
 

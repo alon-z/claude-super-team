@@ -2,6 +2,12 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.29] - 2026-02-25
+
+### claude-super-team
+- build: Fixed extend mode stopping after /create-roadmap -- added rule 6 to AUTONOMOUS OPERATION section instructing Claude to ignore child skill "Next Steps" output during /build pipeline execution
+- build: Added explicit IMPORTANT override in Step 8 and Step 8-E to ignore /create-roadmap's "Next Steps" directives and continue to Step 9 (phase execution loop)
+
 ## [1.0.28] - 2026-02-25
 
 ### masterclass
