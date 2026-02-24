@@ -47,6 +47,14 @@ Integrations for external task trackers:
 | `/linear-sync` | Sync `.planning/` artifacts to Linear |
 | `/github-issue-manager` | Create and manage GitHub issues |
 
+### masterclass
+
+Expert knowledge distilled from research, talks, and case studies:
+
+| Command | Description |
+|---------|-------------|
+| `/addictive-apps-design` | Emotional design principles for building apps people love. Use when designing/reviewing user flows, UI, onboarding, or for an engagement audit of existing implementation. |
+
 ## Installation
 
 Add the marketplace to your Claude Code configuration:
