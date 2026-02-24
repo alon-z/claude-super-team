@@ -60,6 +60,31 @@ Skip directly to /plan-phase when ALL of these are true:
 
 If signals are mixed or unclear: **run the full pipeline**. Discuss and research are cheap relative to building the wrong thing. False negatives (skipping when you should have discussed) are far more expensive than false positives (discussing when you could have skipped).
 
+### Tech Stack Coverage
+
+If `build-preferences.md` specifies a full tech stack (framework, database, auth provider, etc.) AND the current phase's goal and success criteria use only technologies within that stack, bias toward SIMPLE. The rationale: when the user has already made all tech decisions, /discuss-phase adds no value and /research-phase is redundant for well-known frameworks.
+
+Conversely, if the phase introduces a technology NOT covered by build-preferences (e.g., a payment provider when preferences only specify frontend + backend), run FULL.
+
+### Project Complexity Class
+
+After /create-roadmap completes (Step 8), classify the project as `standard` or `complex` based on the roadmap:
+
+- **complex** if ANY: total phase count >= 8, any phase has >= 5 success criteria, >= 3 phases mention external service integration, project involves real-time features or distributed systems
+- **standard** otherwise
+
+Log the classification in BUILD-STATE.md under Session as `Complexity class: {standard|complex}`.
+
+Effect on pipeline depth: For `standard` projects, simplicity signals are weighted more heavily -- a phase matching 2+ simplicity signals skips discuss/research even if it also matches 1 complexity signal (keyword match alone is not enough to trigger FULL). For `complex` projects, the existing default-to-FULL behavior applies unchanged.
+
+### Cumulative Knowledge Discount
+
+After phases 1-2 have been executed, later phases that follow the same patterns established in earlier phases lean toward SIMPLE even if they mention domains that sound "new" but are structurally similar (e.g., "new API endpoints" in a phase that follows the same route/controller/model pattern as phase 2).
+
+Specifically: if a phase's success criteria reference file patterns already created in earlier phases (same directory structure, same file naming, same tech stack), and prior CONTEXT.md/RESEARCH.md already cover the relevant domain, treat it as pattern-following and bias SIMPLE.
+
+This discount does NOT apply when the phase introduces genuinely new infrastructure (new database, new external service, new deployment target).
+
 ### Constraints
 
 - /brainstorm always runs once before /create-roadmap -- it is NOT per-phase

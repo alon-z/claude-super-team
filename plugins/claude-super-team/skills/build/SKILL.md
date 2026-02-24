@@ -192,6 +192,7 @@ If project-level exists, it takes precedence for any overlapping fields. Merge i
 - `$PREF_TECH_STACK` -- tech stack preferences (if specified).
 - `$PREF_ARCH_STYLE` -- architecture style (if specified).
 - `$PREF_TESTING` -- testing strategy (if specified).
+- `$PREF_VERIFICATION` -- verification preference (always, on-failure, or disabled). Default: on-failure.
 
 If neither file exists, proceed with no preferences. LLM reasoning handles all decisions using project context alone.
 
@@ -230,6 +231,12 @@ Write to `.planning/BUILD-STATE.md`:
 ```
 Write('.planning/BUILD-STATE.md', populated_template)
 ```
+
+If `$PREF_VERIFICATION` was resolved from preferences, persist it to STATE.md under `## Preferences`:
+```markdown
+verification: {$PREF_VERIFICATION}
+```
+Use Edit tool to update STATE.md. If the preference line already exists, update it. If not, add it below the existing preferences.
 
 Print: `BUILD-STATE.md initialized. Starting autonomous build pipeline.`
 
@@ -401,6 +408,16 @@ Read('.planning/ROADMAP.md')
 ```
 
 Extract phase numbers, names, goals, and success criteria from the roadmap.
+
+Classify the project complexity. Read the phase list from ROADMAP.md:
+- Count total phases
+- For each phase, count success criteria
+- Count phases mentioning external service integration
+- Check for real-time features or distributed systems
+
+If ANY: total phases >= 8, any phase has >= 5 success criteria, >= 3 phases mention external integrations, or project involves real-time/distributed: `COMPLEXITY_CLASS = complex`. Otherwise: `COMPLEXITY_CLASS = standard`.
+
+Log in BUILD-STATE.md under Session: `Complexity class: {standard|complex}`.
 
 Update BUILD-STATE.md:
 - Set Pipeline Progress "create-roadmap" row to `complete`.
@@ -607,6 +624,8 @@ Invoke:
 ```
 Skill('execute-phase', '{N}')
 ```
+
+The verification preference (`$PREF_VERIFICATION`) is already persisted in STATE.md from Step 3 preference resolution. Execute-phase reads it from its gather script PREFERENCES section automatically.
 
 Answer all AskUserQuestion calls autonomously per the decision guide:
 
