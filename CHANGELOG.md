@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.30] - 2026-02-25
+
+### masterclass
+- Committed initial plugin files for `addictive-apps-design` skill (files were registered in v1.0.28 but not included in the release commit)
+- addictive-apps-design: Added Pencil MCP read tools to `allowed-tools` -- skill can now audit .pen design files directly
+- addictive-apps-design: Added design file review workflow using `get_editor_state`, `batch_get`, `snapshot_layout`, `get_screenshot`, `get_variables`, and `search_all_unique_properties`
+
 ## [1.0.29] - 2026-02-25
 
 ### claude-super-team

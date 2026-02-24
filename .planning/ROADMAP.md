@@ -6,17 +6,18 @@ Evolve the Claude Super Team plugin marketplace from a working but unoptimized s
 
 ## Phases
 
-- [ ] **Phase 1: Claude Code Capability Mapping** - Research and document all available plugin primitives as an audit reference
-- [ ] Phase 1.5: Add research detection to phase-feedback skill (QUICK)
-- [ ] Phase 1.4: Add compaction resilience to execute-phase (QUICK)
-- [ ] Phase 1.6: Add planning file sync detection to progress skill (QUICK)
-- [ ] Phase 1.7: Add per-project toggle to disable simplifier agent in execute-phase (QUICK)
-- [ ] **Phase 2: Skill Audit & Reclassification** - Systematically review every skill and classify as skill, agent, or hybrid
-- [ ] **Phase 3: Apply Audit Recommendations** - Implement reclassifications, add missing features, fix frontmatter gaps
+- [x] **Phase 1: Claude Code Capability Mapping** - Research and document all available plugin primitives as an audit reference
+- [x] Phase 1.5: Add research detection to phase-feedback skill (QUICK)
+- [x] Phase 1.4: Add compaction resilience to execute-phase (QUICK)
+- [x] Phase 1.6: Add planning file sync detection to progress skill (QUICK)
+- [x] Phase 1.7: Add per-project toggle to disable simplifier agent in execute-phase (QUICK)
+- [x] **Phase 2: Skill Audit & Reclassification** - Systematically review every skill and classify as skill, agent, or hybrid
+- [x] **Phase 3: Apply Audit Recommendations** - Implement reclassifications, add missing features, fix frontmatter gaps
 - [ ] **Phase 4: Harden Fragile Areas** - Address tech debt, phase numbering, state coordination, and large file decomposition
 - [ ] **Phase 5: Workflow Validation & Gap Closure** - Dogfood updated marketplace on a real project, discover and fix remaining gaps
 - [x] **Phase 6: Hook-Based Telemetry Capture** - Add passive telemetry to orchestrator skills via shared shell script and skill-scoped hooks
 - [ ] **Phase 7: Efficiency Regression Detection** - Create /metrics skill for resource reporting and threshold-based violation detection
+- [x] Phase 7.1: Build Skill Efficiency (QUICK)
 - [x] **Phase 8: Full Auto Mode** - Create /build skill that autonomously chains all pipeline skills to go from idea to fully built and validated application
 
 ## Phase Details
@@ -122,6 +123,17 @@ Success Criteria:
   2. Absolute thresholds are configurable via `.planning/.telemetry/config.json`
   3. The skill flags threshold violations and presents them alongside the summary report
 
+### Phase 7.1: Build Skill Efficiency (QUICK)
+**Goal:** Make /build significantly faster for well-understood projects by fixing teams detection, adding smarter pipeline depth, skipping verification when validation passes clean, and enabling parallel phase execution
+**Type:** Quick phase -- lightweight planning, no research/verification
+**Inserted before:** Phase 8
+
+Success Criteria:
+1. Execute-phase reads teams-available from gather script PREFERENCES section instead of checking inaccessible env var (bug fix)
+2. /build's adaptive pipeline depth heuristic accounts for project complexity class and tech stack coverage, not just keyword matching
+3. Verification is skippable via a `verification` preference in STATE.md (always|on-failure|disabled), defaulting to on-failure (skip deep verification when build+tests pass clean)
+4. Plan-phase planner instructions produce more aggressive wave batching -- plans that can safely run in parallel are assigned to the same wave
+
 ### Phase 8: Full Auto Mode
 **Goal**: Create a `/build` skill that autonomously chains the entire planning pipeline -- from idea to fully built and validated application -- using all claude-super-team skills with no user intervention, surviving many context compactions and self-validating its output at each stage
 **Depends on**: Phase 7
@@ -142,15 +154,16 @@ Success Criteria:
 | 1.2 Execute Branch Guard Team Log (QUICK) | Complete | 2026-02-12 |
 | 1.3 Brainstorm Creates Context (QUICK) | Complete | 2026-02-12 |
 | 1.4 Execute Compaction Resilience (QUICK) | Complete | 2026-02-11 |
-| 1.5 Feedback Research Detection (QUICK) | Not started | - |
-| 1.6 Progress Sync Detection (QUICK) | Not started | - |
-| 1.7 Simplifier Toggle (QUICK) | Not started | - |
-| 2. Skill Audit & Reclassification | Planned | - |
-| 3. Apply Audit Recommendations | Not started | - |
+| 1.5 Feedback Research Detection (QUICK) | Complete | 2026-02-25 |
+| 1.6 Progress Sync Detection (QUICK) | Complete | 2026-02-25 |
+| 1.7 Simplifier Toggle (QUICK) | Complete | 2026-02-25 |
+| 2. Skill Audit & Reclassification | Complete | 2026-02-25 |
+| 3. Apply Audit Recommendations | Complete | 2026-02-25 |
 | 4. Harden Fragile Areas | Not started | - |
 | 5. Workflow Validation & Gap Closure | Not started | - |
 | 6. Hook-Based Telemetry Capture | Complete | 2026-02-17 |
 | 7. Efficiency Regression Detection | Not started | - |
+| 7.1 Build Skill Efficiency (QUICK) | Complete | 2026-02-25 |
 | 8. Full Auto Mode | Complete | 2026-02-18 |
 
 ---

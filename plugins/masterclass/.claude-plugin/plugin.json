@@ -1,0 +1,9 @@
+{
+  "name": "masterclass",
+  "description": "Research-distilled expert knowledge on product design, marketing, psychology, and more. Each skill is a deep-dive masterclass synthesized from specialist research and talks.",
+  "version": "1.0.1",
+  "author": {
+    "name": "Alon Zusman"
+  },
+  "keywords": ["masterclass", "product-design", "marketing", "research", "strategy", "expert-knowledge"]
+}
