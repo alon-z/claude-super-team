@@ -136,7 +136,7 @@ Not explored -- useful only after telemetry infrastructure exists. Could be revi
 
 ## Deferred Ideas
 
-- None
+- **Cross-Phase Parallel DAG Execution:** /build analyzes "Depends on" fields in ROADMAP.md phase details to build a dependency DAG. Independent phases (no dependency relationship) execute in parallel using teams mode -- each phase gets its own branch from main, parallel agents work simultaneously, then merge sequentially when all complete. Failed phases mark dependents as skipped. Requires teams mode. Would significantly speed up builds where phases like "Auth" and "Frontend scaffold" are independent after a shared foundation phase.
 
 ---
 

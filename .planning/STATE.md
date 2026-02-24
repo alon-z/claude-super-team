@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Complete -- all planned phases executed
+**Current focus:** Phase 7.1 complete -- build skill efficiency improvements applied
 
 ## Current Position
 
-Phase: 8 of 8 (completed through 8)
-Status: Executed and Verified
-Last activity: 2026-02-18 -- Phase 8 executed (teams + task mode, opus, 3 waves, 4 plans)
+Phase: 7.1 (complete)
+Status: Executed
+Last activity: 2026-02-25 -- Phase 7.1 executed: teams detection fix, verification preference, pipeline depth heuristic, wave batching
 
 ## Preferences
 
@@ -35,9 +35,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - Phase 8: Created /build skill for autonomous full-pipeline application building. 869-line SKILL.md with 13-step process, compaction resilience hooks, autonomous AskUserQuestion handling via decision guide, adaptive pipeline depth/validation heuristics, git branch-per-phase with squash-merge, bounded auto-fix loops. Foundation: gather-data.sh, 3 asset templates, 2 reference guides. Integration: cst-help updated, version bumped to 1.0.18, changelog/docs updated.
 
+- Phase 7.1: Build skill efficiency improvements. Fixed teams detection bug (PREFERENCES instead of env var), added verification preference (always|on-failure|disabled), enhanced pipeline depth heuristic with tech stack coverage/complexity class/cumulative knowledge discount, strengthened planner wave batching to favor parallelism.
+
 ### Blockers/Concerns
 
 None.
 
 ---
-*Last updated: 2026-02-18 -- Phase 8 executed and verified*
+*Last updated: 2026-02-25 -- Phase 7.1 executed*
