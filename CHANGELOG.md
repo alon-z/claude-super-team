@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.31] - 2026-03-03
+
+### claude-super-team
+- plan-phase: Added refinement mode -- when plans already exist, users can now choose to surgically update plans based on new context (RESEARCH.md, CONTEXT.md) rather than replanning from scratch
+- plan-phase/context-loading.md: Added "Refine existing plans (Recommended)" as the default option when plans already exist for a phase
+- plan-phase/planner-guide.md: Added full Refinement Mode section with editor mindset, impact classification (no/minor/moderate/major), preservation rules, and REFINEMENT COMPLETE return format
+
 ## [1.0.30] - 2026-02-25
 
 ### masterclass

@@ -105,7 +105,7 @@ Read `references/planner-guide.md` and `assets/plan-template.md`. Build the plan
 2. The plan template
 3. All context files loaded in Phase 4 (inline their contents -- `@` syntax does not work across Task boundaries)
 4. The phase number, name, and goal from roadmap
-5. Mode: `standard` or `gap_closure` (if --gaps)
+5. Mode: `standard`, `gap_closure` (if --gaps), or `refinement` (if refining existing plans)
 
 Spawn via Task tool:
 
@@ -128,7 +128,7 @@ Task(
   ---
 
   Phase: {phase_number} - {phase_name}
-  Mode: {standard | gap_closure}
+  Mode: {standard | gap_closure | refinement}
 
   Project context:
   {project_md_content}
@@ -155,21 +155,28 @@ Task(
   {verification_content}
   {uat_content}
 
+  Existing plans (refinement mode only):
+  {existing_plan_contents}
+
   Prior phase plans index (--all mode only, empty for first phase or single-phase mode):
   {prior_plans_index}
   Use this index for setting correct depends_on references to plans from earlier phases.
 
   Write PLAN.md files to: {phase_dir}/
-  Return PLANNING COMPLETE or REVISION COMPLETE when done.
+  Return PLANNING COMPLETE or REVISION COMPLETE or REFINEMENT COMPLETE when done.
   """
 )
 ```
+
+**Refinement mode:** When `PLAN_MODE=refinement`, set Mode to `refinement` and include the full contents of all existing `*-PLAN.md` files under "Existing plans". The planner will surgically update existing plans based on new context rather than creating plans from scratch. See "Refinement Mode" in planner-guide.md.
 
 ### Phase 6: Handle Planner Return
 
 Parse the planner's output:
 
 **`## PLANNING COMPLETE`:** Plans created. Continue to Phase 7 (if --verify), otherwise skip to Phase 9.
+
+**`## REFINEMENT COMPLETE`:** Existing plans updated. Continue to Phase 7 (if --verify), otherwise skip to Phase 9.
 
 **`## REVISION COMPLETE`:** Plans revised. Continue to Phase 7 for re-verification.
 

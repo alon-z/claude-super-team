@@ -91,7 +91,7 @@
 
 **Solution:**
 - Re-run `/discuss-phase N` to update decisions with research insights
-- Then run `/plan-phase N` with updated CONTEXT.md and RESEARCH.md
+- Then run `/plan-phase N` with updated CONTEXT.md and RESEARCH.md -- select "Refine existing plans" to surgically update plans based on the new context rather than replanning from scratch
 
 #### "Plans reference wrong files or paths"
 
@@ -499,6 +499,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 ### Use `/plan-phase` when:
 - Phase is defined in roadmap
 - Ready to break phase into executable plans
+- Plans already exist but new context (RESEARCH.md, CONTEXT.md) was added -- select "Refine existing plans" to update surgically
 - Optionally: use `--gaps` for fixing verification failures, `--verify` to run checker agent (skipped by default)
 
 ### Use `/execute-phase` when:
