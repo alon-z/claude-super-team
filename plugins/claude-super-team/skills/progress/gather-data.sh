@@ -21,6 +21,40 @@ head -20 "$P/SECURITY-AUDIT.md" 2>/dev/null || echo "(missing)"
 echo "=== BUILD_STATE_FILE ==="
 cat "$P/BUILD-STATE.md" 2>/dev/null || echo "(missing)"
 
+# === DEPENDENCIES ===
+echo "=== DEPENDENCIES ==="
+if [ -f "$P/ROADMAP.md" ]; then
+  # Extract phase number and "Depends on" value for each phase
+  awk '
+    /^### Phase [0-9]/ {
+      # Extract phase number: strip everything before "Phase " and after the number
+      phase = $0
+      sub(/.*Phase /, "", phase)
+      sub(/[^0-9.].*/, "", phase)
+    }
+    /^\*\*Depends on\*\*:/ {
+      dep = $0
+      sub(/.*\*\*Depends on\*\*: */, "", dep)
+      # Extract phase numbers from dependency string
+      if (dep ~ /[Nn]othing/ || dep ~ /^-$/ || dep == "") {
+        print phase "|none"
+      } else {
+        # Pull all phase numbers from the dependency string
+        result = ""
+        n = split(dep, parts, /[,;]/)
+        for (i = 1; i <= n; i++) {
+          if (match(parts[i], /[0-9]+(\.[0-9]+)?/)) {
+            num = substr(parts[i], RSTART, RLENGTH)
+            result = (result == "" ? num : result "," num)
+          }
+        }
+        if (result == "") result = "none"
+        print phase "|" result
+      }
+    }
+  ' "$P/ROADMAP.md"
+fi
+
 # === STRUCTURE ===
 echo "=== STRUCTURE ==="
 [ -d "$P" ] && echo "PLANNING_DIR=exists" || echo "PLANNING_DIR=missing"

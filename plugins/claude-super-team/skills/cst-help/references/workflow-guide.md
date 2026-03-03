@@ -80,6 +80,7 @@ Plans grouped for execution:
 - **STATE.md**: Current position, decisions, blockers
 - **VERIFICATION.md**: Phase goal verification results
 - **Sync detection**: `/progress` checks for mismatches between directories, ROADMAP.md, STATE.md, and progress table
+- **Dependency routing**: `/progress` parses "Depends on" lines from ROADMAP.md to determine which phases are blocked vs unblocked; Route A/B/C list ALL actionable phases rather than stopping at the first match
 
 ## Workflow Patterns
 

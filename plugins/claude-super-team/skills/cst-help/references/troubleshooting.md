@@ -228,6 +228,27 @@
 - Manually fix inconsistencies (add missing files, update STATE.md)
 - Run `/progress` again
 
+#### "/progress only suggests one phase but many are ready"
+
+**Symptom:** Progress suggests executing one phase even though several phases are planned and unblocked
+
+**Cause:** This was a bug in older versions -- now fixed. `/progress` scans all phases and lists all executable/plannable unblocked phases at once.
+
+**Solution:**
+- Ensure you are on v1.0.32+
+- Check the Deps column in the Phases table -- phases showing unsatisfied dependencies are genuinely blocked
+
+#### "/progress shows phases as blocked unexpectedly"
+
+**Symptom:** Phases show `⊘ blocked` status when you expected them to be available
+
+**Cause:** Their dependency phases in ROADMAP.md are not yet marked `done`
+
+**Solution:**
+- Check the Deps column to see which phases are blocking
+- Complete or execute the blocking phases first
+- If the dependency is wrong, update ROADMAP.md with `/create-roadmap`
+
 ### File Structure Issues
 
 #### "Phase directory naming mismatch"

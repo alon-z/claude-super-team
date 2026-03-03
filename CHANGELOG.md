@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.32] - 2026-03-03
+
+### claude-super-team
+- progress: Added dependency-aware multi-phase routing -- /progress now parses "Depends on" lines from ROADMAP.md and marks phases as blocked or unblocked based on whether all dependency phases are complete
+- progress: gather-data.sh gains a new DEPENDENCIES section that extracts phase dependency graphs using portable awk
+- progress: Phase 4 (Build Phase Map) now annotates each phase with its blocked/unblocked state and lists unsatisfied dependencies
+- progress: Phases table gains a Deps column showing dependency satisfaction status per phase; blocked phases show ⊘ blocked status
+- progress: Phase 6 routing now scans ALL phases instead of stopping at the first match -- Route A lists all executable unblocked phases, Route B lists all plannable unblocked phases, Route C finds all newly-unblocked phases (not just Z+1), Route E lists all gap phases
+- progress: Added Route H for the edge case where all remaining phases are blocked (dependency deadlock detection)
+
 ## [1.0.31] - 2026-03-03
 
 ### claude-super-team

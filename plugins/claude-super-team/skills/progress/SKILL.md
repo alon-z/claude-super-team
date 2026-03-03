@@ -14,7 +14,7 @@ Run the gather script to load planning files and structured data:
 bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"
 ```
 
-Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, BUILD_STATE_FILE, STRUCTURE, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD, GIT) before proceeding.
+Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, BUILD_STATE_FILE, STRUCTURE, DEPENDENCIES, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD, GIT) before proceeding.
 
 **Context-aware skip:** If PROJECT.md, ROADMAP.md, or STATE.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"`. Only set flags for files genuinely already in context.
 
@@ -135,6 +135,20 @@ Assign each phase a status label:
 - `current` -- the phase STATE.md points to (overlay on other statuses)
 - `upcoming` -- plans == 0, not current
 
+**Dependency resolution:** From the pre-loaded **DEPENDENCIES** section, parse each line:
+
+```
+{phase_num}|{comma_separated_dependency_nums_or_none}
+```
+
+For each phase, determine if it is **blocked** or **unblocked**:
+- A phase with dependencies `none` is always **unblocked**
+- A phase whose ALL dependency phases have status `done` is **unblocked**
+- A phase with ANY dependency phase NOT `done` is **blocked**
+- If a phase has no entry in DEPENDENCIES (no "Depends on" line in ROADMAP.md), treat it as **unblocked**
+
+Annotate each phase with its blocked/unblocked state and the list of unsatisfied dependencies (if any).
+
 From the **RECENT_SUMMARIES** section, parse each line:
 
 ```
@@ -195,12 +209,13 @@ Incomplete phases: {list from BUILD_INCOMPLETE}
 
 ### Phases
 
-| # | Phase | Status | Steps | Plans |
-|---|-------|--------|-------|-------|
-| 1 | Foundation | ✓ done | - - - | 3/3 |
-| 2 | Authentication | ▸ executing | D R P | 1/2 |
-| 3 | API Layer | ○ planned | D · P | 0/1 |
-| 4 | Dashboard | · upcoming | · · · | -- |
+| # | Phase | Status | Deps | Steps | Plans |
+|---|-------|--------|------|-------|-------|
+| 1 | Foundation | ✓ done | -- | - - - | 3/3 |
+| 2 | Authentication | ▸ executing | ✓ | D R P | 1/2 |
+| 3 | API Layer | ○ planned | ✓ | D · P | 0/1 |
+| 4 | Dashboard | ⊘ blocked | 3 | · · · | -- |
+| 5 | Reports | · upcoming | ✓ | · · · | -- |
 
 ---
 ```
@@ -210,9 +225,14 @@ Incomplete phases: {list from BUILD_INCOMPLETE}
 - `⚠ gaps` -- verification gaps found
 - `▸ executing` -- plans exist, execution in progress
 - `○ planned` -- plans created, not started
-- `· upcoming` -- not yet planned
+- `⊘ blocked` -- waiting on phases listed in Deps column
+- `· upcoming` -- not yet planned, unblocked
+
+**Deps column:** `--` for no dependencies, `✓` for all dependencies satisfied, or comma-separated list of unsatisfied phase numbers (e.g., `2,3`)
 
 **Steps column:** `D` discuss | `R` research | `P` plan (`·` = not done, `- - -` = phase complete)
+
+**Blocked phase status override:** If a phase would normally show `planned` or `upcoming` but has unsatisfied dependencies, show `⊘ blocked ({unsatisfied_deps})` instead. Phases with status `done`, `gaps`, or `executing` are never shown as blocked.
 
 **Sync Issues block:** Only show if Phase 2 found issues. Omit entirely when clean.
 
@@ -250,15 +270,23 @@ Use current phase status to determine routing. Append routing block after status
 
 **If `BUILD_MODE=false` and `HAS_BUILD_STATE=true` and `BUILD_STATUS=partial`:** Use **Route G: Build Needs Attention** instead.
 
-**Otherwise, routing priority (first match wins):**
+**Otherwise, scan ALL phases (not just the current one) and collect actionable items:**
 
-| Current phase status | Route |
-|----------------------|-------|
-| `gaps` | Route E |
-| `executing` or `planned` with unexecuted plans | Route A |
-| `done` + more phases remain | Route C |
-| `done` + last phase | Route D |
-| `upcoming` (no plans) | Route B |
+1. **Collect executable phases:** all phases with status `executing` or `planned` that are **unblocked** (all dependencies `done`).
+2. **Collect gap phases:** all phases with status `gaps`.
+3. **Collect plannable phases:** all phases with status `upcoming` that are **unblocked**.
+4. **Check if all phases are `done`.**
+
+**Routing priority (first match wins, but routes now handle multiple phases):**
+
+| Condition | Route |
+|-----------|-------|
+| Any gap phases exist | Route E (list all) |
+| Any executable unblocked phases exist | Route A (list all) |
+| All completed phases + more unblocked upcoming phases remain | Route C (list all unblocked next phases) |
+| All phases `done` | Route D |
+| Unblocked upcoming phases exist (no plans yet) | Route B (list all) |
+| Only blocked phases remain | Route H (new -- everything is blocked) |
 
 ---
 
@@ -266,9 +294,11 @@ Use current phase status to determine routing. Append routing block after status
 
 Each route appends a `### Next` section to the status report. Use these exact formats:
 
-### Route A: Execute Phase
+### Route A: Execute Phases
 
-Find first PLAN.md without matching SUMMARY.md. Use Read to get its objective if needed.
+Collect all unblocked phases with status `executing` or `planned`. For each, find the first PLAN.md without matching SUMMARY.md; use Read to get its objective if needed.
+
+**If only one executable phase:**
 
 ```
 ### Next
@@ -278,9 +308,28 @@ Find first PLAN.md without matching SUMMARY.md. Use Read to get its objective if
   /execute-phase {N}
 ```
 
-### Route B: Plan Phase
+**If multiple executable phases (list all, suggest parallel execution):**
 
-Check PHASE_MAP context and research counts for the upcoming phase.
+```
+### Next
+
+{count} phases are ready to execute:
+
+▸ **Phase {A}** -- {objective}
+▸ **Phase {B}** -- {objective}
+▸ **Phase {C}** -- {objective}
+
+Execute them (run sequentially or in parallel sessions):
+  /execute-phase {A}
+  /execute-phase {B}
+  /execute-phase {C}
+```
+
+### Route B: Plan Phase(s)
+
+Collect all unblocked phases with status `upcoming`. For each, check PHASE_MAP context and research counts.
+
+**If only one unblocked upcoming phase**, show the appropriate sub-route for that phase:
 
 **If context=0 (no context gathered):**
 
@@ -318,9 +367,24 @@ Alternative (plan without research):
   /plan-phase {N}
 ```
 
-### Route C: Next Phase
+**If multiple unblocked upcoming phases**, list them all with their readiness:
 
-Current phase done, more remain. Show completion then route forward.
+```
+### Next
+
+{count} phases are unblocked and ready to plan:
+
+{For each phase, show one line based on its context/research state:}
+▸ **Phase {A}: {Name}** -- needs discussion → /discuss-phase {A}
+▸ **Phase {B}: {Name}** -- needs research → /research-phase {B}
+▸ **Phase {C}: {Name}** -- ready to plan → /plan-phase {C}
+```
+
+### Route C: Next Phase(s)
+
+Recent phase(s) done, more remain. Find all phases that are now **unblocked** (all dependencies satisfied) and not yet planned or executing. Show completion then route forward.
+
+**If only one newly-unblocked phase:**
 
 ```
 ### Next
@@ -330,6 +394,29 @@ Current phase done, more remain. Show completion then route forward.
 ▸ **Plan Phase {Z+1}: {Name}** -- {goal from ROADMAP.md}
 
   /plan-phase {Z+1}
+
+**Refine interactively?**
+  /code {Z} to start a coding session on Phase {Z}
+```
+
+**If multiple newly-unblocked phases:**
+
+```
+### Next
+
+✓ Phase {Z} complete -- {count} phases are now unblocked:
+
+▸ **Phase {A}: {Name}** -- {goal}
+▸ **Phase {B}: {Name}** -- {goal}
+▸ **Phase {C}: {Name}** -- {goal}
+
+Plan them:
+  /plan-phase {A}
+  /plan-phase {B}
+  /plan-phase {C}
+
+Or plan all at once:
+  /plan-phase --all
 
 **Refine interactively?**
   /code {Z} to start a coding session on Phase {Z}
@@ -349,6 +436,10 @@ Current phase done, more remain. Show completion then route forward.
 
 ### Route E: Verification Gaps
 
+Collect all phases with status `gaps`.
+
+**If one gap phase:**
+
 ```
 ### Next
 
@@ -357,6 +448,17 @@ Current phase done, more remain. Show completion then route forward.
 ▸ **Plan fixes** -- create gap closure plans
 
   /plan-phase {N} --gaps
+```
+
+**If multiple gap phases:**
+
+```
+### Next
+
+⚠ {count} phases have verification gaps:
+
+▸ **Phase {A}** -- /plan-phase {A} --gaps
+▸ **Phase {B}** -- /plan-phase {B} --gaps
 ```
 
 ### Route: No Roadmap
@@ -425,6 +527,23 @@ The build is running without user intervention. You can:
 
   Fix the blocker, then:
     /build                -- auto-resumes from last position
+```
+
+### Route H: All Remaining Phases Blocked
+
+All non-done phases have unsatisfied dependencies. This likely indicates an issue -- either phases are stuck, or the dependency graph has a problem.
+
+```
+### Next
+
+⊘ All remaining phases are blocked:
+
+{For each blocked phase:}
+  Phase {N}: {Name} -- waiting on Phase {deps}
+
+This may indicate stuck phases or a dependency issue. Options:
+  - Complete or unblock the blocking phases first
+  - Modify the roadmap to adjust dependencies: /create-roadmap
 ```
 
 ## Edge Cases
