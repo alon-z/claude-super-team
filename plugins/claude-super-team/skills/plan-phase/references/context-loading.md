@@ -56,5 +56,15 @@ If plans exist and NOT --gaps mode, use AskUserQuestion:
 - header: "Plans"
 - question: "Plans already exist for this phase. What do you want to do?"
 - options:
-  - "Replan from scratch" -- Delete existing and create new plans
-  - "Keep existing" -- Exit without changes
+  - label: "Refine existing plans (Recommended)"
+    description: "Update plans based on new context (RESEARCH.md, CONTEXT.md, etc.) -- surgical changes only"
+  - label: "Replan from scratch"
+    description: "Delete existing plans and create entirely new ones"
+  - label: "Keep existing"
+    description: "Exit without changes"
+
+**On "Refine existing plans":** Set `PLAN_MODE=refinement`. Read all existing `*-PLAN.md` files in the phase directory and store their contents. Detect what context changed since plans were created by comparing file modification times or noting which optional context files (CONTEXT.md, RESEARCH.md) are present but not reflected in existing plans. Continue to Phase 5 with refinement mode.
+
+**On "Replan from scratch":** Set `PLAN_MODE=standard`. Delete existing plans. Continue to Phase 5.
+
+**On "Keep existing":** Exit without changes.

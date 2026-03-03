@@ -226,6 +226,52 @@ Triggered when orchestrator provides gap/verification context. Create plans to f
 5. Number plans sequentially after existing (if 01-03 exist, start at 04)
 6. Set `gap_closure: true` in frontmatter
 
+## Refinement Mode
+
+Triggered when existing plans need updating because new context was added (RESEARCH.md, CONTEXT.md, requirements changes). The existing plans are provided in the prompt under "Existing plans".
+
+**Mindset: Editor, not author.** Preserve existing plan structure. Make targeted updates to align plans with new context. Only restructure (add/remove/split plans) when new context fundamentally invalidates the current approach.
+
+**Process:**
+
+1. Read all existing plans carefully -- understand current structure, waves, dependencies, tasks
+2. Read the new context (RESEARCH.md, CONTEXT.md, etc.) and identify what's different or newly available
+3. For each existing plan, determine the impact:
+   - **No impact:** Leave the plan unchanged (do not rewrite it)
+   - **Minor impact:** Update specific fields -- swap a library in `<action>`, add a `<verify>` step for a newly discovered pitfall, adjust file paths based on research findings
+   - **Moderate impact:** Rewrite specific tasks within the plan while keeping plan structure (objective, wave, dependencies) intact
+   - **Major impact (rare):** Only if new context completely invalidates a plan's approach (e.g., CONTEXT.md locks a decision that contradicts the entire plan objective), then rewrite that plan. Document why in the return summary.
+
+4. Check for gaps: Does new context introduce requirements not covered by any existing plan? If so, add new plans (numbered after existing ones) to cover them.
+
+5. Preserve:
+   - Plan numbering and file names (unless splitting/adding)
+   - Wave structure (unless dependency changes force it)
+   - `depends_on` references (unless new plans are inserted)
+   - Tasks that are unaffected by the new context
+
+**What NOT to do:**
+- Do NOT delete all plans and start over -- that's "Replan from scratch", not refinement
+- Do NOT rewrite plans that are unaffected by the new context
+- Do NOT change plan structure (waves, dependencies) unless the new context specifically requires it
+- Do NOT treat refinement as an opportunity to "improve" plans beyond what the new context demands
+
+**Return `REFINEMENT COMPLETE` with a change summary:**
+```markdown
+## REFINEMENT COMPLETE
+
+**Phase:** {phase-name}
+**Plans refined:** {N} modified, {M} unchanged, {K} added
+
+### Changes Made
+| Plan | Change | Reason |
+|------|--------|--------|
+| 01 | Updated Task 1 action: switched from jsonwebtoken to jose | RESEARCH.md: jose recommended for Edge runtime |
+| 02 | No changes | Unaffected by new context |
+| 03 | Added verify step for rate limiting | RESEARCH.md: common pitfall identified |
+| 04 | NEW -- Added rate limiting middleware | CONTEXT.md: locked decision not covered by existing plans |
+```
+
 ## Revision Mode
 
 Triggered when orchestrator provides checker feedback. Make targeted updates, not rewrites.
@@ -239,7 +285,7 @@ Triggered when orchestrator provides checker feedback. Make targeted updates, no
 
 ## Pre-flight Checklist
 
-Before returning PLANNING COMPLETE, run this checklist against every plan. These are the issues most frequently caught by plan verification -- catching them here eliminates the revision loop.
+Before returning PLANNING COMPLETE or REFINEMENT COMPLETE, run this checklist against every plan (including unchanged plans in refinement mode -- verify they still pass after changes to other plans). These are the issues most frequently caught by plan verification -- catching them here eliminates the revision loop.
 
 **Task completeness (most common failure):**
 - [ ] Every `auto` task has all four fields: `<files>`, `<action>`, `<verify>`, `<done>`
@@ -299,6 +345,8 @@ If any check fails, fix it before returning. Do NOT rely on the checker to catch
 ### Next Steps
 Execute: /execute-phase {phase}
 ```
+
+**On refinement:** Use the `REFINEMENT COMPLETE` format defined in the Refinement Mode section above.
 
 **On revision:**
 ```markdown
