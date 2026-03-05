@@ -46,7 +46,7 @@ Only skip files that are genuinely in your current context. If ROADMAP.md was ju
 
 This skill builds an entire application without user intervention. You MUST follow these rules at ALL times:
 
-1. **NEVER present AskUserQuestion to the user.** When ANY skill (including child skills invoked via Skill tool) triggers AskUserQuestion, YOU answer it autonomously using the decision framework in `references/autonomous-decision-guide.md`. Select the best option, log the decision in BUILD-STATE.md, and continue.
+1. **NEVER present AskUserQuestion to the user.** When ANY skill (including child skills invoked via Skill tool) triggers AskUserQuestion, YOU answer it autonomously using the decision framework in `${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md`. Select the best option, log the decision in BUILD-STATE.md, and continue.
 
 2. **NEVER stop to ask the user for input.** Every decision point has a resolution path: preferences file, project context, prior decisions, or best-guess with low-confidence logging.
 
@@ -54,7 +54,7 @@ This skill builds an entire application without user intervention. You MUST foll
 
 4. **ALWAYS update BUILD-STATE.md before and after each skill invocation.** This is your recovery mechanism. If context compaction occurs, BUILD-STATE.md is re-injected and you resume from the last recorded position.
 
-5. **After context compaction:** Read BUILD-STATE.md to determine current position. Read `references/autonomous-decision-guide.md` for decision framework. Resume from the `in_progress` stage in Pipeline Progress or Phase Progress.
+5. **After context compaction:** Read BUILD-STATE.md to determine current position. Read `${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md` for decision framework. Resume from the `in_progress` stage in Pipeline Progress or Phase Progress.
 
 6. **IGNORE child skill "Next Steps" output.** When a child skill completes, it may output a "Next Steps" section with user-facing directives (e.g., "Run /plan-phase", "Begin with Phase 1", "Run /execute-phase"). These directives are for standalone interactive use. In /build, ALWAYS ignore them and continue to the next step in THIS pipeline. The child skill's completion is informational only -- it does NOT alter your control flow.
 
@@ -104,7 +104,7 @@ Read('.planning/BUILD-STATE.md')
      - Check if execution completed on that branch: do SUMMARY.md files exist for all plans in the phase directory?
      - If yes: squash-merge the branch to main (see Step 9j) and continue to the next phase.
      - If no: checkout the branch and resume execution from Step 9g.
-6. Re-read `references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
+6. Re-read `${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
 7. Apply context-aware gathering: since Step 0 re-loaded core files, use `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1` when child skills run their `gather-data.sh`.
 8. Skip to the appropriate step below based on current position.
 9. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
@@ -132,7 +132,7 @@ Print: `Extend mode: adding feature to existing project.`
 2. Record the set of already-completed phases from the PHASE_COMPLETION section of gather-data.sh output. These phases will be skipped in the execution loop.
 3. Read the autonomous decision guide for the decision framework:
    ```
-   Read('references/autonomous-decision-guide.md')
+   Read('${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md')
    ```
    (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/references/autonomous-decision-guide.md`)
 4. Skip to Step 4-E.
@@ -141,7 +141,7 @@ Print: `Extend mode: adding feature to existing project.`
 
 ### Step 2: Parse Input
 
-Read $ARGUMENTS. Use the file path detection heuristic from `references/pipeline-guide.md` Section 4:
+Read $ARGUMENTS. Use the file path detection heuristic from `${CLAUDE_SKILL_DIR}/references/pipeline-guide.md` Section 4:
 
 1. Split $ARGUMENTS on whitespace into tokens.
 2. For each token, check if it is a potential file path:
@@ -207,7 +207,7 @@ Print: `Build preferences: {source summary or "None found -- using LLM reasoning
 Read the template:
 
 ```
-Read('assets/build-state-template.md')
+Read('${CLAUDE_SKILL_DIR}/assets/build-state-template.md')
 ```
 
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/assets/build-state-template.md`)
@@ -249,7 +249,7 @@ Print: `BUILD-STATE.md initialized. Starting autonomous build pipeline.`
 Read the template:
 
 ```
-Read('assets/build-state-template.md')
+Read('${CLAUDE_SKILL_DIR}/assets/build-state-template.md')
 ```
 
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/assets/build-state-template.md`)
@@ -291,7 +291,7 @@ Skip to Step 8-E.
 Read the autonomous decision guide for the decision framework that governs all AskUserQuestion handling:
 
 ```
-Read('references/autonomous-decision-guide.md')
+Read('${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md')
 ```
 
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/references/autonomous-decision-guide.md`)
@@ -507,10 +507,10 @@ Print: `Starting phase {N}: {phase_name}`
 
 #### 9b. Adaptive Pipeline Depth Decision
 
-Read `references/pipeline-guide.md` Section 2 "Adaptive Pipeline Depth Heuristic":
+Read `${CLAUDE_SKILL_DIR}/references/pipeline-guide.md` Section 2 "Adaptive Pipeline Depth Heuristic":
 
 ```
-Read('references/pipeline-guide.md')
+Read('${CLAUDE_SKILL_DIR}/references/pipeline-guide.md')
 ```
 
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/references/pipeline-guide.md`)
@@ -655,7 +655,7 @@ Update Phase Progress: set Execute to `complete`.
 
 #### 9h. Adaptive Validation
 
-Read `references/pipeline-guide.md` Section 3 "Adaptive Validation Heuristic".
+Read `${CLAUDE_SKILL_DIR}/references/pipeline-guide.md` Section 3 "Adaptive Validation Heuristic".
 
 Determine if validation should run for this phase.
 
@@ -676,7 +676,7 @@ Determine if validation should run for this phase.
 **If VALIDATE:**
 
 1. Update Phase Progress: set Validate to `in_progress`.
-2. Detect build/test commands using the priority order from `references/pipeline-guide.md` Section 3:
+2. Detect build/test commands using the priority order from `${CLAUDE_SKILL_DIR}/references/pipeline-guide.md` Section 3:
 
    | Priority | Indicator | Build Command | Test Command |
    |----------|-----------|---------------|--------------|
@@ -881,7 +881,7 @@ For attempt 1 to 3:
 Read the report template:
 
 ```
-Read('assets/build-report-template.md')
+Read('${CLAUDE_SKILL_DIR}/assets/build-report-template.md')
 ```
 
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/assets/build-report-template.md`)

@@ -1,6 +1,6 @@
 {
   "name": "task-management",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Task management integration for Linear and GitHub. Sync planning artifacts to Linear and manage GitHub issues with consistency standards.",
   "author": {
     "name": "Alon Zusman"

@@ -58,13 +58,13 @@ Use AskUserQuestion:
 
 ## Interactive Path
 
-Read `references/interactive-mode.md` for the full interactive brainstorming procedure (topic definition, iterative idea exploration, deep-dive questions, decision gates).
+Read `${CLAUDE_SKILL_DIR}/references/interactive-mode.md` for the full interactive brainstorming procedure (topic definition, iterative idea exploration, deep-dive questions, decision gates).
 
 ---
 
 ## Autonomous Path
 
-Read `references/autonomous-mode.md` for the full autonomous analysis procedure (focus gathering, 3 parallel agent prompts, synthesis methodology, results presentation).
+Read `${CLAUDE_SKILL_DIR}/references/autonomous-mode.md` for the full autonomous analysis procedure (focus gathering, 3 parallel agent prompts, synthesis methodology, results presentation).
 
 ---
 
@@ -72,7 +72,7 @@ Read `references/autonomous-mode.md` for the full autonomous analysis procedure 
 
 ### Phase 10: Write IDEAS.md
 
-Read `assets/ideas-template.md` as structural reference. Populate with all ideas from the session.
+Read `${CLAUDE_SKILL_DIR}/assets/ideas-template.md` as structural reference. Populate with all ideas from the session.
 
 For each idea: name, description, motivation, tradeoffs, implementation notes, decision status.
 
@@ -110,7 +110,7 @@ Use Skill tool with skill: "create-roadmap" and args:
 
 ### Phase 11.5: Generate Context Files for New Phases
 
-Read `references/context-generation.md` for the context file generation procedure for new roadmap phases.
+Read `${CLAUDE_SKILL_DIR}/references/context-generation.md` for the context file generation procedure for new roadmap phases.
 
 ### Phase 12: Present Summary
 

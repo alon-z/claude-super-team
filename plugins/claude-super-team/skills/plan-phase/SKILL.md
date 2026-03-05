@@ -70,7 +70,7 @@ fi
 
 ### Phase 2.5: Discover Unplanned Phases (--all mode only)
 
-Read `references/all-phases-mode.md` for the --all mode discovery, end-of-phase bookkeeping, and combined summary procedures.
+Read `${CLAUDE_SKILL_DIR}/references/all-phases-mode.md` for the --all mode discovery, end-of-phase bookkeeping, and combined summary procedures.
 
 ### Phase 3: Validate Phase and Create Directory
 
@@ -95,11 +95,11 @@ fi
 
 ### Phase 4: Load All Context
 
-Read `references/context-loading.md` for the detailed context loading procedure (required files, optional files, missing-context handling).
+Read `${CLAUDE_SKILL_DIR}/references/context-loading.md` for the detailed context loading procedure (required files, optional files, missing-context handling).
 
 ### Phase 5: Spawn Planner Agent
 
-Read `references/planner-guide.md` and `assets/plan-template.md`. Build the planner prompt by embedding:
+Read `${CLAUDE_SKILL_DIR}/references/planner-guide.md` and `${CLAUDE_SKILL_DIR}/assets/plan-template.md`. Build the planner prompt by embedding:
 
 1. The full planner guide content
 2. The plan template
@@ -115,6 +115,8 @@ Task(
   model: "opus"
   description: "Plan Phase {N}"
   prompt: """
+  ultrathink
+
   You are a planner agent. Follow these instructions:
 
   {planner_guide_content}
@@ -188,9 +190,9 @@ Parse the planner's output:
 
 ### Phase 7-8: Plan Checker and Revision Loop
 
-Read `references/checker-loop.md` for the plan checker verification and revision loop procedure (Phase 7-8). Skip unless --verify flag was set.
+Read `${CLAUDE_SKILL_DIR}/references/checker-loop.md` for the plan checker verification and revision loop procedure (Phase 7-8). Skip unless --verify flag was set.
 
-In --all mode, read `references/all-phases-mode.md` for end-of-phase bookkeeping after Phases 3-8 complete for each phase.
+In --all mode, read `${CLAUDE_SKILL_DIR}/references/all-phases-mode.md` for end-of-phase bookkeeping after Phases 3-8 complete for each phase.
 
 ### Phase 9: Done
 
@@ -230,7 +232,7 @@ Verification: {Passed | Passed with override | Skipped}
 
 #### --all mode: Combined Summary
 
-Read `references/all-phases-mode.md` for the combined summary table format and incomplete-phase notes.
+Read `${CLAUDE_SKILL_DIR}/references/all-phases-mode.md` for the combined summary table format and incomplete-phase notes.
 
 ## Success Criteria
 

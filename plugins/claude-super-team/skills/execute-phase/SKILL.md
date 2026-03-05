@@ -50,7 +50,7 @@ PROJECT.md, ROADMAP.md, and STATE.md are pre-loaded via dynamic context injectio
 
 ### Phase 1.1: Reconcile Stale State
 
-Read `references/stale-state-reconciliation.md` for the detailed comparison and fix logic (PHASE_COMPLETION vs ROADMAP_CHECKED desync detection).
+Read `${CLAUDE_SKILL_DIR}/references/stale-state-reconciliation.md` for the detailed comparison and fix logic (PHASE_COMPLETION vs ROADMAP_CHECKED desync detection).
 
 ### Phase 1.5: Branch Guard
 
@@ -295,7 +295,7 @@ Using task mode for wave {N} -- single plan in wave, teams not beneficial.
 
 This is a per-wave decision. Teams mode adds overhead for inter-agent coordination. With only one plan in a wave, there is no cross-plan parallelism to benefit from. Subsequent waves with multiple plans still use teams mode.
 
-Read `references/wave-execution-guide.md` for the detailed wave execution procedure (task parsing, agent routing, task/teams mode execution, result handling, simplification, summary creation, spot-checks, team cleanup).
+Read `${CLAUDE_SKILL_DIR}/references/wave-execution-guide.md` for the detailed wave execution procedure (task parsing, agent routing, task/teams mode execution, result handling, simplification, summary creation, spot-checks, team cleanup).
 
 ### Phase 6: Verify Phase Goal
 
@@ -305,7 +305,7 @@ If `$VERIFICATION_PREF` is `on-failure`: Skip the verifier when all plans comple
 
 If `$VERIFICATION_PREF` is `always`: Always run the verifier (current default behavior).
 
-Read `references/verifier-guide.md`. Collect all must_haves from all plans. Read all SUMMARY.md files.
+Read `${CLAUDE_SKILL_DIR}/references/verifier-guide.md`. Collect all must_haves from all plans. Read all SUMMARY.md files.
 
 Spawn verifier:
 
@@ -315,6 +315,8 @@ Task(
   model: "opus"
   description: "Verify Phase {N}"
   prompt: """
+  ultrathink
+
   You are a phase verifier. Follow these instructions:
 
   {verifier_guide_content}

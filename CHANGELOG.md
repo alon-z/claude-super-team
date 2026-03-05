@@ -2,6 +2,21 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.33] - 2026-03-05
+
+### claude-super-team
+- All 13 SKILL.md files updated to use `${CLAUDE_SKILL_DIR}/` prefix for internal file references (references/, assets/) -- ensures correct path resolution when skills are installed from the marketplace
+
+### marketplace-utils
+- Renamed `skill-creator` skill to `skill-studio` to avoid conflict with Anthropic's official `skill-creator` skill
+- marketplace-manager: Updated reference table to use `${CLAUDE_SKILL_DIR}/` prefix
+
+### masterclass
+- addictive-apps-design: Updated reference to use `${CLAUDE_SKILL_DIR}/` prefix
+
+### task-management
+- linear-sync: Updated reference to use `${CLAUDE_SKILL_DIR}/` prefix
+
 ## [1.0.32] - 2026-03-03
 
 ### claude-super-team

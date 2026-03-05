@@ -1,12 +1,12 @@
 ---
-name: skill-creator
+name: skill-studio
 description: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.
 allowed-tools: AskUserQuestion, Edit, Glob, Grep, Read, WebFetch, WebSearch, Write, Bash(uv run *)
 argument-hint: [skill-description]
 model: sonnet
 ---
 
-# Skill Creator
+# Skill Studio
 
 Create a skill based on the following request:
 
@@ -216,8 +216,8 @@ When editing the (newly-generated or existing) skill, remember that the skill is
 
 Consult these helpful guides based on your skill's needs:
 
-- **Multi-step processes**: See [workflows.md](references/workflows.md) for sequential workflows and conditional logic
-- **Specific output formats or quality standards**: See [output-patterns.md](references/output-patterns.md) for template and example patterns
+- **Multi-step processes**: See [workflows.md](${CLAUDE_SKILL_DIR}/references/workflows.md) for sequential workflows and conditional logic
+- **Specific output formats or quality standards**: See [output-patterns.md](${CLAUDE_SKILL_DIR}/references/output-patterns.md) for template and example patterns
 - **General usage and advance features**: See [docs.md](docs.md) for comprehensive skill documentation
 
 These files contain established best practices for effective skill design.

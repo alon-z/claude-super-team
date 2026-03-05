@@ -6,7 +6,7 @@ A skill for managing and fixing Claude Code plugin marketplaces -- auditing for 
 
 Marketplace Manager is the authority on marketplace.json structure and plugin catalog operations. It handles everything related to the marketplace itself: adding and removing plugin entries, keeping versions in sync, auditing manifests, and setting up team distribution.
 
-For creating new plugins, use the skill-creator skill instead.
+For creating new plugins, use the skill-studio skill instead.
 
 ## When to Use
 

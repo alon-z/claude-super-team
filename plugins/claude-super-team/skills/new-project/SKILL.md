@@ -96,7 +96,7 @@ Exit skill.
 
 **Path B: Brief idea provided** -- Use the idea to drive an exploratory questioning conversation.
 
-Read `references/questioning-methodology.md` for the detailed questioning methodology (Path A: document analysis, Path B: brief idea exploration, AskUserQuestion patterns, anti-patterns).
+Read `${CLAUDE_SKILL_DIR}/references/questioning-methodology.md` for the detailed questioning methodology (Path A: document analysis, Path B: brief idea exploration, AskUserQuestion patterns, anti-patterns).
 
 ### Phase 3.5: Execution Model Preference
 
@@ -115,7 +115,7 @@ Store the answer as `$EXEC_MODEL` (`sonnet` or `opus`). This will be written to 
 
 ### Phase 4: Write PROJECT.md
 
-Read `references/project-writing-guide.md` for PROJECT.md population details (greenfield/brownfield requirements, key decisions, save/commit flow).
+Read `${CLAUDE_SKILL_DIR}/references/project-writing-guide.md` for PROJECT.md population details (greenfield/brownfield requirements, key decisions, save/commit flow).
 
 ### Phase 5: Done
 

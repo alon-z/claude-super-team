@@ -119,7 +119,7 @@ PROJECT.md, ROADMAP.md, and STATE.md are already available from dynamic context 
 
 ### Phase 3.5: Collect Relevant Prior Research
 
-Read `references/prior-research-selection.md` for the prior research relevance criteria and selection procedure.
+Read `${CLAUDE_SKILL_DIR}/references/prior-research-selection.md` for the prior research relevance criteria and selection procedure.
 
 ### Phase 4: Spawn Researcher Agent
 
@@ -130,6 +130,8 @@ Task(
   subagent_type: "phase-researcher"
   description: "Research Phase {N}"
   prompt: """
+  ultrathink
+
   Research Phase {phase_number}: {phase_name}
   Phase goal: {from roadmap}
   Phase success criteria: {from roadmap}
@@ -181,7 +183,7 @@ Parse the researcher's output:
 
 ### Phase 6: Check for Decision Conflicts
 
-Read `references/conflict-detection.md` for the decision conflict detection procedure and user routing.
+Read `${CLAUDE_SKILL_DIR}/references/conflict-detection.md` for the decision conflict detection procedure and user routing.
 
 ### Phase 7: Done
 
