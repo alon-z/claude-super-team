@@ -1,19 +1,25 @@
 # Context Loading Procedure
 
-Read and store these files for embedding in agent prompts:
+Load context efficiently -- the planner's quality degrades with context pressure, so send only what's relevant to the phase being planned.
 
 **Required:**
 
-- `.planning/ROADMAP.md` -- phase goals, success criteria
 - `.planning/PROJECT.md` -- project vision, requirements
+- `.planning/ROADMAP.md` -- **only the specific phase section** being planned, plus the Phases overview list (for dependency context). Do NOT send all phase details for all phases.
 
 **Optional (use if exists):**
 
-- `.planning/STATE.md` -- current position, accumulated decisions
+- `.planning/STATE.md` -- only the Current Position and Key Decisions sections (skip history/log)
 - `${PHASE_DIR}/*-CONTEXT.md` -- user decisions from /discuss-phase (CRITICAL: constrains planning)
 - `${PHASE_DIR}/*-RESEARCH.md` -- research findings
 - `.planning/REQUIREMENTS.md` -- formal requirements
 - `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` -- codebase context
+
+**Context trimming rules:**
+
+1. **ROADMAP.md**: Extract the `## Phases` list (one-liners) and only the `### Phase N` detail section for the target phase. Skip all other phase detail sections -- the planner doesn't need Phase 12's success criteria to plan Phase 3.
+2. **STATE.md**: Extract `## Current Position` and `## Key Decisions` only. Skip execution history.
+3. **Codebase docs**: Only include if the phase touches existing code. For greenfield phases (new subsystems), skip codebase docs entirely.
 
 **If CONTEXT.md does not exist,** show a brief informational note (not a blocker):
 

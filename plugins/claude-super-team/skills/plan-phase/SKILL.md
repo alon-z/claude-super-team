@@ -1,6 +1,6 @@
 ---
 name: plan-phase
-description: Create execution plans (PLAN.md files) for a roadmap phase. Spawns a planner agent to decompose phase goals into executable plans with tasks, dependencies, and wave structure. Planner includes built-in pre-flight checklist for quality (checker skipped by default, opt-in with --verify). Use after /create-roadmap to plan a specific phase before execution. Supports --all to plan every unplanned phase sequentially. Supports gap closure mode (--gaps) for fixing verification failures.
+description: Create execution plans (PLAN.md files) for a roadmap phase. MUST use this skill whenever the user wants to plan a phase, break down a phase into tasks, create PLAN.md files, decompose phase goals, or turn a roadmap phase into executable work. Also trigger when user mentions planning tasks for a phase, creating task dependencies, updating/refining existing plans, fixing verification gaps, or planning all remaining phases. Spawns a planner agent for parallel plans with wave structure. Trigger even when user says things like "break down phase N", "plan the next phase", "decompose into tasks", "create plans for phase", "update the plans", or "fix the gaps". Supports --all, --gaps, and --verify flags.
 argument-hint: "[phase number | --all] [--gaps] [--verify]"
 allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh)
 ---
@@ -135,11 +135,14 @@ Task(
   Project context:
   {project_md_content}
 
-  Roadmap:
-  {roadmap_content}
+  Roadmap phases overview (one-liners only):
+  {roadmap_phases_list}
 
-  State:
-  {state_content}
+  This phase's roadmap detail:
+  {roadmap_phase_detail}
+
+  State (current position + key decisions only):
+  {state_trimmed}
 
   Phase context (user decisions -- MUST honor locked decisions):
   {context_md_content}

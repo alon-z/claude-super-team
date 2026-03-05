@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.34] - 2026-03-06
+
+### claude-super-team
+- create-roadmap: Value-first phase ordering -- phases now deliver demoable vertical slices early instead of front-loading infrastructure
+- create-roadmap: Sprint grouping -- roadmap organizes phases into parallel sprints; each sprint produces something the user can demo
+- create-roadmap: T-shirt sizing (S/M/L/XL) added to phases for effort estimation
+- create-roadmap: Improved skill description for broader and more reliable triggering
+- plan-phase: Parallel-first planning stance -- planner defaults to parallel plans unless dependencies force sequential ordering
+- plan-phase: Context trimming -- planner receives only the relevant phase section from ROADMAP.md and current position from STATE.md, reducing unnecessary context load
+- plan-phase: Improved skill description for broader and more reliable triggering
+
 ## [1.0.33] - 2026-03-05
 
 ### claude-super-team

@@ -107,6 +107,8 @@ Each task: 15-60 minutes Claude execution time.
 
 ## Dependency Graph
 
+**Default stance: parallel until proven otherwise.** Most phases contain 2-4 independent vertical slices that can execute simultaneously. If you find yourself creating a linear chain of plans (Wave 1 -> Wave 2 -> Wave 3), stop and ask: "Do these plans actually depend on each other's outputs, or am I just sequencing out of habit?" Sequential plans should be the exception, not the default.
+
 For each task, record:
 - `needs`: What must exist before (files, types, APIs)
 - `creates`: What this produces (files, types, exports)
