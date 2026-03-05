@@ -212,6 +212,6 @@ Configure automatic marketplace availability via `.claude/settings.json`:
 
 | Reference                          | Content                                          |
 | ---------------------------------- | ------------------------------------------------ |
-| `references/plugin-structure.md`   | Directory structure, manifest schema, components |
-| `references/marketplace-schema.md` | Marketplace format, plugin entries, distribution |
-| `references/workflows.md`          | Marketplace workflows, testing, publishing       |
+| `${CLAUDE_SKILL_DIR}/references/plugin-structure.md`   | Directory structure, manifest schema, components |
+| `${CLAUDE_SKILL_DIR}/references/marketplace-schema.md` | Marketplace format, plugin entries, distribution |
+| `${CLAUDE_SKILL_DIR}/references/workflows.md`          | Marketplace workflows, testing, publishing       |

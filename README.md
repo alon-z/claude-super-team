@@ -36,7 +36,7 @@ Utilities for managing Claude Code plugin marketplaces:
 | Command | Description |
 |---------|-------------|
 | `/marketplace-manager` | Audit and manage plugin registrations |
-| `/skill-creator` | Scaffold new skills with guided prompts |
+| `/skill-studio` | Scaffold new skills with guided prompts |
 
 ### task-management
 

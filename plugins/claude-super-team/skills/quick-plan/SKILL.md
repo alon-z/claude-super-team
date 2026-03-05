@@ -149,7 +149,7 @@ Run a lightweight version of the discuss-phase workflow to capture decisions bef
 
 **6c. Deep-dive each selected area** with 2-3 questions per area (lighter than full discuss-phase's 4 questions). Use AskUserQuestion with concrete options per question. Always include a "You decide" option.
 
-**6d. Write CONTEXT.md** to `${PHASE_DIR}/${QUICK_PHASE_PADDED}-CONTEXT.md` using the discuss-phase template structure (read from `../discuss-phase/assets/context-template.md`):
+**6d. Write CONTEXT.md** to `${PHASE_DIR}/${QUICK_PHASE_PADDED}-CONTEXT.md` using the discuss-phase template structure (read from `${CLAUDE_SKILL_DIR}/../discuss-phase/assets/context-template.md`):
 - Phase Boundary (from the ROADMAP.md annotation)
 - Implementation Decisions (from the discussion)
 - Claude's Discretion (from "You decide" answers)
@@ -159,7 +159,7 @@ Set `HAS_CONTEXT=true`.
 
 ### Step 7: Spawn Planner Agent
 
-Read `references/planner-quick-mode.md` and `assets/quick-plan-template.md`. Load project context.
+Read `${CLAUDE_SKILL_DIR}/references/planner-quick-mode.md` and `${CLAUDE_SKILL_DIR}/assets/quick-plan-template.md`. Load project context.
 
 **Context to load:**
 - `.planning/PROJECT.md` (required)
@@ -176,6 +176,8 @@ Task(
   model: "opus"
   description: "Quick plan: Phase ${QUICK_PHASE}"
   prompt: """
+  ultrathink
+
   You are a planner agent in quick mode. Follow these instructions:
 
   {planner_quick_mode_content}

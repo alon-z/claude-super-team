@@ -194,7 +194,7 @@ Create/update Linear issues from PLAN.md files. This is the most complex sub-com
 
 2. **For each PLAN.md, read and decompose:**
    - Read frontmatter (phase, plan, wave, must_haves) and tasks (name, files, action, verify, done)
-   - Read `references/issue-decomposition-guide.md` for decomposition strategy
+   - Read `${CLAUDE_SKILL_DIR}/references/issue-decomposition-guide.md` for decomposition strategy
    - Apply the decision matrix to determine parent/sub-issue structure:
      - 1 simple task -> single issue, no children
      - 1 complex task (5+ files) -> parent + 2-3 sub-issues by concern

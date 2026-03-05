@@ -30,7 +30,7 @@ This works for both web and mobile designs. Ask the user which .pen files to rev
 
 **Unclear context**: Use `AskUserQuestion` to ask: what is the product, who is the user, and what's the core repeated action? This determines which pattern is most relevant.
 
-For detailed case studies with data, quotes, and full tactical breakdowns, read `references/case-studies.md`.
+For detailed case studies with data, quotes, and full tactical breakdowns, read `${CLAUDE_SKILL_DIR}/references/case-studies.md`.
 
 ---
 

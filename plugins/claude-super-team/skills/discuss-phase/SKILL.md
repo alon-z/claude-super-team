@@ -125,15 +125,15 @@ Extract the phase name for use in templates.
 
 ### Phase 3.5: Load Cross-Phase Context
 
-Read `references/cross-phase-context.md` for the cross-phase artifact loading procedure.
+Read `${CLAUDE_SKILL_DIR}/references/cross-phase-context.md` for the cross-phase artifact loading procedure.
 
 ### Phase 3.7: Gather Codebase Context
 
-Read `references/codebase-exploration.md` for the Explore agent spawning and codebase analysis procedure.
+Read `${CLAUDE_SKILL_DIR}/references/codebase-exploration.md` for the Explore agent spawning and codebase analysis procedure.
 
 ### Phase 4: Identify Gray Areas
 
-Read `references/gray-area-methodology.md` for the domain-aware gray area identification methodology.
+Read `${CLAUDE_SKILL_DIR}/references/gray-area-methodology.md` for the domain-aware gray area identification methodology.
 
 ### Phase 5: Present Gray Areas and Gather Selection
 
@@ -152,11 +152,11 @@ Store the selected areas for the next phase.
 
 ### Phase 6: Deep-Dive Each Selected Area
 
-Read `references/deep-dive-methodology.md` for the deep-dive questioning loop procedure.
+Read `${CLAUDE_SKILL_DIR}/references/deep-dive-methodology.md` for the deep-dive questioning loop procedure.
 
 ### Phase 7: Write CONTEXT.md
 
-Read `assets/context-template.md`. Populate it with:
+Read `${CLAUDE_SKILL_DIR}/assets/context-template.md`. Populate it with:
 
 1. **Phase Boundary section:**
    - Goal from ROADMAP.md

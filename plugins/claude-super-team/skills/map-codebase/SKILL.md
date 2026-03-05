@@ -120,9 +120,9 @@ Spawn 4 parallel general-purpose mapper agents.
 
 Use Task tool with `subagent_type="general-purpose"`, `model="sonnet"`, and `run_in_background=true` for parallel execution.
 
-**CRITICAL:** Each agent receives embedded mapper instructions from `references/mapper-instructions.md` and must write documents directly. Each agent also receives the **MODE** and **TOPIC FOCUS** determined in detect_mode.
+**CRITICAL:** Each agent receives embedded mapper instructions from `${CLAUDE_SKILL_DIR}/references/mapper-instructions.md` and must write documents directly. Each agent also receives the **MODE** and **TOPIC FOCUS** determined in detect_mode.
 
-Read `references/mapper-instructions.md` and `references/templates.md` first. Then spawn all 4 agents in a single message (parallel).
+Read `${CLAUDE_SKILL_DIR}/references/mapper-instructions.md` and `${CLAUDE_SKILL_DIR}/references/templates.md` first. Then spawn all 4 agents in a single message (parallel).
 
 ---
 
@@ -134,7 +134,7 @@ model: "sonnet"
 run_in_background: true
 description: "Map codebase tech stack"
 prompt: """
-[Paste full contents of references/mapper-instructions.md here]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/mapper-instructions.md here]
 
 MODE: {mode}
 TOPIC FOCUS: {topic_focus}
@@ -147,7 +147,7 @@ Write these documents to .planning/codebase/:
 - STACK.md - Languages, runtime, frameworks, dependencies, configuration
 - INTEGRATIONS.md - External APIs, databases, auth providers, webhooks
 
-[Paste full contents of references/templates.md here — only the STACK.md and INTEGRATIONS.md templates]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/templates.md here — only the STACK.md and INTEGRATIONS.md templates]
 
 {If mode is full-map:}
 Explore thoroughly. Write documents directly using templates. Return confirmation only.
@@ -167,7 +167,7 @@ model: "sonnet"
 run_in_background: true
 description: "Map codebase architecture"
 prompt: """
-[Paste full contents of references/mapper-instructions.md here]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/mapper-instructions.md here]
 
 MODE: {mode}
 TOPIC FOCUS: {topic_focus}
@@ -180,7 +180,7 @@ Write these documents to .planning/codebase/:
 - ARCHITECTURE.md - Pattern, layers, data flow, abstractions, entry points
 - STRUCTURE.md - Directory layout, key locations, naming conventions
 
-[Paste full contents of references/templates.md here — only the ARCHITECTURE.md and STRUCTURE.md templates]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/templates.md here — only the ARCHITECTURE.md and STRUCTURE.md templates]
 
 {If mode is full-map:}
 Explore thoroughly. Write documents directly using templates. Return confirmation only.
@@ -200,7 +200,7 @@ model: "sonnet"
 run_in_background: true
 description: "Map codebase conventions"
 prompt: """
-[Paste full contents of references/mapper-instructions.md here]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/mapper-instructions.md here]
 
 MODE: {mode}
 TOPIC FOCUS: {topic_focus}
@@ -213,7 +213,7 @@ Write these documents to .planning/codebase/:
 - CONVENTIONS.md - Code style, naming, patterns, error handling
 - TESTING.md - Framework, structure, mocking, coverage
 
-[Paste full contents of references/templates.md here — only the CONVENTIONS.md and TESTING.md templates]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/templates.md here — only the CONVENTIONS.md and TESTING.md templates]
 
 {If mode is full-map:}
 Explore thoroughly. Write documents directly using templates. Return confirmation only.
@@ -233,7 +233,7 @@ model: "sonnet"
 run_in_background: true
 description: "Map codebase concerns"
 prompt: """
-[Paste full contents of references/mapper-instructions.md here]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/mapper-instructions.md here]
 
 MODE: {mode}
 TOPIC FOCUS: {topic_focus}
@@ -245,7 +245,7 @@ Analyze this codebase for technical debt, known issues, and areas of concern.
 Write this document to .planning/codebase/:
 - CONCERNS.md - Tech debt, bugs, security, performance, fragile areas
 
-[Paste full contents of references/templates.md here — only the CONCERNS.md template]
+[Paste full contents of ${CLAUDE_SKILL_DIR}/references/templates.md here — only the CONCERNS.md template]
 
 {If mode is full-map:}
 Explore thoroughly. Write document directly using template. Return confirmation only.

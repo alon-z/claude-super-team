@@ -59,7 +59,7 @@ PROJECT.md and ROADMAP.md contents are also pre-loaded above. No Bash calls need
      - "Reorder phases" -- Go to Phase 2C
      - "Replace entirely" -- Delete and continue to Phase 3
 
-Read `references/roadmap-modification.md` for the detailed add, insert, and reorder phase procedures.
+Read `${CLAUDE_SKILL_DIR}/references/roadmap-modification.md` for the detailed add, insert, and reorder phase procedures.
 
 ### Phase 3: Load Context
 
@@ -78,7 +78,7 @@ Read `.planning/PROJECT.md`. Extract:
 
 ### Phase 4: Derive Phases
 
-Read `references/phase-derivation.md` for the goal-backward phase derivation methodology.
+Read `${CLAUDE_SKILL_DIR}/references/phase-derivation.md` for the goal-backward phase derivation methodology.
 
 ### Phase 5: Present Draft
 
@@ -109,9 +109,9 @@ Loop until approved.
 
 ### Phase 6: Write Files
 
-Write `.planning/ROADMAP.md` using the template from `assets/roadmap.md`. Fill in all phase details, goals, requirements, success criteria, and progress table.
+Write `.planning/ROADMAP.md` using the template from `${CLAUDE_SKILL_DIR}/assets/roadmap.md`. Fill in all phase details, goals, requirements, success criteria, and progress table.
 
-Write `.planning/STATE.md` using the template from `assets/state.md`. Initialize with Phase 1 as current position.
+Write `.planning/STATE.md` using the template from `${CLAUDE_SKILL_DIR}/assets/state.md`. Initialize with Phase 1 as current position.
 
 **Carry preferences:** If `.planning/PROJECT.md` has a `## Preferences` section with `execution-model`, copy that value into STATE.md's `## Preferences` section. If PROJECT.md has no preference set, default to `sonnet`.
 

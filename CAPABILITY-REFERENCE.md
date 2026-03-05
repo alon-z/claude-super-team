@@ -24,7 +24,7 @@ Generated: 2026-02-11 | Claude Code version: 2.1.49 (updated 2026-02-20)
 | `disable-model-invocation`  | Prevent Claude from auto-loading the skill                 | In use | Skills System    | Used in several skills    |
 | `allowed-tools` / `tools`   | Tool access allowlist                                      | In use | Skills System    | Used in all 17 skills     |
 | `disallowedTools`           | Tool denylist                                              | Documented but unused | Skills System    | Alternative to allowlist; useful when most tools needed |
-| `model`                     | Override model (sonnet/opus/haiku)                         | In use | Skills System    | Used in 6 skills: cst-help, progress, map-codebase, marketplace-manager, skill-creator, github-issue-manager |
+| `model`                     | Override model (sonnet/opus/haiku)                         | In use | Skills System    | Used in 6 skills: cst-help, progress, map-codebase, marketplace-manager, skill-studio, github-issue-manager |
 | `context`                   | `skill` (default) or `fork` (spawns subagent)              | In use | Skills System    | Used in 2 skills: progress, map-codebase (context: fork) |
 | `agent`                     | Agent type when `context: fork` is used                    | Documented but unused | Skills System    | Pairs with `context: fork` |
 | `user-invocable`            | Hide from `/` menu (default: true)                         | Documented but unused | Skills System    | Could hide internal-only skills |

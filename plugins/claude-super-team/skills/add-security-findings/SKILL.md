@@ -141,7 +141,7 @@ Loop until "Approve".
 
 ### Phase 5: Write SECURITY-AUDIT.md
 
-Read `assets/security-audit.md` template. Populate with:
+Read `${CLAUDE_SKILL_DIR}/assets/security-audit.md` template. Populate with:
 
 - Project name from PROJECT.md
 - Current date

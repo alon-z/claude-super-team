@@ -79,7 +79,7 @@ Store the contents as `$EXECUTION_CONTEXT`. This gives the planner full visibili
 
 ### Step 4: Collect Feedback
 
-Read `references/feedback-collection.md` for the iterative feedback collection procedure.
+Read `${CLAUDE_SKILL_DIR}/references/feedback-collection.md` for the iterative feedback collection procedure.
 
 ### Step 5: Scope Check and Route
 
@@ -121,13 +121,13 @@ Route based on the user's choice:
 
 ### Step 6: Apply Quick Fix
 
-Read `references/quick-fix-guide.md` for the quick fix application flow.
+Read `${CLAUDE_SKILL_DIR}/references/quick-fix-guide.md` for the quick fix application flow.
 
 ---
 
 ## Standard Feedback Path
 
-Read `references/feedback-subphase-guide.md` for the full subphase creation and planning procedure (Steps 7-12).
+Read `${CLAUDE_SKILL_DIR}/references/feedback-subphase-guide.md` for the full subphase creation and planning procedure (Steps 7-12).
 
 ### Step 13: Done
 

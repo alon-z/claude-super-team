@@ -96,7 +96,7 @@ Only run state detection when the user needs project-specific guidance. Use Bash
 
 Based on classification from Phase 1:
 
-- **General workflow question** → Answer directly using workflow knowledge below and references/workflow-guide.md. No state analysis needed.
+- **General workflow question** → Answer directly using workflow knowledge below and ${CLAUDE_SKILL_DIR}/references/workflow-guide.md. No state analysis needed.
 - **Project-specific guidance** → Use state from Phase 2 to route to "What to Do Next" response.
 - **Troubleshoot** → Use diagnostics from Phase 2.
 - **Skill reference** → Output skill list.
@@ -107,7 +107,7 @@ Based on classification from Phase 1:
 
 **Goal:** Answer the user's question directly and concisely.
 
-Read `references/workflow-guide.md` for details if needed. Answer only what was asked.
+Read `${CLAUDE_SKILL_DIR}/references/workflow-guide.md` for details if needed. Answer only what was asked.
 
 **The standard flow:**
 1. `/new-project` -- define vision
@@ -256,15 +256,15 @@ Core Concepts:
 6. /execute-phase → Execute and verify
 7. /progress → Check status, route to next
 
-Read references/workflow-guide.md for comprehensive documentation.
+Read ${CLAUDE_SKILL_DIR}/references/workflow-guide.md for comprehensive documentation.
 ```
 
 **Reference materials:**
 
 ```
 Detailed guides:
-- references/workflow-guide.md -- Full workflow documentation
-- references/troubleshooting.md -- Common issues and solutions
+- ${CLAUDE_SKILL_DIR}/references/workflow-guide.md -- Full workflow documentation
+- ${CLAUDE_SKILL_DIR}/references/troubleshooting.md -- Common issues and solutions
 ```
 
 ---
@@ -326,7 +326,7 @@ Solution:
 
 {relevant commands to run}
 
-For more: see references/troubleshooting.md
+For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
 ```
 
 **Common quick fixes:**
