@@ -1,6 +1,6 @@
 ---
 name: create-roadmap
-description: Create or modify project roadmap with phased delivery plan and state tracking. Reads .planning/PROJECT.md (required) and optionally .planning/REQUIREMENTS.md. Produces .planning/ROADMAP.md and .planning/STATE.md. Use after /new-project to define phases, success criteria, and delivery order. Also use to add phases, insert urgent phases with decimal numbering, reorder phases, or replace an existing roadmap. Pass modification intent as arguments (e.g., "add a security phase", "insert urgent auth fix after phase 2", "reorder to prioritize payments").
+description: Create or modify project roadmap with phased delivery plan, sprint grouping, and state tracking. MUST use this skill whenever the user mentions roadmap, phases, build order, delivery plan, milestones, sprints, or wants to figure out what to build in what order. Also use when user wants to add/insert/reorder/split/restructure/reprioritize/replace phases, squeeze in urgent work, or redo the roadmap. Reads .planning/PROJECT.md (required). Produces .planning/ROADMAP.md and .planning/STATE.md. Trigger even when user says things like "break this into phases", "figure out the build order", "what should we build first", "organize into milestones", "I need a delivery plan", or "help me plan the project phases". Pass modification intent as arguments.
 argument-hint: "[modification description]"
 allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(test *), Bash(bash *gather-data.sh)
 ---
@@ -84,9 +84,12 @@ Read `${CLAUDE_SKILL_DIR}/references/phase-derivation.md` for the goal-backward 
 
 Present the proposed roadmap to the user. Show:
 
-1. Phase overview (name + one-liner for each)
-2. Per-phase: goal, requirements covered, success criteria
-3. Requirement coverage: which requirements map to which phase
+1. Sprint overview: which phases run in parallel per sprint, and what's demoable after each sprint
+2. Phase overview (name + sprint + T-shirt size + one-liner for each)
+3. Per-phase: goal, requirements covered, success criteria
+4. Requirement coverage: which requirements map to which phase
+
+**Sprint validation:** Every sprint should produce something the user can try or demo. If a sprint contains only infrastructure/setup phases with nothing demoable, restructure: either bundle a feature slice into that sprint or merge the setup into an adjacent sprint.
 
 **Coverage check:** If a PROJECT.md Active requirement doesn't map to any phase, flag it explicitly.
 
