@@ -47,6 +47,14 @@ Integrations for external task trackers:
 | `/linear-sync` | Sync `.planning/` artifacts to Linear |
 | `/github-issue-manager` | Create and manage GitHub issues |
 
+### tools
+
+Utility tools and helpers for development workflows:
+
+| Command | Description |
+|---------|-------------|
+| `/fly` | Control Fly.io apps -- deploy, logs, machine management, scaling, secrets, volumes, Postgres, SSH, networking, certs, and health checks |
+
 ### masterclass
 
 Expert knowledge distilled from research, talks, and case studies:
