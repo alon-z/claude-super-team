@@ -42,6 +42,14 @@
       "version": "1.0.2",
       "keywords": ["masterclass", "product-design", "marketing", "research", "strategy", "expert-knowledge"],
       "category": "knowledge"
+    },
+    {
+      "name": "tools",
+      "description": "Collection of utility tools and helpers for development workflows. Includes Fly.io CLI control for deploying, scaling, managing secrets, logs, machines, volumes, and Postgres clusters.",
+      "source": "./plugins/tools",
+      "version": "0.2.0",
+      "keywords": ["tools", "utilities", "development", "helpers", "fly.io", "deployment", "infrastructure"],
+      "category": "development"
     }
   ]
 }

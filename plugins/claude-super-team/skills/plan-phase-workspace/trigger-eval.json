@@ -1,0 +1,85 @@
+[
+  {
+    "query": "ok I have my roadmap ready in .planning/ROADMAP.md. let's plan phase 3 -- break down the authentication goals into concrete tasks that Claude agents can execute. I want parallel plans where possible so multiple agents can work simultaneously",
+    "should_trigger": true
+  },
+  {
+    "query": "plan all the remaining phases. I have 5 phases in the roadmap and only phase 1 has been planned so far. do them all sequentially",
+    "should_trigger": true
+  },
+  {
+    "query": "phase 5 failed verification -- there are gaps in the implementation. can you create fix plans for the failing checks? the VERIFICATION.md has the details",
+    "should_trigger": true
+  },
+  {
+    "query": "I just finished /discuss-phase and /research-phase for phase 4. now I need to turn those decisions and research findings into executable plans with proper task dependencies and wave structure",
+    "should_trigger": true
+  },
+  {
+    "query": "the plans for phase 2 need updating -- we ran /research-phase after planning and discovered we should use a different auth library. can you refine the existing plans without rewriting everything?",
+    "should_trigger": true
+  },
+  {
+    "query": "I need to decompose phase 6 (the payments integration) into PLAN.md files. it's a complex phase touching stripe, the database, and the frontend -- I want the planner to find opportunities for parallel execution",
+    "should_trigger": true
+  },
+  {
+    "query": "plan phase 2 with verification enabled. I want the checker to review the plans before I execute them",
+    "should_trigger": true
+  },
+  {
+    "query": "we just added a quick-plan phase 4.1 for a hotfix. can you plan it? it's small -- probably just 1-2 plans",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to break down phase 7 into tasks. the roadmap says it covers real-time WebSocket features, voice Q&A pipeline, and AI camera recognition. these feel like independent vertical slices that should be separate plans running in the same wave",
+    "should_trigger": true
+  },
+  {
+    "query": "plan the next unplanned phase. I don't remember which number it is but the roadmap should tell you",
+    "should_trigger": true
+  },
+  {
+    "query": "can you create a roadmap for my project? I have a PROJECT.md ready and need to figure out what phases to build in what order",
+    "should_trigger": false,
+    "correct_skill": "create-roadmap"
+  },
+  {
+    "query": "let's execute phase 3 now. the plans are ready in .planning/phases/03-auth/, just run them",
+    "should_trigger": false,
+    "correct_skill": "execute-phase"
+  },
+  {
+    "query": "I want to discuss phase 4 before planning it. there are some open questions about whether to use GraphQL or REST that I want to resolve first",
+    "should_trigger": false,
+    "correct_skill": "discuss-phase"
+  },
+  {
+    "query": "can you research the best approach for implementing real-time features in our stack? I want to understand the ecosystem before we plan phase 5",
+    "should_trigger": false
+  },
+  {
+    "query": "fix the bug in src/lib/auth.ts -- the token refresh is failing because the expiry check uses seconds instead of milliseconds",
+    "should_trigger": false
+  },
+  {
+    "query": "I need help writing a database migration to add a new column to the users table. the schema is in drizzle and I want to add a 'preferences' jsonb column",
+    "should_trigger": false
+  },
+  {
+    "query": "can you commit the changes I just made and create a PR? I modified the auth module and the tests pass",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the status of my project? where are we in the roadmap and what should I do next?",
+    "should_trigger": false
+  },
+  {
+    "query": "I want to brainstorm some improvements to the onboarding flow. the current conversion rate is only 23% and I think the permission request screen is scaring people off",
+    "should_trigger": false
+  },
+  {
+    "query": "help me add a new phase to the roadmap for analytics tracking. it should go after the current phase 6",
+    "should_trigger": false
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "skill_name": "create-roadmap",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a roadmap for my project. The PROJECT.md is at .planning/PROJECT.md. Approve the first draft without asking me questions.",
+      "expected_output": "A ROADMAP.md with sprint-grouped phases, T-shirt sizes, vertical slices, and value-first ordering. Each sprint should deliver something demoable.",
+      "files": ["evals/files/project-taskapp.md"],
+      "expectations": [
+        "Phases are annotated with sprint numbers (e.g., [Sprint 1], [Sprint 2])",
+        "Phases have T-shirt sizes (S, M, L, or XL)",
+        "Sprint 1 contains at least 2 phases running in parallel",
+        "Sprint 1 delivers something user-visible (not just infrastructure)",
+        "Frontend and backend for the same feature are in the same sprint",
+        "The progress table includes Sprint and Size columns",
+        "A Sprint Summary table exists showing what's demoable after each sprint",
+        "No sprint is pure infrastructure with nothing demoable"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a roadmap for my project. The PROJECT.md is at .planning/PROJECT.md. Approve the first draft without asking me questions.",
+      "expected_output": "A ROADMAP.md for a SaaS dashboard with sprint-grouped phases. Auth + basic dashboard should be in the same early sprint so users can try the core experience quickly.",
+      "files": ["evals/files/project-saas-dashboard.md"],
+      "expectations": [
+        "Phases are annotated with sprint numbers",
+        "Phases have T-shirt sizes",
+        "At least one sprint has 2+ parallel phases",
+        "Core dashboard UI and a data connector are in an early sprint (not last)",
+        "Billing/payments is not in Sprint 1 (it's not core to the demo experience)",
+        "Enterprise features (SSO, audit log) are in later sprints",
+        "Frontend and backend work for the same feature appear in the same sprint"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a roadmap for my project. The PROJECT.md is at .planning/PROJECT.md. Approve the first draft without asking me questions.",
+      "expected_output": "A ROADMAP.md for an API-only backend. Since there's no frontend, 'demoable' means testable API endpoints. Should still use sprints for parallel phases.",
+      "files": ["evals/files/project-api-backend.md"],
+      "expectations": [
+        "Phases are annotated with sprint numbers",
+        "Phases have T-shirt sizes",
+        "At least one sprint has 2+ parallel phases",
+        "Core CRUD API is available early (not buried after all infrastructure)",
+        "The high-performance event ingestion and ETA engine are separate phases (they are distinct subsystems)",
+        "Multi-region deployment is in a later sprint (not Sprint 1)"
+      ]
+    }
+  ]
+}

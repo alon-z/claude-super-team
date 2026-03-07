@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Phases are annotated with sprint numbers", "passed": false, "evidence": "No sprint annotations anywhere. Phases listed as plain '- [ ] **Phase N: Name** - description'"},
+    {"text": "Phases have T-shirt sizes", "passed": false, "evidence": "No sizing annotations on any phase"},
+    {"text": "Sprint 1 contains at least 2 phases running in parallel", "passed": false, "evidence": "No sprint concept at all. All 6 phases are strictly sequential: 1->2->3->4->5->6"},
+    {"text": "Sprint 1 delivers something user-visible", "passed": false, "evidence": "No sprints. Phase 1 'Foundation & Authentication' is mixed infra+auth, arguably demoable but not sprint-framed"},
+    {"text": "Frontend and backend for the same feature are in the same sprint", "passed": false, "evidence": "No sprint grouping. Phases are sequential so no parallel frontend+backend work"},
+    {"text": "The progress table includes Sprint and Size columns", "passed": false, "evidence": "Progress table only has: Phase | Status | Completed"},
+    {"text": "A Sprint Summary table exists showing what is demoable after each sprint", "passed": false, "evidence": "No Sprint Summary table exists"},
+    {"text": "No sprint is pure infrastructure with nothing demoable", "passed": false, "evidence": "No sprint concept. Phase 1 bundles foundation infra with auth (mixed)."}
+  ],
+  "summary": {"passed": 0, "failed": 8, "total": 8, "pass_rate": 0.0}
+}

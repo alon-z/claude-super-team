@@ -1,0 +1,12 @@
+{
+  "expectations": [
+    {"text": "Phases are annotated with sprint numbers", "passed": false, "evidence": "No sprint annotations. Plain phase list."},
+    {"text": "Phases have T-shirt sizes", "passed": false, "evidence": "No sizing on any phase"},
+    {"text": "At least one sprint has 2+ parallel phases", "passed": false, "evidence": "All 6 phases are strictly sequential: 1->2->3->4->5->6. No parallelism."},
+    {"text": "Core dashboard UI and a data connector are in an early sprint", "passed": false, "evidence": "Dashboard builder is Phase 3 (after auth and connectors). No sprint framing, but it is 3rd of 6 -- mid-project. User can't see anything visual until Phase 3."},
+    {"text": "Billing/payments is not in Sprint 1", "passed": true, "evidence": "No sprints, but billing is Phase 5 of 6 -- clearly not first."},
+    {"text": "Enterprise features (SSO, audit log) are in later sprints", "passed": false, "evidence": "SSO is bundled into Phase 1 'Multi-Tenant Foundation & Authentication' -- the very first phase. This front-loads enterprise complexity."},
+    {"text": "Frontend and backend work for the same feature appear in the same sprint", "passed": false, "evidence": "No sprint grouping. Sequential phases don't enable parallel frontend+backend."}
+  ],
+  "summary": {"passed": 1, "failed": 6, "total": 7, "pass_rate": 0.143}
+}
