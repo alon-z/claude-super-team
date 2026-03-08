@@ -1,0 +1,10 @@
+{
+  "expectations": [
+    {"text": "Produces plans across multiple phases that can execute in parallel", "passed": true, "evidence": "6 plans across 3 phases: Phase 01 (2 plans), Phase 02 (2 plans), Phase 03 (2 plans). Phase 01 and Phase 02 are independent and can execute simultaneously."},
+    {"text": "Phase 1 and Phase 2 plans have zero file overlap", "passed": true, "evidence": "Phase 1 writes to src/ (Next.js app). Phase 2 writes to services/ingestion/ (standalone service). Completely separate file trees."},
+    {"text": "Correctly excludes SSO from Sprint 1 scope", "passed": true, "evidence": "No SSO/SAML plan exists. SSO deferred to Phase 8 (Sprint 4) per roadmap."},
+    {"text": "Higher max parallelism than old skill", "passed": true, "evidence": "Max 4 agents at once (Phase 1 Wave 1 + Phase 2 Wave 1, then Phase 1 Wave 2 + Phase 2 Wave 2) vs old skill max 2 agents."},
+    {"text": "Plans have complete task anatomy (files, action, verify, done)", "passed": true, "evidence": "All 6 plans have properly structured tasks with all four required fields."}
+  ],
+  "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}
+}

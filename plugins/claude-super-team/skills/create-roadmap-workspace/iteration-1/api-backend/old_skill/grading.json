@@ -1,0 +1,11 @@
+{
+  "expectations": [
+    {"text": "Phases are annotated with sprint numbers", "passed": false, "evidence": "No sprint annotations. Plain sequential phase list."},
+    {"text": "Phases have T-shirt sizes", "passed": false, "evidence": "No sizing on any phase"},
+    {"text": "At least one sprint has 2+ parallel phases", "passed": false, "evidence": "All 6 phases sequential: 1->2->3->4->5->6. Phase 5 'Administration' depends on Phase 1, could have been parallel with Phases 3-4 but wasn't."},
+    {"text": "Core CRUD API is available early", "passed": true, "evidence": "Phase 1 'Core API & Authentication' is the first phase"},
+    {"text": "Event ingestion and ETA engine are separate phases", "passed": false, "evidence": "ETA computation and Geofencing are combined in Phase 4 'Location Intelligence'. These are distinct subsystems that were merged."},
+    {"text": "Multi-region deployment is in a later sprint", "passed": true, "evidence": "Multi-region is in Phase 6 (last phase), though data retention is bundled with it."}
+  ],
+  "summary": {"passed": 2, "failed": 4, "total": 6, "pass_rate": 0.333}
+}

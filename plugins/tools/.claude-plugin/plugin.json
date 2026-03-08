@@ -1,0 +1,9 @@
+{
+  "name": "tools",
+  "version": "0.2.0",
+  "description": "Collection of utility tools and helpers for development workflows",
+  "author": {
+    "name": "Alon Zusman"
+  },
+  "keywords": ["tools", "utilities", "development", "helpers"]
+}

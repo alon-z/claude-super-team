@@ -2,6 +2,11 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.35] - 2026-03-07
+
+### tools
+- Added fly.io CLI skill: deploy apps, view logs, check machine status, scale VMs and machine count, manage secrets, volumes, Postgres clusters, SSH, certificates, IPs, and health checks -- with built-in safety rules for destructive operations and auto-detection of fly.toml context
+
 ## [1.0.34] - 2026-03-06
 
 ### claude-super-team

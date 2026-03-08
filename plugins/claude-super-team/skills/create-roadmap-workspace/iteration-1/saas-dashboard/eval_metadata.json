@@ -1,0 +1,14 @@
+{
+  "eval_id": 2,
+  "eval_name": "saas-dashboard",
+  "prompt": "Create a roadmap for my project. The PROJECT.md is at .planning/PROJECT.md. Approve the first draft without asking me questions.",
+  "assertions": [
+    "Phases are annotated with sprint numbers",
+    "Phases have T-shirt sizes",
+    "At least one sprint has 2+ parallel phases",
+    "Core dashboard UI and a data connector are in an early sprint (not last)",
+    "Billing/payments is not in Sprint 1",
+    "Enterprise features (SSO, audit log) are in later sprints",
+    "Frontend and backend work for the same feature appear in the same sprint"
+  ]
+}

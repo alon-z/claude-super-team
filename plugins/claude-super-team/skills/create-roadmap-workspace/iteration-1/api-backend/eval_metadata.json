@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "api-backend",
+  "prompt": "Create a roadmap for my project. The PROJECT.md is at .planning/PROJECT.md. Approve the first draft without asking me questions.",
+  "assertions": [
+    "Phases are annotated with sprint numbers",
+    "Phases have T-shirt sizes",
+    "At least one sprint has 2+ parallel phases",
+    "Core CRUD API is available early (not buried after all infrastructure)",
+    "The high-performance event ingestion and ETA engine are separate phases",
+    "Multi-region deployment is in a later sprint (not Sprint 1)"
+  ]
+}
