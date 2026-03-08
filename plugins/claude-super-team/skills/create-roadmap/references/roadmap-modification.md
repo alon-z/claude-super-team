@@ -1,5 +1,19 @@
 # Roadmap Modification Procedures
 
+## Compacted Phase Format
+
+Completed phases use a compact format to reduce token usage. When reading a roadmap, recognize the `[COMPLETE]` tag:
+
+```markdown
+### Phase 3: Authentication [COMPLETE]
+better-auth with Apple/Google social sign-in, session management, user profile CRUD.
+```
+
+When modifying a roadmap with compacted phases:
+- **Never expand** compacted phases back to full detail
+- **Overview paragraph** should focus on remaining work, not rehash completed phases. Use a count (e.g., "Phases 1-8 complete") rather than describing each completed phase's dependencies or deliverables.
+- New phases added after compacted ones reference them by number only in `Depends on` -- no need to repeat what they built.
+
 ### Phase 2A: Add Phase
 
 1. Read ROADMAP.md, find the highest integer phase number. Set `NEXT_PHASE = highest + 1`.
