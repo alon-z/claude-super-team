@@ -360,12 +360,50 @@ Update `.planning/STATE.md` with:
 - Phase execution status (complete, gaps_found, etc.)
 - Key decisions made during execution
 - Any blockers or issues for next phases
+- **Compact the Parallelism Map:** If a `### Parallelism Map` section exists, remove wave entries where all phases in the wave are now complete. Only keep waves that still contain at least one incomplete phase. If all waves are complete, remove the entire Parallelism Map section.
+- **Prune Blockers/Concerns:** If a `### Blockers/Concerns` section exists, remove entries that were only relevant to the just-completed phase and have no bearing on future work. Keep entries that describe API quirks, SDK behaviors, or gotchas that future phases or maintenance will encounter. Use the phase's PLAN.md and SUMMARY.md to determine which concerns the phase addressed.
 
 Delete `${PHASE_DIR}/EXEC-PROGRESS.md` -- it served its purpose during execution and stale files would confuse the hooks on future phase runs.
 
 Update `.planning/ROADMAP.md`:
 - In the **Phases** checklist, change `- [ ]` to `- [x]` for the completed phase entry
 - In the **Progress** table, update the phase row: set Status to "Complete" and Completed to today's date (YYYY-MM-DD format)
+- **Compact the completed phase's detail section:** Replace the full detail block (Goal, Depends on, Requirements, Success Criteria) with a 1-2 line summary of what was built. Keep `### Phase N: Name` heading and append `[COMPLETE]`. Include any Completion Notes if relevant. Example:
+
+  Before:
+  ```markdown
+  ### Phase 3: Authentication
+  **Goal**: Users can sign in via Apple or Google and manage their profile.
+  **Depends on**: Phase 2
+  **Requirements**:
+  - better-auth configuration with Apple + Google providers
+  - Session management endpoints
+  - User profile CRUD
+  **Success Criteria** (what must be TRUE when this phase completes):
+    1. POST /api/auth/sign-in/social creates a user + session
+    2. GET /api/users/me returns the full user profile
+    3. POST /api/users/delete marks account for deletion
+  ```
+
+  After:
+  ```markdown
+  ### Phase 3: Authentication [COMPLETE]
+  better-auth with Apple/Google social sign-in, session management, user profile CRUD, account deletion with 30-day grace period.
+  ```
+
+  Write the summary from the phase's SUMMARY.md and VERIFICATION.md artifacts (what was actually built), not from the original requirements. Keep it to 1-2 sentences.
+
+- **Compact the overview paragraph:** If the Overview section contains dependency or sequencing details about the just-completed phase, rewrite the overview to focus on remaining work. Keep it to 2-3 sentences covering: what's done (count), what's next, and key remaining dependencies.
+
+Update `.planning/PROJECT.md` (if it exists):
+- **Move completed requirements to Validated:** Read the completed phase's `Requirements` field from ROADMAP.md (before compaction removed it -- use the phase's PLAN.md or SUMMARY.md as fallback). For each requirement covered by this phase, find the matching `- [ ]` checkbox in PROJECT.md's `### Active` section and move it to `### Validated` with `- [x]`. If the requirement text doesn't match exactly, match by semantic intent (e.g., phase covers "Auth screen" -> check off "Auth screen (Apple Sign-In + Google Sign-In only)").
+- **Update Context section:** If the completed phase changes a factual statement in the Context section, update it. Common triggers:
+  - Backend phase completes -> "Backend is a placeholder" becomes outdated
+  - Auth phase completes -> "No real auth" becomes outdated
+  - Styling/theme phase completes -> "not yet installed, needs setup" becomes outdated
+  Only update statements that are now factually wrong. Don't rewrite the whole section.
+- **Update Key Decisions:** If the phase implemented a pending decision (status "-- Pending"), change it to "Done" with the completion date.
+- **Update Out of Scope:** If the phase delivered something listed as Out of Scope, remove that line from Out of Scope (it's now in scope and delivered).
 
 Do NOT auto-commit.
 

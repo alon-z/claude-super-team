@@ -12,6 +12,12 @@
 
 ## Phase Details
 
+<!-- Completed phases are compacted to a 1-2 line summary to reduce token usage.
+     Format: ### Phase N: Name [COMPLETE]
+     One-line summary of what was built. Optional completion notes.
+
+     Active/upcoming phases keep their full detail block. -->
+
 ### Phase 1: [Name]
 **Goal**: [What this phase delivers -- outcome, not task]
 **Sprint**: 1

@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.36] - 2026-03-08
+
+### claude-super-team
+- execute-phase: Compact completed phase detail blocks in ROADMAP.md to 1-2 line `[COMPLETE]` summaries on phase completion, reducing roadmap token usage by ~78% on mature projects
+- execute-phase: Rewrite ROADMAP.md overview paragraph to focus on remaining work after each phase completes
+- execute-phase: Sync PROJECT.md on phase completion -- move covered requirements from Active to Validated, fix stale Context statements, mark pending Key Decisions as Done, remove delivered Out of Scope items
+- execute-phase: Compact STATE.md on phase completion -- remove completed wave entries from Parallelism Map, prune Blockers/Concerns entries that no longer apply to remaining work
+- create-roadmap: Document `[COMPLETE]` compact format in roadmap template and modification procedures; enforce that compacted phases are never re-expanded
+
 ## [1.0.35] - 2026-03-07
 
 ### tools
