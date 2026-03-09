@@ -64,7 +64,7 @@ This skill builds an entire application without user intervention. You MUST foll
 
 Build a complete application from a project idea or PRD to working, validated code -- fully autonomously.
 
-**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each phase: [/discuss-phase] -> [/research-phase] -> /plan-phase -> /execute-phase -> [validate] -> [/phase-feedback] -> git merge -> Final validation -> [auto-fix] -> BUILD-REPORT.md
+**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss/research all phases -> plan all phases (parallel) -> execute all phases (branch per phase) -> validate + merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md
 
 **Reads:** $ARGUMENTS (idea or file path), `~/.claude/build-preferences.md`, `.planning/build-preferences.md`, `.planning/BUILD-STATE.md` (for resume)
 **Creates:** All `.planning/` artifacts, application source code, `.planning/BUILD-STATE.md`, `.planning/BUILD-REPORT.md`
@@ -73,9 +73,10 @@ Build a complete application from a project idea or PRD to working, validated co
 - Invokes all skills via the Skill tool (same session, shared context)
 - Makes autonomous decisions at every AskUserQuestion checkpoint
 - Maintains BUILD-STATE.md for compaction resilience and auto-resume
+- Sprint-based execution: groups phases by sprint, plans in parallel, validates at sprint boundaries
 - Creates feature branch per phase execution, squash-merges to main
 - Adaptive pipeline depth: skips discuss/research for simple phases
-- Adaptive validation: only validates code-producing phases (always validates final)
+- Adaptive validation: per-phase + sprint boundary + final validation
 - One feedback attempt per failed phase, then skip and continue
 - 3-attempt auto-fix loop on final build/test failure
 
@@ -95,19 +96,21 @@ This is a RESUME. Read BUILD-STATE.md fully:
 Read('.planning/BUILD-STATE.md')
 ```
 
-1. Determine current position from the Pipeline Progress and Phase Progress tables.
-2. Find the first row with status `in_progress` -- that is where to resume.
+1. Determine current position from the Pipeline Progress, Sprint Progress, and Phase Progress tables.
+2. Find the first row with status `in_progress` -- that is where to resume. For sprint-based execution, the `Current stage` field indicates which sprint and substage to resume from (e.g., `sprint-2-execute`).
 3. Read the `Compaction count` field. Increment it by 1 and write back to BUILD-STATE.md.
 4. **Reconcile stale state:** Use the PHASE_COMPLETION section from gather-data.sh to sync ROADMAP.md and STATE.md with filesystem reality. For each phase with status `complete` in PHASE_COMPLETION that isn't marked `[x]` in ROADMAP.md, update ROADMAP.md (checkbox + progress table) and STATE.md (current position). This ensures planning files are accurate before resuming.
-5. Check if a `build/*` branch exists (from gather-data.sh GIT section `BUILD_BRANCHES`):
-   - If a `build/*` branch exists, handle resume:
-     - Check if execution completed on that branch: do SUMMARY.md files exist for all plans in the phase directory?
-     - If yes: squash-merge the branch to main (see Step 9j) and continue to the next phase.
-     - If no: checkout the branch and resume execution from Step 9g.
-6. Re-read `${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
-7. Apply context-aware gathering: since Step 0 re-loaded core files, use `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1` when child skills run their `gather-data.sh`.
-8. Skip to the appropriate step below based on current position.
-9. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
+5. **Rebuild SPRINT_MAP:** Re-parse sprint groupings from ROADMAP.md (same logic as Step 8). This is needed after compaction since the in-memory sprint map is lost.
+6. Check if `build/*` branch(es) exist (from gather-data.sh GIT section `BUILD_BRANCHES`):
+   - If `build/*` branches exist, identify which sprint they belong to from the Sprint Progress table.
+   - For each branch, check if execution completed: do SUMMARY.md files exist for all plans in the phase directory?
+     - If yes: squash-merge the branch to main (see Step 9g-iii) and continue.
+     - If no: checkout the branch and resume execution from Step 9f.
+   - After handling all branches for the current sprint, proceed to sprint boundary validation (Step 9h) if all phases are merged.
+7. Re-read `${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
+8. Apply context-aware gathering: since Step 0 re-loaded core files, use `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1` when child skills run their `gather-data.sh`.
+9. Skip to the appropriate step below based on current position.
+10. Print: `Resuming build from {current_stage}. Compaction count: {N}.`
 
 **Branch 2 -- EXTEND: `EXTEND_CANDIDATE=true` AND $ARGUMENTS is non-empty:**
 
@@ -411,7 +414,25 @@ Read ROADMAP.md to determine the list of phases:
 Read('.planning/ROADMAP.md')
 ```
 
-Extract phase numbers, names, goals, and success criteria from the roadmap.
+Extract phase numbers, names, goals, success criteria, and **sprint assignments** from the roadmap.
+
+### Sprint Grouping
+
+Parse sprint assignments from ROADMAP.md. Each phase has a `**Sprint**: N` field in its Phase Details block and a `[Sprint N]` annotation in the Phases checklist. Build the sprint map:
+
+```
+SPRINT_MAP = { sprint_number: [phase_numbers] }
+```
+
+**Backward compatibility:** If no sprint annotations are found in ROADMAP.md (legacy roadmaps without sprints), treat each phase as its own single-phase sprint: `SPRINT_MAP = { 1: [1], 2: [2], 3: [3], ... }`. This preserves sequential behavior.
+
+Print sprint overview:
+```
+Sprint plan:
+  Sprint 1: Phase 1, Phase 2 (2 phases)
+  Sprint 2: Phase 3, Phase 4, Phase 5 (3 phases)
+  Sprint 3: Phase 6 (1 phase)
+```
 
 Classify the project complexity. Read the phase list from ROADMAP.md:
 - Count total phases
@@ -425,8 +446,9 @@ Log in BUILD-STATE.md under Session: `Complexity class: {standard|complex}`.
 
 Update BUILD-STATE.md:
 - Set Pipeline Progress "create-roadmap" row to `complete`.
-- Populate the Phase Progress table with one row per phase from ROADMAP.md. All step columns set to `pending`, `Started` and `Completed` set to `-`.
-- Set Current stage to `phase-execution`.
+- Populate the Phase Progress table with one row per phase from ROADMAP.md. Include the Sprint column from SPRINT_MAP. All step columns set to `pending`, `Started` and `Completed` set to `-`.
+- Populate the Sprint Progress table with one row per sprint from SPRINT_MAP: Phases lists the phase numbers, Status set to `pending`, Boundary Validation set to `-`, Started and Completed set to `-`.
+- Set Current stage to `sprint-execution`.
 
 ---
 
@@ -468,44 +490,53 @@ Read('.planning/ROADMAP.md')
 
 Extract all phase numbers, names, goals, and success criteria. Compare against the PHASE_COMPLETION data from gather-data.sh to identify which phases are new (not present in PHASE_COMPLETION or not marked `complete`).
 
+Parse sprint assignments from the updated ROADMAP.md (same sprint grouping logic as Step 8). Build SPRINT_MAP.
+
 Update BUILD-STATE.md:
 - Set Pipeline Progress "create-roadmap" row to `complete`.
-- Populate the Phase Progress table with one row per phase from ROADMAP.md:
+- Populate the Phase Progress table with one row per phase from ROADMAP.md (include Sprint column from SPRINT_MAP):
   - For phases already completed (found in PHASE_COMPLETION with status `complete`): set all step columns to `skipped`, Status to `complete (prior)`.
   - For new phases: set all step columns to `pending`, `Started` and `Completed` set to `-`.
-- Set Current stage to `phase-execution`.
+- Populate the Sprint Progress table from SPRINT_MAP. Sprints where ALL phases are `complete (prior)` get Status `complete (prior)`.
+- Set Current stage to `sprint-execution`.
 
 Print: `Roadmap updated. New phase(s) added. Skipping {N} completed phases.`
 
-Continue to Step 9 (the phase execution loop will skip completed phases automatically).
+Continue to Step 9 (the sprint execution loop will skip completed sprints automatically).
 
 ---
 
-### Step 9: Phase Execution Loop
+### Step 9: Sprint Execution Loop
 
-For each phase N in ROADMAP.md (sequential, in order):
+Parse sprint groupings from SPRINT_MAP (built in Step 8). Process sprints in ascending order.
 
-#### 9-pre. Skip Completed Phases (Extend Mode)
+For each sprint S in SPRINT_MAP:
 
-Check PHASE_COMPLETION data from gather-data.sh for this phase. If the phase has status `complete`:
+#### 9-pre. Skip Completed Sprints
 
-1. Print: `Phase {N} already complete, skipping.`
-2. Set the Phase Progress row: all step columns to `skipped`, Status to `complete (prior)`.
-3. Continue to the next phase (skip steps 9a through 9l for this phase).
+For each phase N in sprint S, check PHASE_COMPLETION data from gather-data.sh. If the phase has status `complete`:
+1. Set the Phase Progress row: all step columns to `skipped`, Status to `complete (prior)`.
+2. Remove this phase from the sprint's active list for this iteration.
 
-If the phase is NOT complete, proceed normally:
+If ALL phases in sprint S are already complete:
+1. Print: `Sprint {S} already complete, skipping.`
+2. Set Sprint Progress row: Status to `complete (prior)`.
+3. Continue to the next sprint.
 
-#### 9a. Update BUILD-STATE.md
+#### 9a. Sprint Setup
 
-Set `Current phase` to N. Set `Current stage` to `phase-{N}-pipeline`.
+Set `Current stage` to `sprint-{S}-discuss-research`.
 
-Set the Phase Progress row's `Started` column to the current time (HH:MM).
+For each active phase N in sprint S:
+- Set the Phase Progress row's `Started` column to the current time (HH:MM).
+
+Update Sprint Progress row: set Status to `in_progress`, Started to current time (HH:MM).
 
 Write BUILD-STATE.md.
 
-Print: `Starting phase {N}: {phase_name}`
+Print: `Starting sprint {S}: {active_phase_count} phase(s) -- {phase_names}`
 
-#### 9b. Adaptive Pipeline Depth Decision
+#### 9b. Adaptive Pipeline Depth (All Sprint Phases)
 
 Read `${CLAUDE_SKILL_DIR}/references/pipeline-guide.md` Section 2 "Adaptive Pipeline Depth Heuristic":
 
@@ -515,7 +546,7 @@ Read('${CLAUDE_SKILL_DIR}/references/pipeline-guide.md')
 
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/references/pipeline-guide.md`)
 
-Analyze the phase goal and success criteria from ROADMAP.md. Apply the heuristic:
+For each active phase N in sprint S, analyze the phase goal and success criteria from ROADMAP.md. Apply the heuristic:
 
 **Complexity signals (run FULL pipeline: discuss + research + plan + execute):**
 - Phase goal mentions a new technical domain: auth, payments, search, real-time, file uploads, email, notifications, deployment, CI/CD, monitoring, caching, rate limiting, webhooks
@@ -531,15 +562,19 @@ Analyze the phase goal and success criteria from ROADMAP.md. Apply the heuristic
 - The phase has 1-2 success criteria
 - Build preferences already specify the tech decisions relevant to this phase
 
-**Default:** If signals are mixed or unclear, run the FULL pipeline. False negatives (skipping when you should have discussed) are more expensive than false positives.
+**Default:** If signals are mixed or unclear, run the FULL pipeline.
 
-Log the decision in BUILD-STATE.md Decisions Log: Phase N, Skill "build", Question "Pipeline depth", Answer "full|simple", Confidence level.
+Record each phase's pipeline depth decision (FULL or SIMPLE) for use in subsequent steps.
 
-Print: `Phase {N} pipeline depth: {FULL|SIMPLE}`
+Log decisions in BUILD-STATE.md Decisions Log: Phase N, Skill "build", Question "Pipeline depth", Answer "full|simple", Confidence level.
 
-#### 9c. Invoke /discuss-phase N (Full Pipeline Only)
+Print: `Sprint {S} pipeline depths: {Phase N: FULL, Phase M: SIMPLE, ...}`
 
-**If FULL pipeline:**
+#### 9c. Discuss + Research (Sequential Per Phase)
+
+For each active phase N in sprint S:
+
+**If pipeline depth = FULL:**
 
 1. Update Phase Progress: set Discuss to `in_progress`.
 2. Invoke:
@@ -553,36 +588,38 @@ Print: `Phase {N} pipeline depth: {FULL|SIMPLE}`
 4. Log decisions in BUILD-STATE.md Decisions Log.
 5. Update Phase Progress: set Discuss to `complete`.
 
-**If SIMPLE pipeline:**
-
-Update Phase Progress: set Discuss to `skipped`.
-
-#### 9d. Invoke /research-phase N (Full Pipeline Only)
-
-**If FULL pipeline:**
-
-1. Update Phase Progress: set Research to `in_progress`.
-2. Invoke:
+6. Update Phase Progress: set Research to `in_progress`.
+7. Invoke:
    ```
    Skill('research-phase', '{N}')
    ```
-3. Answer any AskUserQuestion calls autonomously per the decision guide:
+8. Answer any AskUserQuestion calls autonomously per the decision guide:
    - "Continue research / Done" -> **"Done"**
    - "RESEARCH.md already exists" -> **"Replace entirely"**
    - "Research was blocked / failed" -> **"Plan without research"**
    - "Research conflicts with decisions" -> **"Keep decisions"**
-4. Log decisions in BUILD-STATE.md Decisions Log.
-5. Update Phase Progress: set Research to `complete`.
+9. Log decisions in BUILD-STATE.md Decisions Log.
+10. Update Phase Progress: set Research to `complete`.
 
-**If SIMPLE pipeline:**
+**If pipeline depth = SIMPLE:**
 
-Update Phase Progress: set Research to `skipped`.
+Update Phase Progress: set Discuss to `skipped`, Research to `skipped`.
 
-#### 9e. Invoke /plan-phase N
+#### 9d. Plan All Sprint Phases (Parallel)
 
-Update Phase Progress: set Plan to `in_progress`.
+Update `Current stage` to `sprint-{S}-plan`.
 
-Invoke:
+Update Phase Progress: set Plan to `in_progress` for all active phases in this sprint.
+
+**If sprint has multiple active phases**, invoke all plan-phase calls simultaneously as parallel Skill calls:
+
+```
+Skill('plan-phase', '{N1}')
+Skill('plan-phase', '{N2}')
+... (one per active phase in the sprint)
+```
+
+**If sprint has only one active phase**, invoke a single Skill call:
 
 ```
 Skill('plan-phase', '{N}')
@@ -592,68 +629,91 @@ Answer any AskUserQuestion calls autonomously per the decision guide. Plan check
 
 Log decisions in BUILD-STATE.md Decisions Log.
 
-Update Phase Progress: set Plan to `complete`.
+Update Phase Progress: set Plan to `complete` for all active phases.
 
-#### 9f. Git: Commit Planning Artifacts and Create Feature Branch
+#### 9e. Git: Commit Planning Artifacts and Create Feature Branches
 
-Determine the phase directory name (zero-padded, e.g., `01-foundation`):
+Update `Current stage` to `sprint-{S}-branch`.
 
-```bash
-ls -d .planning/phases/${PADDED_PHASE}-* 2>/dev/null | head -1
-```
+For each active phase N in sprint S:
 
-Commit planning artifacts on main branch:
+1. Determine the phase directory name (zero-padded, e.g., `01-foundation`):
+   ```bash
+   ls -d .planning/phases/${PADDED_PHASE}-* 2>/dev/null | head -1
+   ```
 
-```bash
-git add .planning/phases/${PHASE_DIR}/ .planning/STATE.md .planning/ROADMAP.md .planning/BUILD-STATE.md
-git commit -m "[build] Plan phase ${N}: ${PHASE_NAME}"
-```
+2. Commit planning artifacts on main branch:
+   ```bash
+   git add .planning/phases/${PHASE_DIR}/ .planning/STATE.md .planning/ROADMAP.md .planning/BUILD-STATE.md
+   git commit -m "[build] Plan sprint ${S} phase ${N}: ${PHASE_NAME}"
+   ```
 
-Derive the branch slug from the phase directory name (e.g., `01-foundation`):
+3. Create feature branch and return to main:
+   ```bash
+   git checkout -b build/${PHASE_DIR_BASENAME}
+   git checkout ${MAIN_BRANCH}
+   ```
+   **Important:** Return to main immediately so the next branch also forks from the same main commit. All sprint branches must share the same base.
 
-```bash
-git checkout -b build/${PHASE_DIR_BASENAME}
-```
-
-Example: `git checkout -b build/01-foundation`
-
-Update Phase Progress: set Git Merge to `branched`.
+4. Update Phase Progress: set Git Merge to `branched`.
 
 Write BUILD-STATE.md with updated progress.
 
-#### 9g. Invoke /execute-phase N
+#### 9f. Execute All Sprint Phases (Sequential, Separate Branches)
 
-Update Phase Progress: set Execute to `in_progress`.
+Update `Current stage` to `sprint-{S}-execute`.
 
-Invoke:
+For each active phase N in sprint S:
 
-```
-Skill('execute-phase', '{N}')
-```
+1. Checkout the phase's feature branch:
+   ```bash
+   git checkout build/${PHASE_DIR_BASENAME}
+   ```
 
-The verification preference (`$PREF_VERIFICATION`) is already persisted in STATE.md from Step 3 preference resolution. Execute-phase reads it from its gather script PREFERENCES section automatically.
+2. Update Phase Progress: set Execute to `in_progress`.
 
-Answer all AskUserQuestion calls autonomously per the decision guide:
+3. Invoke:
+   ```
+   Skill('execute-phase', '{N}')
+   ```
 
-- **Branch warning ("on main"):** Select **"Continue anyway"** -- /build manages its own branch flow and we are on a `build/` branch.
-- **Exec model:** Use $PREF_EXEC_MODEL from resolved preferences.
-- **Task blocked / needs human input:** Select **"Skip task"** -- cannot provide human guidance autonomously. Log the skipped task.
-- **Checkpoint: human-verify:** **AUTO-APPROVE.** Log as **low** confidence.
-- **Checkpoint: decision:** Use LLM reasoning based on project context. Log with appropriate confidence.
-- **Verification gaps / gap closure:** Select **"Accept as-is"** -- rely on the external build/test validation in the pipeline and /phase-feedback for the single permitted feedback attempt.
+   The verification preference (`$PREF_VERIFICATION`) is already persisted in STATE.md from Step 3 preference resolution. Execute-phase reads it from its gather script PREFERENCES section automatically.
 
-Log each decision in BUILD-STATE.md Decisions Log.
+   Answer all AskUserQuestion calls autonomously per the decision guide:
+   - **Branch warning ("on main"):** Select **"Continue anyway"** -- /build manages its own branch flow and we are on a `build/` branch.
+   - **Exec model:** Use $PREF_EXEC_MODEL from resolved preferences.
+   - **Task blocked / needs human input:** Select **"Skip task"** -- cannot provide human guidance autonomously. Log the skipped task.
+   - **Checkpoint: human-verify:** **AUTO-APPROVE.** Log as **low** confidence.
+   - **Checkpoint: decision:** Use LLM reasoning based on project context. Log with appropriate confidence.
+   - **Verification gaps / gap closure:** Select **"Accept as-is"** -- rely on the external build/test validation in the pipeline and /phase-feedback for the single permitted feedback attempt.
 
-After completion, commit execution results:
+4. Log each decision in BUILD-STATE.md Decisions Log.
 
+5. After completion, commit execution results:
+   ```bash
+   git add -A
+   git commit -m "[build] Execute phase ${N}: ${PHASE_NAME}"
+   ```
+
+6. Update Phase Progress: set Execute to `complete`.
+
+7. Return to main:
+   ```bash
+   git checkout ${MAIN_BRANCH}
+   ```
+
+#### 9g. Per-Phase Validation, Feedback, and Merge
+
+Update `Current stage` to `sprint-{S}-merge`.
+
+For each active phase N in sprint S (sequential):
+
+##### 9g-i. Adaptive Validation
+
+Checkout the phase branch:
 ```bash
-git add -A
-git commit -m "[build] Execute phase ${N}: ${PHASE_NAME}"
+git checkout build/${PHASE_DIR_BASENAME}
 ```
-
-Update Phase Progress: set Execute to `complete`.
-
-#### 9h. Adaptive Validation
 
 Read `${CLAUDE_SKILL_DIR}/references/pipeline-guide.md` Section 3 "Adaptive Validation Heuristic".
 
@@ -665,7 +725,7 @@ Determine if validation should run for this phase.
 - Phase created or modified test files (*.test.*, *.spec.*, test_*.py, *_test.go, *_test.rs)
 - Phase goal mentions: build, implement, create, code, develop, integrate, migrate
 - A build system exists in the project
-- It is the **final phase** -- always validate regardless of content
+- It is the **last phase in the last sprint** -- always validate regardless of content
 
 **Skip validation when ALL of these are true:**
 - Phase only created or modified `.planning/` files
@@ -692,15 +752,15 @@ Determine if validation should run for this phase.
 4. Run test command via Bash. Capture output (stdout + stderr).
 5. Record results in BUILD-STATE.md Validation Results table: Phase, Build (pass/fail/skipped), Tests (pass/fail/skipped/none), Feedback Attempt (N/A), Final Status.
 6. If both pass: set Phase Progress Validate to `complete`.
-7. If either fails: proceed to Step 9i.
+7. If either fails: proceed to feedback below.
 
 **If SKIP:**
 
 Update Phase Progress: set Validate to `skipped`.
 
-#### 9i. Phase Feedback (One Attempt, On Validation Failure)
+##### 9g-ii. Phase Feedback (One Attempt, On Validation Failure)
 
-If validation failed in Step 9h:
+If validation failed:
 
 1. Synthesize feedback from build/test error output:
    - "Build failed: {error_summary}" or "Tests failed: {failing_test_names}"
@@ -725,7 +785,7 @@ If validation failed in Step 9h:
    git commit -m "[build] Fix phase ${N}: ${PHASE_NAME}"
    ```
 
-6. Re-run the same validation commands from Step 9h (build + tests).
+6. Re-run the same validation commands (build + tests).
 
 7. **If pass:** Set Phase Progress Feedback to `complete`, Validate to `complete`. Update Validation Results table: set Feedback Attempt to "pass", Final Status to "pass".
 
@@ -733,20 +793,15 @@ If validation failed in Step 9h:
    - Log in BUILD-STATE.md Incomplete Phases section: phase number, name, error summary.
    - Update Validation Results table: set Feedback Attempt to "fail", Final Status to "incomplete".
    - Print: `Phase {N} validation failed after feedback attempt. Marking incomplete, continuing.`
-   - Continue to next phase.
 
-**If validation passed or was skipped in Step 9h:**
+**If validation passed or was skipped:** Update Phase Progress: set Feedback to `N/A`.
 
-Update Phase Progress: set Feedback to `N/A`.
-
-#### 9j. Git: Squash-Merge to Main
-
-Determine the branch name from the phase directory:
+##### 9g-iii. Squash-Merge to Main
 
 ```bash
-git checkout main
+git checkout ${MAIN_BRANCH}
 git merge --squash build/${PHASE_DIR_BASENAME}
-git commit -m "[build] Phase ${N}: ${PHASE_NAME}
+git commit -m "[build] Sprint ${S}, Phase ${N}: ${PHASE_NAME}
 
 $(head -5 .planning/phases/${PHASE_DIR}/??-??-SUMMARY.md 2>/dev/null | tail -2)
 
@@ -756,7 +811,7 @@ Plans executed: ${PLANS_COMPLETED}/${PLANS_TOTAL}
 Autonomous build by /build skill."
 ```
 
-Replace `main` with the actual main branch name from BUILD-STATE.md `Git main branch` field.
+Replace `${MAIN_BRANCH}` with the actual main branch name from BUILD-STATE.md `Git main branch` field.
 
 Clean up the feature branch:
 
@@ -768,7 +823,7 @@ git branch -d build/${PHASE_DIR_BASENAME}
 
 ```bash
 git merge --abort 2>/dev/null
-git checkout main
+git checkout ${MAIN_BRANCH}
 git branch -D build/${PHASE_DIR_BASENAME}
 ```
 
@@ -776,28 +831,57 @@ Log: `Merge conflict for phase {N}. Branch deleted, changes lost. Phase marked i
 
 Update Phase Progress: set Git Merge to `complete` (or `failed` if merge failed), Status to `complete` (or `incomplete`).
 
-#### 9k. Sync Planning State Files
+##### 9g-iv. Sync Planning State Files
 
-After each phase completes (whether via successful merge or failure), explicitly sync ROADMAP.md and STATE.md to reflect reality. Do NOT rely on execute-phase having done this -- it may not have.
+After each phase merges, sync ROADMAP.md and STATE.md to reflect reality. Do NOT rely on execute-phase having done this.
 
 **ROADMAP.md sync:**
 1. In the **Phases** checklist: change `- [ ]` to `- [x]` for the completed phase entry
 2. In the **Progress** table: set Status to "Complete" and Completed to today's date (YYYY-MM-DD format)
 
 **STATE.md sync:**
-1. Set "Phase:" in Current Position to {N+1} (the next phase number)
-2. Set "Status:" to the appropriate value for the next phase (e.g., "Ready to plan" or "Ready to execute")
+1. Set "Phase:" in Current Position to the next phase number
+2. Set "Status:" to the appropriate value
 3. Update "Last activity:" to today's date with a brief note
 
-These updates happen on the main branch (after the squash-merge in Step 9j).
-
-#### 9l. Update BUILD-STATE.md
+##### 9g-v. Update Phase Progress
 
 Set the Phase Progress row's `Completed` column to the current time (HH:MM).
 
-Write the full updated BUILD-STATE.md with all progress changes from this phase iteration.
+Write BUILD-STATE.md.
 
-Print: `Phase {N} complete. Moving to next phase.`
+Print: `Phase {N} complete.`
+
+#### 9h. Sprint Boundary Validation
+
+After ALL active phases in sprint S are merged to main:
+
+Update `Current stage` to `sprint-{S}-boundary-validation`.
+
+1. Ensure on main branch:
+   ```bash
+   git checkout ${MAIN_BRANCH}
+   ```
+
+2. Determine if any phase in this sprint produced source code (check the per-phase validation decisions from 9g-i). If no phase in the sprint warranted validation, skip sprint boundary validation.
+
+3. **If validation warranted:** Run build + test commands using the same detection logic from the Adaptive Validation Heuristic (Section 3 of pipeline-guide.md).
+
+4. Record result in Sprint Progress table: set Boundary Validation to `pass`, `fail`, or `skipped`.
+
+5. **If pass:** Print `Sprint {S} boundary validation passed. {phase_count} phases integrated successfully.`
+
+6. **If fail:** Print `Sprint {S} boundary validation failed.` Log the error in BUILD-STATE.md Errors section. This is informational -- per-phase feedback already attempted. The final validation (Step 10) and auto-fix loop (Step 11) will address remaining issues.
+
+7. **If skipped (no build system or no code phases):** Print `Sprint {S} boundary validation skipped.`
+
+#### 9i. Complete Sprint
+
+Update Sprint Progress row: set Status to `complete`, Completed to current time (HH:MM).
+
+Write BUILD-STATE.md.
+
+Print: `Sprint {S} complete. Moving to next sprint.`
 
 ---
 
@@ -815,7 +899,7 @@ After ALL phases have been processed:
 
 3. ALWAYS run build + test validation regardless of per-phase results.
 
-4. Detect validation commands using the same priority order from Step 9h.
+4. Detect validation commands using the same priority order from Step 9g-i.
 
 5. Run build command. Capture full output.
 
@@ -889,8 +973,8 @@ Read('${CLAUDE_SKILL_DIR}/assets/build-report-template.md')
 Populate all sections from BUILD-STATE.md:
 
 - **Overview:** project name (from PROJECT.md), input ($IDEA_TEXT or PRD summary), start/end timestamps, final status.
-- **Pipeline Summary:** phases planned, phases completed, phases incomplete, total plans executed, feedback loops used, compactions survived.
-- **Phase Results:** from Phase Progress table -- one row per phase with name, status, validation result, notes.
+- **Pipeline Summary:** sprints, phases planned, phases completed, phases incomplete, total plans executed, feedback loops used, compactions survived.
+- **Phase Results:** from Phase Progress table -- one row per phase with sprint, name, status, validation result, notes.
 - **Key Decisions:** from Decisions Log -- all decisions made during the build.
 - **Low-Confidence Decisions:** filtered subset of Decisions Log where confidence = low. These are flagged for user review.
 - **Validation Summary:** from Validation Results table -- per-phase build/test results.
@@ -934,11 +1018,16 @@ Project: {project_name}
 Status: {complete | partial | failed}
 Duration: {start_time} to {end_time}
 
+Sprints: {total_sprints}
 Phases: {completed}/{total} completed
-  {list each phase: "  Phase N: {name} -- {status}"}
+  {For each sprint S:}
+  Sprint {S}:
+    {list each phase: "  Phase N: {name} -- {status}"}
+    Boundary validation: {pass | fail | skipped}
 
 Validation:
   Per-phase: {N} passed, {M} failed, {K} skipped
+  Sprint boundary: {N} passed, {M} failed, {K} skipped
   Final: {pass | fail | skipped}
   Auto-fix attempts: {0-3}
 
@@ -982,8 +1071,10 @@ State:  .planning/BUILD-STATE.md
 ## Success Criteria
 
 - [ ] Application code exists and was generated from the provided idea/PRD
-- [ ] All phases in ROADMAP.md were processed (completed or marked incomplete)
-- [ ] BUILD-STATE.md tracks the full execution journey
+- [ ] All sprints and phases in ROADMAP.md were processed (completed or marked incomplete)
+- [ ] Phases within the same sprint were planned in parallel (multi-phase sprints)
+- [ ] Sprint boundary validation ran after each sprint's phases were merged
+- [ ] BUILD-STATE.md tracks the full execution journey with sprint and phase progress
 - [ ] BUILD-REPORT.md summarizes results with all decisions logged
 - [ ] Low-confidence decisions are flagged for user review
 - [ ] Git history shows one squash-merge commit per completed phase

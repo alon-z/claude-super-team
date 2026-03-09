@@ -12,24 +12,26 @@ Complete pipeline sequence:
 3.  [If brownfield: CODE_FILES > 0] Invoke /map-codebase
 4.  Invoke /brainstorm (autonomous mode)
 5.  Invoke /create-roadmap
-6.  For each phase N in ROADMAP.md:
-    a. Evaluate adaptive pipeline depth (Section 2)
-    b. [If full pipeline] Invoke /discuss-phase N
-    c. [If full pipeline] Invoke /research-phase N
-    d. Invoke /plan-phase N
-    e. Git: commit planning artifacts on main
-    f. Git: create feature branch build/{NN}-{slug}
-    g. Invoke /execute-phase N
-    h. Git: commit execution results on feature branch
-    i. [If adaptive validation says yes (Section 3)] Run build + tests
-    j. [If validation fails] Invoke /phase-feedback N (one attempt only)
-    k. [If still fails] Mark phase incomplete, continue to next
-    l. Git: squash-merge feature branch to main, delete branch
-    m. Update BUILD-STATE.md phase progress
-7.  Final validation -- always run (Section 6)
-8.  [If fails] Auto-fix loop (max 3 attempts)
-9.  Generate BUILD-REPORT.md
-10. Present completion summary to user
+6.  Parse sprint groupings from ROADMAP.md (Section 9)
+7.  For each sprint S:
+    a. For each phase N in sprint S:
+       - Evaluate adaptive pipeline depth (Section 2)
+       - [If full pipeline] Invoke /discuss-phase N
+       - [If full pipeline] Invoke /research-phase N
+    b. Plan all sprint phases in parallel:
+       - Invoke /plan-phase N for each phase (parallel Skill calls)
+    c. Git: commit planning artifacts and create feature branches for all phases
+    d. Execute each phase on its branch (sequential, each on own branch):
+       - Invoke /execute-phase N, commit results
+    e. For each phase (sequential):
+       - Per-phase validation + feedback (if needed)
+       - Squash-merge to main, delete branch
+    f. Sprint boundary validation: run build + tests on main
+    g. Update BUILD-STATE.md sprint + phase progress
+8.  Final validation -- always run (Section 7)
+9.  [If fails] Auto-fix loop (max 3 attempts)
+10. Generate BUILD-REPORT.md
+11. Present completion summary to user
 ```
 
 ## 2. Adaptive Pipeline Depth Heuristic
@@ -165,54 +167,111 @@ Parse `$ARGUMENTS` to separate file paths from inline idea text.
 - File path exists but is not readable: warn in BUILD-STATE.md, treat remaining text as the input
 - File is very large (> 50KB): read first 50KB, note truncation in BUILD-STATE.md
 
-## 5. Git Branch Flow
+## 5. Sprint-Based Execution
 
-### Per-Phase Flow
+### Sprint Grouping
+
+ROADMAP.md annotates each phase with a sprint number (`**Sprint**: N` in Phase Details, `[Sprint N]` in the Phases checklist). Phases in the same sprint are independent and can be planned in parallel.
+
+### Parsing Sprint Groups
+
+After reading ROADMAP.md, build a sprint map:
 
 ```
+SPRINT_MAP = { sprint_number: [phase_numbers] }
+```
+
+Parse from the Phase Details blocks (`**Sprint**: N` field) or from the Phases checklist (`[Sprint N]` annotation).
+
+**Backward compatibility:** If no sprint annotations exist (legacy roadmaps), treat each phase as its own single-phase sprint (sprint N = phase N). This preserves sequential behavior.
+
+### Execution Strategy
+
+Within each sprint, phases progress through stages together:
+
+```
+SPRINT S:
+  STAGE 1 - Discuss + Research (sequential per phase)
+    For each phase: adaptive depth -> discuss -> research
+
+  STAGE 2 - Plan (parallel)
+    All phases: Skill('plan-phase', N) called in parallel
+
+  STAGE 3 - Branch + Execute (sequential, separate branches)
+    Create all branches from main
+    For each phase: checkout branch -> execute -> commit -> back to main
+
+  STAGE 4 - Validate + Merge (sequential per phase)
+    For each phase: validate on branch -> feedback if failed -> merge to main
+
+  STAGE 5 - Sprint Boundary Validation
+    On main: run build + tests after all phases merged
+```
+
+### Why Sequential Execution Within Sprints
+
+Planning can be parallel because each `/plan-phase` operates on an isolated phase directory. Execution must be sequential because all Skill() calls share the same working directory -- you cannot checkout two branches simultaneously. Each phase is executed on its own branch, then the working directory switches to the next branch.
+
+The primary efficiency gains from sprint-based execution are:
+1. **Batch planning** -- all sprint phases planned before any execute (vs interleaved plan-execute-plan-execute)
+2. **Integration validation** -- sprint boundary validation catches cross-phase integration issues early
+3. **Smarter ordering** -- respects the dependency graph from /create-roadmap
+
+## 6. Git Branch Flow (Sprint-Aware)
+
+### Per-Sprint Flow
+
+```
+SPRINT S (phases N1, N2, ... in same sprint):
+
 PLANNING (on main branch):
-  # After discuss/research/plan complete for phase N
-  git add .planning/phases/{NN}-{slug}/ .planning/STATE.md
-  git commit -m "[build] Plan phase {N}: {phase_name}"
+  # After discuss/research complete for all sprint phases
+  # Plan all sprint phases (parallel Skill calls)
+  # Commit planning artifacts for each phase
+  For each phase N in sprint:
+    git add .planning/phases/{NN}-{slug}/ .planning/STATE.md .planning/ROADMAP.md .planning/BUILD-STATE.md
+    git commit -m "[build] Plan sprint {S} phase {N}: {phase_name}"
 
-BRANCH CREATION (before execution):
-  git checkout -b build/{NN}-{slug}
+BRANCH CREATION (all branches from same main commit):
+  For each phase N in sprint:
+    git checkout -b build/{NN}-{slug}
+    git checkout main  # return to main for next branch
 
-EXECUTION (on feature branch):
-  # /execute-phase runs all plans here
-  # After execution completes
-  git add -A
-  git commit -m "[build] Execute phase {N}: {phase_name}"
+EXECUTION (sequential, each on own branch):
+  For each phase N in sprint:
+    git checkout build/{NN}-{slug}
+    # /execute-phase runs all plans here
+    git add -A
+    git commit -m "[build] Execute phase {N}: {phase_name}"
+    git checkout main
 
-  # If validation runs and feedback is needed:
-  # /phase-feedback creates subphase, /execute-phase runs it
-  git add -A
-  git commit -m "[build] Fix phase {N}: {phase_name}"
+VALIDATE + MERGE (sequential per phase):
+  For each phase N in sprint:
+    git checkout build/{NN}-{slug}
+    # Run per-phase validation
+    # If fails: /phase-feedback (one attempt)
+    git checkout main
+    git merge --squash build/{NN}-{slug}
+    git commit -m "[build] Sprint {S}, Phase {N}: {phase_name}
+    ...
+    Autonomous build by /build skill."
+    git branch -d build/{NN}-{slug}
 
-SQUASH-MERGE (after execution + validation):
-  git checkout main
-  git merge --squash build/{NN}-{slug}
-  git commit -m "[build] Phase {N}: {phase_name}
-
-  {1-2 sentence summary of what was built}
-
-  Validation: {pass|fail|skipped}
-  Plans executed: {M}/{total}
-
-  Autonomous build by /build skill."
-
-CLEANUP:
-  git branch -d build/{NN}-{slug}
+SPRINT BOUNDARY VALIDATION (on main, all phases merged):
+  # Run build + tests to validate cross-phase integration
 ```
 
 ### Resume Handling
 
 When /build resumes (compaction recovery or explicit re-invocation):
 
-**Case 1: Active `build/*` branch exists**
-1. Check if execution completed: do SUMMARY.md files exist for all plans in the phase?
-2. If yes: switch to main, squash-merge, and continue to the next phase.
-3. If no: stay on the branch and resume execution from the first incomplete plan.
+**Case 1: Active `build/*` branch(es) exist**
+1. Identify which sprint is in progress from BUILD-STATE.md `Current stage` (format: `sprint-{S}-*`).
+2. For each `build/*` branch in the sprint:
+   - Check if execution completed: do SUMMARY.md files exist for all plans in the phase?
+   - If yes: switch to main, squash-merge, and continue to next phase in sprint.
+   - If no: checkout the branch and resume execution.
+3. After all sprint phases handled, run sprint boundary validation.
 
 **Case 2: On main, no `build/*` branches**
 - Read BUILD-STATE.md `Current stage` field.
@@ -228,7 +287,7 @@ Format: `build/{NN}-{slug}` where:
 - `{slug}` is the kebab-case phase name from ROADMAP.md (e.g., `foundation`, `auth-system`, `api-layer`)
 - Example: `build/02-auth-system`
 
-## 6. Final Validation and Auto-Fix
+## 7. Final Validation and Auto-Fix
 
 Runs after ALL phases complete, regardless of per-phase validation results.
 
@@ -277,7 +336,7 @@ if attempt >= max_attempts and still failing:
 - If an auto-fix would require a new dependency not in the project, log it rather than installing blindly
 - The 3-attempt limit is hard -- do not extend it
 
-## 7. Extend Mode
+## 8. Extend Mode
 
 When /build detects a completed prior build and new feature arguments, it enters extend mode.
 
@@ -310,7 +369,7 @@ All of these must be true:
 
 Already-completed phases (detected via PHASE_COMPLETION from gather-data.sh) are skipped in the execution loop. Only newly added phases run the full discuss/research/plan/execute pipeline. Pipeline Progress marks skipped stages as `skipped (extend)`.
 
-## 8. Phase Feedback Flow
+## 9. Phase Feedback Flow
 
 How /build invokes /phase-feedback after a per-phase validation failure.
 

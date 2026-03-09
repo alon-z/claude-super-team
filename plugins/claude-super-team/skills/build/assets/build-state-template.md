@@ -27,12 +27,16 @@
 | create-roadmap | pending | - | - | - |
 
 ## Phase Progress
-| Phase | Discuss | Research | Plan | Execute | Validate | Feedback | Git Merge | Status | Started | Completed |
-|-------|---------|----------|------|---------|----------|----------|-----------|--------|---------|-----------|
+| Phase | Sprint | Discuss | Research | Plan | Execute | Validate | Feedback | Git Merge | Status | Started | Completed |
+|-------|--------|---------|----------|------|---------|----------|----------|-----------|--------|---------|-----------|
 
 ## Decisions Log
 | # | Phase | Skill | Question | Answer | Confidence |
 |---|-------|-------|----------|--------|------------|
+
+## Sprint Progress
+| Sprint | Phases | Status | Boundary Validation | Started | Completed |
+|--------|--------|--------|---------------------|---------|-----------|
 
 ## Validation Results
 | Phase | Build | Tests | Feedback Attempt | Final Status |

@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.37] - 2026-03-09
+
+### claude-super-team
+- build: Sprint-based execution loop -- phases from the same sprint are grouped, planned in parallel, and validated together at a sprint boundary before moving to the next sprint
+- build: Sprint Progress table added to BUILD-STATE.md tracking per-sprint status and boundary validation result
+- build: Sprint column added to Phase Progress table in BUILD-STATE.md and Phase Results table in BUILD-REPORT.md
+- build: Sprint Boundary Validation step runs build+tests on main after all phases in a sprint are merged, catching cross-phase integration issues early
+- build: Sprint-aware resume logic in Step 1 -- rebuilds SPRINT_MAP from ROADMAP.md after compaction, handles multiple in-flight branches per sprint
+- build: Backward compatibility -- roadmaps without sprint annotations treat each phase as its own single-phase sprint, preserving sequential behavior
+- build: pipeline-guide updated with Section 5 (Sprint-Based Execution) explaining grouping logic, execution strategy, and sprint-aware git flow
+
 ## [1.0.36] - 2026-03-08
 
 ### claude-super-team
