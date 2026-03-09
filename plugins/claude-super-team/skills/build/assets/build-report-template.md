@@ -8,6 +8,7 @@
 - **Status:** {complete|partial|failed}
 
 ## Pipeline Summary
+- **Sprints:** {S}
 - **Phases planned:** {N}
 - **Phases completed:** {M}
 - **Phases incomplete:** {K}
@@ -16,8 +17,8 @@
 - **Compactions survived:** {C}
 
 ## Phase Results
-| Phase | Name | Status | Validation | Notes |
-|-------|------|--------|------------|-------|
+| Phase | Sprint | Name | Status | Validation | Notes |
+|-------|--------|------|--------|------------|-------|
 
 ## Key Decisions
 | # | Phase | Question | Answer | Confidence |
