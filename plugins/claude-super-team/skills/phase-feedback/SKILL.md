@@ -57,8 +57,9 @@ AskUserQuestion:
 Resolve the phase directory:
 
 ```bash
-PARENT_NUM=$(printf "%02d" "$PARENT_PHASE")
-PARENT_DIR=$(ls -d .planning/phases/${PARENT_NUM}-* 2>/dev/null | head -1)
+source "${CLAUDE_PLUGIN_ROOT}/scripts/phase-utils.sh"
+PARENT_NUM=$(normalize_phase "$PARENT_PHASE")
+PARENT_DIR=$(find_phase_dir "$PARENT_NUM")
 ```
 
 If no phase directory or no SUMMARY.md files in it, show error: "Phase {N} has no execution results. Run /execute-phase {N} first."

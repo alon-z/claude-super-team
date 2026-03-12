@@ -100,14 +100,8 @@ When `EXEC_MODE=team`, waves use Agent Teams (TeamCreate + teammates) instead of
 Normalize:
 
 ```bash
-# Handle decimal phase numbers (e.g., 2.1 from inserted phases)
-if echo "$PHASE_NUM" | grep -q '\.'; then
-  INT_PART=$(echo "$PHASE_NUM" | cut -d. -f1)
-  DEC_PART=$(echo "$PHASE_NUM" | cut -d. -f2)
-  PHASE=$(printf "%02d.%s" "$INT_PART" "$DEC_PART")
-else
-  PHASE=$(printf "%02d" "$PHASE_NUM")
-fi
+source "${CLAUDE_PLUGIN_ROOT}/scripts/phase-utils.sh"
+PHASE=$(normalize_phase "$PHASE_NUM")
 ```
 
 ### Phase 2.5: Log Execution Mode Decision

@@ -45,10 +45,9 @@ Parse phase number from `$ARGUMENTS`. If not provided or invalid, use **ROADMAP_
 
 Normalize phase to zero-padded format:
 
-```
-# Handle decimal phase numbers (e.g., 2.1 from inserted phases)
-2   -> 02
-2.1 -> 02.1
+```bash
+source "${CLAUDE_PLUGIN_ROOT}/scripts/phase-utils.sh"
+PHASE=$(normalize_phase "$PHASE_NUM")
 ```
 
 Validate phase exists using **ROADMAP_PHASES** from the gather script. If not found, show available phases and exit.
