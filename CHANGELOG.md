@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.38] - 2026-03-12
+
+### claude-super-team
+- Centralize phase number normalization into shared `scripts/phase-utils.sh` with `normalize_phase()` and `find_phase_dir()` functions
+- Replace inline normalization code in 6 skills (discuss-phase, execute-phase, plan-phase, research-phase, phase-feedback, plan-phase-workspace/skill-snapshot) with calls to the shared script -- eliminates 24 lines of duplicated code
+- Decompose build/SKILL.md from 1084 to 498 lines by extracting Steps 8-E and 9 into `references/sprint-execution-guide.md` and Steps 10-13 + Success Criteria into `references/finalization-guide.md`
+
 ## [1.0.37] - 2026-03-09
 
 ### claude-super-team
