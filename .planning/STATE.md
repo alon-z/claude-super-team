@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 7.1 complete -- build skill efficiency improvements applied
+**Current focus:** Phase 5 complete -- workflow validated via tevel dogfooding, plan-phase startup optimized
 
 ## Current Position
 
-Phase: 7.1 (complete)
+Phase: 5 (complete)
 Status: Executed
-Last activity: 2026-02-25 -- Phase 7.1 executed: teams detection fix, verification preference, pipeline depth heuristic, wave batching
+Last activity: 2026-03-13 -- Phase 5 executed: validation report + plan-phase context pre-assembly
 
 ## Preferences
 
@@ -37,9 +37,13 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - Phase 7.1: Build skill efficiency improvements. Fixed teams detection bug (PREFERENCES instead of env var), added verification preference (always|on-failure|disabled), enhanced pipeline depth heuristic with tech stack coverage/complexity class/cumulative knowledge discount, strengthened planner wave batching to favor parallelism.
 
+- Phase 4: Hardened fragile areas. Created shared phase-utils.sh with normalize_phase() and find_phase_dir(), replaced inline normalization in 6 skills. Decomposed build/SKILL.md from 1084 to 498 lines by extracting Steps 8-E/9 and Steps 10-13/Success Criteria into two reference documents.
+
+- Phase 5: Workflow validation via tevel dogfooding. Created validation report: 10/16 skills validated post-audit, 6 gaps catalogued. Fixed highest-impact gap: plan-phase startup speed -- moved context assembly into gather-data.sh with 6 new pre-assembled sections (ROADMAP_TRIMMED, STATE_TRIMMED, CODEBASE_DOCS, PHASE_CONTEXT, PHASE_RESEARCH, PHASE_REQUIREMENTS), eliminating 6+ LLM Read calls before planner spawn. Two-invocation pattern: Step 0 for validation, Phase 3.5 for phase-specific context with SKIP flags.
+
 ### Blockers/Concerns
 
 None.
 
 ---
-*Last updated: 2026-02-25 -- Phase 7.1 executed*
+*Last updated: 2026-03-13 -- Phase 5 executed*

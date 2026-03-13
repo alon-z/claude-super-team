@@ -25,10 +25,13 @@ Every skill and agent must leverage the right Claude Code primitive for its purp
 
 ### Active
 
-- [ ] Systematic audit of all skills against Claude Code ecosystem capabilities (skills vs agents vs hooks, frontmatter features, context behavior, `disable-model-invocation`, etc.)
-- [ ] Evaluate and convert skills that would work better as agents or hybrid skill+agent patterns
-- [ ] Ensure all skills properly use available Claude Code features (tool restrictions, model selection, context forking, argument hints)
 - [ ] Add missing capabilities as discovered through ongoing usage of the planning workflow
+
+### Validated
+
+- [x] Systematic audit of all skills against Claude Code ecosystem capabilities (skills vs agents vs hooks, frontmatter features, context behavior, `disable-model-invocation`, etc.)
+- [x] Evaluate and convert skills that would work better as agents or hybrid skill+agent patterns
+- [x] Ensure all skills properly use available Claude Code features (tool restrictions, model selection, context forking, argument hints)
 
 ### Out of Scope
 
@@ -39,9 +42,9 @@ Every skill and agent must leverage the right Claude Code primitive for its purp
 
 ## Context
 
-- The Claude Code plugin ecosystem continues to evolve with new features (agent definitions, hooks, context forking, `disable-model-invocation`). Some skills predate these features and may not leverage them optimally.
+- The Claude Code plugin ecosystem continues to evolve with new features (agent definitions, hooks, context forking, `disable-model-invocation`). All skills have been audited and updated to leverage current features (Phase 3).
 - The repository dogfoods its own tools -- this project itself is managed using the claude-super-team planning pipeline.
-- Skills and agents serve different purposes in Claude Code: skills are user-invoked slash commands with declared tool access; agents are spawned subprocesses with their own tool sets and model selection. Some current skills may be better suited as agents.
+- Skills and agents serve different purposes in Claude Code: skills are user-invoked slash commands with declared tool access; agents are spawned subprocesses with their own tool sets and model selection. Phase 2 audit found all skills are best kept as skills (0 conversions).
 - New capabilities are discovered organically -- as the planning workflow is used on real projects, gaps surface and become new skills (recent examples: `/brainstorm`, `/phase-feedback`).
 - The marketplace distributes three plugins but only `claude-super-team` is actively evolving; `marketplace-utils` and `task-management` are stable utilities.
 
@@ -56,9 +59,9 @@ Every skill and agent must leverage the right Claude Code primitive for its purp
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Systematic skill audit before new features | Existing skills may not use available Claude Code capabilities; fixing foundations first prevents compounding issues | -- Pending |
-| Execution model: opus | Higher reasoning quality preferred for all execution tasks; cost/speed tradeoff acceptable for personal use | -- Pending |
-| Evaluate skills vs agents for each capability | Claude Code agents offer different primitives than skills; some orchestration-heavy skills may be better as agents | -- Pending |
+| Systematic skill audit before new features | Existing skills may not use available Claude Code capabilities; fixing foundations first prevents compounding issues | Done (Phases 1-3, validated Phase 5) |
+| Execution model: opus | Higher reasoning quality preferred for all execution tasks; cost/speed tradeoff acceptable for personal use | Done |
+| Evaluate skills vs agents for each capability | Claude Code agents offer different primitives than skills; some orchestration-heavy skills may be better as agents | Done (Phase 2: 0 conversions, all remain as skills) |
 
 ## Preferences
 
@@ -66,4 +69,4 @@ execution-model: opus
 
 ---
 
-*Last updated: 2026-02-11 after initialization*
+*Last updated: 2026-03-13 after Phase 5 execution*
