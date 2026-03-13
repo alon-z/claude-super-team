@@ -1,38 +1,47 @@
 # Context Loading Procedure
 
-Load context efficiently -- the planner's quality degrades with context pressure, so send only what's relevant to the phase being planned.
+Context for the planner agent is pre-assembled by `gather-data.sh` into trimmed, ready-to-embed sections. The skill LLM does not need to read and trim individual files -- just use the pre-assembled sections from the Phase 3.5 gather-data.sh output.
 
-**Required:**
+## Pre-Assembled Sections (from gather-data.sh)
 
-- `.planning/PROJECT.md` -- project vision, requirements
-- `.planning/ROADMAP.md` -- **only the specific phase section** being planned, plus the Phases overview list (for dependency context). Do NOT send all phase details for all phases.
+These sections are available when `PHASE_NUM` and `PHASE_DIR` are passed to gather-data.sh:
 
-**Optional (use if exists):**
+| Section | Source | What it contains |
+|---------|--------|-----------------|
+| ROADMAP_TRIMMED | ROADMAP.md | Phases overview list + target phase detail block only |
+| STATE_TRIMMED | STATE.md | Current Position + Preferences + Accumulated Context (Key Decisions) |
+| CODEBASE_DOCS | .planning/codebase/ | Aggregated ARCHITECTURE.md, STACK.md, CONVENTIONS.md, STRUCTURE.md |
+| PHASE_CONTEXT | {PHASE_DIR}/*-CONTEXT.md | User decisions from /discuss-phase |
+| PHASE_RESEARCH | {PHASE_DIR}/*-RESEARCH.md | Research findings |
+| PHASE_REQUIREMENTS | .planning/REQUIREMENTS.md | Formal requirements |
 
-- `.planning/STATE.md` -- only the Current Position and Key Decisions sections (skip history/log)
-- `${PHASE_DIR}/*-CONTEXT.md` -- user decisions from /discuss-phase (CRITICAL: constrains planning)
-- `${PHASE_DIR}/*-RESEARCH.md` -- research findings
-- `.planning/REQUIREMENTS.md` -- formal requirements
-- `.planning/codebase/ARCHITECTURE.md`, `STACK.md`, `CONVENTIONS.md` -- codebase context
+Sections output "(none)" when the source file doesn't exist, or "(in context)" when skipped via SKIP flags.
 
-**Context trimming rules:**
+## Required vs Optional Context
 
-1. **ROADMAP.md**: Extract the `## Phases` list (one-liners) and only the `### Phase N` detail section for the target phase. Skip all other phase detail sections -- the planner doesn't need Phase 12's success criteria to plan Phase 3.
-2. **STATE.md**: Extract `## Current Position` and `## Key Decisions` only. Skip execution history.
-3. **Codebase docs**: Only include if the phase touches existing code. For greenfield phases (new subsystems), skip codebase docs entirely.
+**Required (always embed in planner prompt):**
 
-**If CONTEXT.md does not exist,** show a brief informational note (not a blocker):
+- PROJECT.md -- project vision, requirements (from Step 0 gather-data.sh PROJECT section)
+- ROADMAP_TRIMMED -- phase detail + phases overview for dependency context
+
+**Optional (embed if not "(none)"):**
+
+- STATE_TRIMMED -- current position and key decisions
+- PHASE_CONTEXT -- user decisions from /discuss-phase (CRITICAL: constrains planning)
+- PHASE_RESEARCH -- research findings
+- PHASE_REQUIREMENTS -- formal requirements
+- CODEBASE_DOCS -- codebase context (skip for greenfield phases via SKIP_CODEBASE=1)
+
+## Missing-Context Handling
+
+**If PHASE_CONTEXT is "(none)"**, show informational note (not a blocker):
 
 ```
 Note: No CONTEXT.md found. Run /discuss-phase {N} first to capture implementation
 decisions, or continue planning without it.
 ```
 
-This is informational only -- plan-phase works fine without CONTEXT.md.
-
-**If RESEARCH.md does not exist,** show a brief informational note with offer:
-
-Use AskUserQuestion:
+**If PHASE_RESEARCH is "(none)"**, use AskUserQuestion:
 
 - header: "Research"
 - question: "No RESEARCH.md found for this phase. Research helps the planner choose the right libraries, patterns, and avoid common pitfalls. Would you like to research first?"
@@ -46,12 +55,16 @@ Use AskUserQuestion:
 
 **On "Plan without research":** Continue to Phase 5.
 
-**For gap closure (--gaps only):**
+## Gap Closure Context (--gaps only)
+
+These are NOT pre-assembled (gap-closure specific, loaded separately):
 
 - `${PHASE_DIR}/*-VERIFICATION.md` -- verification failures to fix
 - `${PHASE_DIR}/*-UAT.md` -- UAT failures to fix
 
-Also check for existing plans:
+## Existing Plans Detection
+
+Check for existing plans:
 
 ```bash
 ls "${PHASE_DIR}"/*-PLAN.md 2>/dev/null
