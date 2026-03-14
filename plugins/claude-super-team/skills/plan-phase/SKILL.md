@@ -13,7 +13,7 @@ Run the gather script to load planning files and structured data:
 bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"
 ```
 
-Parse the output sections (PROJECT, ROADMAP, STATE, PHASE_STATUS, ROADMAP_PHASES) before proceeding.
+Parse the output sections (PROJECT, ROADMAP, STATE, PHASE_STATUS, ROADMAP_PHASES) before proceeding. The pre-assembled sections (ROADMAP_TRIMMED, STATE_TRIMMED, etc.) will be empty at this stage since PHASE_NUM/PHASE_DIR aren't known yet -- they are loaded in Phase 3.5.
 
 **Context-aware skip:** If PROJECT.md, ROADMAP.md, or STATE.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"`. Only set flags for files genuinely already in context.
 
@@ -87,9 +87,48 @@ if [ -z "$PHASE_DIR" ]; then
 fi
 ```
 
+### Phase 3.5: Load Pre-Assembled Context
+
+Now that PHASE_NUM and PHASE_DIR are known, run gather-data.sh again with phase-specific variables to get pre-assembled context sections. Skip the files already loaded in Step 0:
+
+```bash
+SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 PHASE_NUM="${PHASE_NUM}" PHASE_DIR="${PHASE_DIR}" bash "${CLAUDE_PLUGIN_ROOT}/skills/plan-phase/gather-data.sh"
+```
+
+Parse the new output sections: ROADMAP_TRIMMED, STATE_TRIMMED, CODEBASE_DOCS, PHASE_CONTEXT, PHASE_RESEARCH, PHASE_REQUIREMENTS. These contain pre-trimmed, ready-to-embed content for the planner agent.
+
+If codebase docs are already in conversation context (e.g., from a parent `/build` invocation), add `SKIP_CODEBASE=1` to the command.
+
 ### Phase 4: Load All Context
 
-Read `${CLAUDE_SKILL_DIR}/references/context-loading.md` for the detailed context loading procedure (required files, optional files, missing-context handling).
+Context is now pre-assembled from gather-data.sh. Use the pre-assembled sections directly instead of reading individual files:
+
+1. **ROADMAP_TRIMMED** -- contains the phases overview list and target phase detail block (replaces reading ROADMAP.md and manually extracting)
+2. **STATE_TRIMMED** -- contains Current Position, Preferences, and Key Decisions (replaces reading STATE.md and manually trimming)
+3. **CODEBASE_DOCS** -- contains aggregated ARCHITECTURE.md, STACK.md, CONVENTIONS.md, STRUCTURE.md (replaces reading 4 individual files)
+4. **PHASE_CONTEXT** -- contains the phase's CONTEXT.md content or "(none)"
+5. **PHASE_RESEARCH** -- contains the phase's RESEARCH.md content or "(none)"
+6. **PHASE_REQUIREMENTS** -- contains REQUIREMENTS.md content or "(none)"
+
+**Missing-context handling (check pre-assembled sections for "(none)"):**
+
+If PHASE_CONTEXT is "(none)", show informational note (not a blocker): "Note: No CONTEXT.md found. Run /discuss-phase {N} first to capture implementation decisions, or continue planning without it."
+
+If PHASE_RESEARCH is "(none)", use AskUserQuestion:
+- header: "Research"
+- question: "No RESEARCH.md found for this phase. Research helps the planner choose the right libraries, patterns, and avoid common pitfalls. Would you like to research first?"
+- options:
+  - label: "Research first (Recommended)" / description: "Run /research-phase {N} to investigate ecosystem, then return to planning"
+  - label: "Plan without research" / description: "Continue planning with existing knowledge only"
+
+On "Research first": Exit with message: "Run `/research-phase {N}` first, then come back to `/plan-phase {N}`."
+On "Plan without research": Continue to Phase 5.
+
+**For gap closure (--gaps only):** Read VERIFICATION.md and UAT.md separately -- these are NOT pre-assembled since they're gap-closure specific:
+- `${PHASE_DIR}/*-VERIFICATION.md` -- verification failures to fix
+- `${PHASE_DIR}/*-UAT.md` -- UAT failures to fix
+
+**Existing plans check:** See `${CLAUDE_SKILL_DIR}/references/context-loading.md` for the existing plans detection and refinement mode handling (AskUserQuestion for refine/replan/keep).
 
 ### Phase 5: Spawn Planner Agent
 
@@ -97,9 +136,10 @@ Read `${CLAUDE_SKILL_DIR}/references/planner-guide.md` and `${CLAUDE_SKILL_DIR}/
 
 1. The full planner guide content
 2. The plan template
-3. All context files loaded in Phase 4 (inline their contents -- `@` syntax does not work across Task boundaries)
-4. The phase number, name, and goal from roadmap
-5. Mode: `standard`, `gap_closure` (if --gaps), or `refinement` (if refining existing plans)
+3. Pre-assembled context from gather-data.sh (ROADMAP_TRIMMED, STATE_TRIMMED, CODEBASE_DOCS, PHASE_CONTEXT, PHASE_RESEARCH, PHASE_REQUIREMENTS) -- already trimmed and ready to embed
+4. PROJECT.md content from Step 0
+5. The phase number, name, and goal from ROADMAP_TRIMMED's phase detail
+6. Mode: `standard`, `gap_closure` (if --gaps), or `refinement` (if refining existing plans)
 
 Spawn via Task tool:
 

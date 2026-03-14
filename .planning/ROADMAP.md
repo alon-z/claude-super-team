@@ -2,19 +2,22 @@
 
 ## Overview
 
-Evolve the Claude Super Team plugin marketplace from a working but unoptimized state to one where every skill and agent leverages the right Claude Code primitive for its purpose. The journey starts with understanding what Claude Code offers, auditing existing skills against those capabilities, applying fixes and reclassifications, hardening fragile areas, and validating the whole workflow end-to-end.
+Phases 1-5, 6, 7.1, and 8 are complete. Remaining: Phase 7 (metrics skill for telemetry-based efficiency tracking).
 
 ## Phases
 
 - [x] **Phase 1: Claude Code Capability Mapping** - Research and document all available plugin primitives as an audit reference
-- [x] Phase 1.5: Add research detection to phase-feedback skill (QUICK)
+- [x] Phase 1.1: Add phase steps tracking to progress skill (QUICK)
+- [x] Phase 1.2: Add branch guard and team log to execute-phase (QUICK)
+- [x] Phase 1.3: Make brainstorm create context for roadmap phases (QUICK)
 - [x] Phase 1.4: Add compaction resilience to execute-phase (QUICK)
+- [x] Phase 1.5: Add research detection to phase-feedback skill (QUICK)
 - [x] Phase 1.6: Add planning file sync detection to progress skill (QUICK)
 - [x] Phase 1.7: Add per-project toggle to disable simplifier agent in execute-phase (QUICK)
 - [x] **Phase 2: Skill Audit & Reclassification** - Systematically review every skill and classify as skill, agent, or hybrid
 - [x] **Phase 3: Apply Audit Recommendations** - Implement reclassifications, add missing features, fix frontmatter gaps
-- [ ] **Phase 4: Harden Fragile Areas** - Address tech debt, phase numbering, state coordination, and large file decomposition
-- [ ] **Phase 5: Workflow Validation & Gap Closure** - Dogfood updated marketplace on a real project, discover and fix remaining gaps
+- [x] **Phase 4: Harden Fragile Areas** - Address tech debt, phase numbering, state coordination, and large file decomposition
+- [x] **Phase 5: Workflow Validation & Gap Closure** - Dogfood updated marketplace on a real project, discover and fix remaining gaps
 - [x] **Phase 6: Hook-Based Telemetry Capture** - Add passive telemetry to orchestrator skills via shared shell script and skill-scoped hooks
 - [ ] **Phase 7: Efficiency Regression Detection** - Create /metrics skill for resource reporting and threshold-based violation detection
 - [x] Phase 7.1: Build Skill Efficiency (QUICK)
@@ -86,23 +89,11 @@ Success Criteria:
   2. All frontmatter gaps are fixed -- every skill uses correct tool restrictions, model selection, context behavior, and argument hints
   3. No regression -- every skill/agent functions correctly after changes (verified by manual execution of key workflows)
 
-### Phase 4: Harden Fragile Areas
-**Goal**: Address technical debt and fragile areas identified in the codebase concerns audit
-**Depends on**: Phase 3
-**Requirements**: Stability improvements supporting ongoing usage (Active req 4)
-**Success Criteria** (what must be TRUE when this phase completes):
-  1. Phase numbering logic is consistent across all skills that handle phase numbers (no formatting discrepancies)
-  2. STATE.md/ROADMAP.md coordination includes validation -- `/progress` detects and reports desync
-  3. Large skill files (>500 lines) are decomposed into skill + reference documents without behavior changes
+### Phase 4: Harden Fragile Areas [COMPLETE]
+Centralized phase number normalization into shared `phase-utils.sh` (6 skills updated), decomposed build/SKILL.md from 1084 to 498 lines via two extracted reference documents. STATE/ROADMAP sync detection already covered by Phase 1.6.
 
-### Phase 5: Workflow Validation & Gap Closure
-**Goal**: Dogfood the updated marketplace on a real project to validate changes and discover remaining gaps
-**Depends on**: Phase 4
-**Requirements**: Add missing capabilities (Active req 4)
-**Success Criteria** (what must be TRUE when this phase completes):
-  1. Full pipeline (`/new-project` through `/execute-phase`) runs successfully on a test project using the updated skills/agents
-  2. Any newly discovered gaps are documented with proposed solutions
-  3. At least one gap is addressed and the fix is integrated
+### Phase 5: Workflow Validation & Gap Closure [COMPLETE]
+Validated 10/16 skills post-audit via tevel project dogfooding, catalogued 6 gaps with proposed solutions. Fixed highest-impact gap: plan-phase startup speed reduced by moving context assembly into gather-data.sh (0 LLM Read calls, down from 6+).
 
 ### Phase 6: Hook-Based Telemetry Capture
 **Goal**: Add passive, zero-token-cost telemetry to orchestrator skills via a shared shell script called by skill-scoped hooks
@@ -159,8 +150,8 @@ Success Criteria:
 | 1.7 Simplifier Toggle (QUICK) | Complete | 2026-02-25 |
 | 2. Skill Audit & Reclassification | Complete | 2026-02-25 |
 | 3. Apply Audit Recommendations | Complete | 2026-02-25 |
-| 4. Harden Fragile Areas | Not started | - |
-| 5. Workflow Validation & Gap Closure | Not started | - |
+| 4. Harden Fragile Areas | Complete | 2026-03-12 |
+| 5. Workflow Validation & Gap Closure | Complete | 2026-03-13 |
 | 6. Hook-Based Telemetry Capture | Complete | 2026-02-17 |
 | 7. Efficiency Regression Detection | Not started | - |
 | 7.1 Build Skill Efficiency (QUICK) | Complete | 2026-02-25 |

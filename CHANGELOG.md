@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.39] - 2026-03-13
+
+### claude-super-team
+- plan-phase: Expand `gather-data.sh` with 6 new pre-assembled context sections (ROADMAP_TRIMMED, STATE_TRIMMED, CODEBASE_DOCS, PHASE_CONTEXT, PHASE_RESEARCH, PHASE_REQUIREMENTS) -- eliminates 6+ sequential LLM Read calls before planner agent spawn
+- plan-phase: Streamline SKILL.md Phase 4 to use pre-assembled sections directly; add Phase 3.5 for second gather-data.sh invocation with PHASE_NUM/PHASE_DIR and SKIP flags
+- plan-phase: Update context-loading.md to document pre-assembled sections and remove manual trimming rules
+
 ## [1.0.38] - 2026-03-12
 
 ### claude-super-team
