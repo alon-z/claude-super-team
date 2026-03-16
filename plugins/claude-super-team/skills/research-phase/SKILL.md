@@ -2,7 +2,7 @@
 name: research-phase
 description: "Research how to implement a phase before planning. Spawns a phase-researcher agent that uses Context7 for known library docs and Firecrawl for ecosystem discovery. Produces RESEARCH.md consumed by /plan-phase planner."
 argument-hint: "<phase number>"
-allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(bash *gather-data.sh)
+allowed-tools: Read, Write, Glob, Grep, Task, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(mkdir *), Bash(bash *gather-data.sh)
 ---
 
 ## Step 0: Load Context

@@ -35,6 +35,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /code [N] [description] --> .planning/.sessions/ (session log) + optional {NN}-REFINEMENT.md
 /add-security-findings --> .planning/SECURITY-AUDIT.md + roadmap integration
 /build [idea or PRD]  --> .planning/BUILD-STATE.md + BUILD-REPORT.md (autonomous full pipeline, chains all skills)
+/drift [N | --all]    --> .planning/DRIFT-REPORT.md (compare codebase against planning artifacts)
 /cst-help [question]  --> context-aware help, troubleshooting, skill reference
 ```
 

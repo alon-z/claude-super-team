@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 5 complete -- workflow validated via tevel dogfooding, plan-phase startup optimized
+**Current focus:** Phase 11 complete -- /drift skill created for codebase-vs-planning artifact comparison
 
 ## Current Position
 
-Phase: 5 (complete)
+Phase: 11 (complete)
 Status: Executed
-Last activity: 2026-03-13 -- Phase 5 executed: validation report + plan-phase context pre-assembly
+Last activity: 2026-03-16 -- Phase 11 executed: /drift skill with gather-data.sh, drift-analysis-guide, drift-report-template, cst-help integration
 
 ## Preferences
 
@@ -25,6 +25,13 @@ simplifier: disabled
 Decisions are logged in PROJECT.md Key Decisions table.
 
 - Execution model: opus (set during /execute-phase 1)
+
+- Phase 11: Created /drift skill with 4 files: SKILL.md orchestrator (sonnet model, spawns opus Explore agents), gather-data.sh sourcing gather-common.sh with PHASE_ARTIFACTS and CODEBASE_DOCS sections, drift-analysis-guide.md with claim extraction methodology and categorization rules, drift-report-template.md for structured output. Updated cst-help with /drift in skill reference, workflow guide, and troubleshooting.
+
+### Decision Archive
+
+- Phase 9: Created gather-common.sh with 7 shared emit_* functions, added create_phase_dir() to phase-utils.sh. Migrated 3 high-overlap gather scripts (build, execute-phase, progress) to use shared functions; 6 lower-overlap scripts got source lines but kept inline sections due to HAS_* flag format differences. Replaced inline dir creation in 3 SKILL.md files with create_phase_dir(); quick-plan retained inline (documented exception). Added STATE.md decision archival to execute-phase Phase 8. Audited 24 entities for tool permissions: 4 missing permissions fixed (execute-phase/create-roadmap missing Edit, research-phase/marketplace-manager missing Bash(mkdir *)).
+
 - Cross-reference format for CAPABILITY-REFERENCE.md: table column with ORCH-REF section names
 - Phase 2: All 18 items classified as "Needs Feature Additions + Remain" except skill-creator (Good as-is) and phase-researcher (Needs Feature Additions + Remain as Agent). 0 conversions to agent.
 - Phase 2: 33 total gaps identified; top 3 priorities: marketplace-manager missing allowed-tools, linear-sync missing Skill tool, blanket Bash across 14 skills
@@ -46,4 +53,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 None.
 
 ---
-*Last updated: 2026-03-13 -- Phase 5 executed*
+*Last updated: 2026-03-16 -- Phase 11 executed*

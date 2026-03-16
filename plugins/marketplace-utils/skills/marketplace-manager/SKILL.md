@@ -3,7 +3,7 @@ name: marketplace-manager
 model: haiku
 description: Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove/create plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests. Use when working with marketplace catalogs, plugin entries, team distribution settings, or fixing marketplace inconsistencies.
 argument-hint: "[audit | register | remove | sync | configure]"
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *)
+allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(mkdir *)
 ---
 
 # CC Marketplace Manager
