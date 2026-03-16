@@ -416,6 +416,39 @@
 - Resolve conflicts manually, then re-invoke `/build` to continue from where it stopped
 - If needed, use `git log --oneline --graph` to understand branch state
 
+### Drift Detection
+
+#### "No executed phases found"
+
+**Symptom:** `/drift` exits saying no phases have been executed
+
+**Cause:** No SUMMARY.md files exist in any phase directory
+
+**Solution:**
+- Run `/execute-phase {N}` to execute planned phases first
+- Drift detection requires at least one completed phase to compare against
+
+#### "Too many claims" warning
+
+**Symptom:** `/drift --all` warns about large claim count
+
+**Cause:** Many completed phases generate many claims, consuming significant agent context
+
+**Solution:**
+- Run `/drift {N}` for a specific phase instead of `--all`
+- Focus on recently completed or suspect phases
+
+#### Drift report shows many "unverifiable" items
+
+**Symptom:** DRIFT-REPORT.md has mostly unverifiable findings
+
+**Cause:** Planning artifacts contain vague claims (e.g., "improved performance") that cannot be verified by file inspection
+
+**Solution:**
+- This is informational, not an error
+- Future plans should include concrete deliverables in SUMMARY.md
+- Focus on the confirmed and potential drift items for action
+
 ### Interactive Coding
 
 #### "When to use /code vs /phase-feedback"
@@ -565,6 +598,12 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Want to integrate findings into roadmap
 - Need to plan security remediation
 - After a security scan or analysis
+
+### Use `/drift` when:
+- After executing phases, to verify planning artifacts match actual codebase state
+- Returning to a project after a long break
+- Before starting new work on a phase
+- Suspecting executed work diverged from plans or summaries
 
 ## Best Practices
 
