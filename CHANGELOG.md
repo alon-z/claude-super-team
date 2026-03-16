@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.42] - 2026-03-16
+
+### claude-super-team
+- cst-help: Add `/cst-help explain` capability for reading `.planning/` artifacts plus phase context (CONTEXT.md, RESEARCH.md, ROADMAP.md) and producing a concise narrative explaining purpose, constraints, and connections
+- cst-help: Update workflow-guide.md with explain documentation and troubleshooting.md with artifact explanation entries and "When to Use /cst-help" section
+- build: Add Step 12.5 (Completion Audit) to finalization pipeline -- scans for gaps across 4 categories (incomplete phases, failed verifications, unresolved errors, build/test failures), runs bounded remediation (max 2 cycles via /phase-feedback), records results in BUILD-REPORT.md
+- build: Update SKILL.md pipeline description, key behaviors, and finalization steps list to reference the completion audit
+- config: Bump version to 1.0.42
+
 ## [1.0.41] - 2026-03-16
 
 ### claude-super-team
