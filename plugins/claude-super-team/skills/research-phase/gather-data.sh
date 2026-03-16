@@ -2,6 +2,7 @@
 # gather-data.sh - Pre-compute phase and context data for /research-phase
 
 P=.planning
+source "$(dirname "$0")/../../scripts/gather-common.sh"
 
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
