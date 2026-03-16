@@ -60,6 +60,15 @@ Claude Super Team is a structured project planning and execution workflow for so
                         Supports: build-preferences.md for tech stack and style preferences
 ```
 
+### Help
+
+```
+/cst-help [question]  → Context-aware help, troubleshooting, and artifact explanation
+                        Explain mode: /cst-help explain .planning/path/to/artifact.md
+                        Reads artifact + surrounding context (CONTEXT.md, RESEARCH.md, ROADMAP.md)
+                        Produces concise narrative explaining purpose, constraints, and connections
+```
+
 ## Key Concepts
 
 ### Phases

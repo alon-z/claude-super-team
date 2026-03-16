@@ -51,6 +51,12 @@ Use AskUserQuestion to clarify:
   - "Troubleshoot issue" -- Help diagnose a problem or error
   - "Skill reference" -- List all skills with descriptions
 
+**If $ARGUMENTS starts with "explain" followed by a file path (contains `.planning/`):**
+
+Route directly to "Help Response: Explain Artifact" below. Skip Phase 2.
+
+Detection heuristic: split $ARGUMENTS on whitespace. If the first token is "explain" (case-insensitive) and any subsequent token contains `.planning/`, treat as an explain request. The path token is the `$TARGET_PATH`. If no `.planning/` path is found after "explain", ask the user which artifact they want explained using AskUserQuestion.
+
 **If $ARGUMENTS contains a specific question:**
 
 Classify as general vs project-specific. When in doubt, treat as general.
@@ -269,6 +275,48 @@ Detailed guides:
 
 ---
 
+## Help Response: Explain Artifact
+
+**Goal:** Explain what a .planning/ artifact means, why it exists, and how it connects to the project.
+
+**Step 1: Read the target file**
+
+Read the file at $TARGET_PATH. If the file does not exist, report the error and suggest the user check the path.
+
+**Step 2: Gather surrounding context**
+
+Determine which phase the artifact belongs to by parsing its path. A file at `.planning/phases/NN-name/...` belongs to phase NN.
+
+Read these context files (skip any that do not exist):
+- The phase's CONTEXT.md: `.planning/phases/{NN}-{name}/{NN}-CONTEXT.md` (decisions and constraints)
+- The phase's RESEARCH.md: `.planning/phases/{NN}-{name}/{NN}-RESEARCH.md` (ecosystem findings)
+- The ROADMAP.md phase detail section for phase NN: extract the `### Phase {N}: {name}` block from `.planning/ROADMAP.md`
+
+For files directly under `.planning/` (PROJECT.md, ROADMAP.md, STATE.md, IDEAS.md), there is no phase context. Read only the target file itself.
+
+**Step 3: Synthesize explanation**
+
+Produce a concise narrative (5-10 sentences) that answers:
+1. What is this artifact? (type: plan, summary, context, research, verification, etc.)
+2. Why does it exist? (what phase goal or decision motivated it)
+3. What are its key constraints or decisions? (from CONTEXT.md or RESEARCH.md)
+4. How does it connect to the broader project? (which phase, what comes before/after)
+
+**Output format:**
+
+```
+**{filename}** -- {artifact type} for Phase {N}: {phase name}
+
+{5-10 sentence narrative}
+
+Related files:
+- {list paths of context files that were read, if any}
+```
+
+For non-phase files (PROJECT.md, ROADMAP.md, etc.), omit the phase reference and related files list.
+
+---
+
 ## Help Response: Troubleshoot Issue
 
 **Goal:** Diagnose and solve problems.
@@ -465,7 +513,8 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
 ## Help
 
 /cst-help [question]
-  This skill -- context-aware help and troubleshooting
+  Context-aware help, troubleshooting, and artifact explanation
+  Explain mode: /cst-help explain .planning/path/to/artifact.md
 ```
 
 **Then add current state context:**
