@@ -122,7 +122,7 @@ Read `${CLAUDE_SKILL_DIR}/references/workflow-guide.md` for details if needed. A
 `/discuss-phase` recommends running `/research-phase` if no RESEARCH.md exists. `/research-phase` compares findings against CONTEXT.md and recommends re-running `/discuss-phase` if it finds conflicts (deprecated packages, better alternatives). This loop refines decisions before planning.
 
 **Ad-hoc skills:**
-`/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration)
+`/brainstorm` (explore ideas interactively or let Claude analyze autonomously), `/quick-plan` (insert urgent phase), `/phase-feedback` (iterate on delivered work), `/add-security-findings` (security integration), `/drift` (compare codebase against plans)
 
 **Full automation:**
 `/build` (chains entire pipeline from idea to working application -- zero user intervention, compaction-resilient, auto-validates and auto-fixes)
@@ -441,6 +441,13 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
     Autonomous -- auto-invoked after security scan, extracts findings from context
   → Creates .planning/SECURITY-AUDIT.md
   → Adds security phases to roadmap
+
+## Analysis
+
+/drift [N | --all]
+  Compare codebase against planning artifacts to detect divergence
+  Reads SUMMARY.md, CONTEXT.md, PLAN.md claims and verifies via Explore agents
+  -> Creates .planning/DRIFT-REPORT.md with categorized findings (confirmed/potential/aligned)
 
 ## Full Automation
 
