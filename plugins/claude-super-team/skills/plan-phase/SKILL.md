@@ -79,12 +79,7 @@ If phase not found in roadmap, show available phases and exit.
 Create phase directory if needed:
 
 ```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
-if [ -z "$PHASE_DIR" ]; then
-  PHASE_NAME=$(grep "Phase ${PHASE_NUM}:" .planning/ROADMAP.md | sed 's/.*Phase [0-9]*: //' | sed 's/ *-.*//' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-  mkdir -p ".planning/phases/${PHASE}-${PHASE_NAME}"
-  PHASE_DIR=".planning/phases/${PHASE}-${PHASE_NAME}"
-fi
+PHASE_DIR=$(create_phase_dir "$PHASE_NUM")
 ```
 
 ### Phase 3.5: Load Pre-Assembled Context
