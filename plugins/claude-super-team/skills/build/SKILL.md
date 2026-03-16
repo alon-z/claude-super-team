@@ -64,7 +64,7 @@ This skill builds an entire application without user intervention. You MUST foll
 
 Build a complete application from a project idea or PRD to working, validated code -- fully autonomously.
 
-**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss/research all phases -> plan all phases (parallel) -> execute all phases (branch per phase) -> validate + merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md
+**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss/research all phases -> plan all phases (parallel) -> execute all phases (branch per phase) -> validate + merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md -> [completion audit] -> Summary
 
 **Reads:** $ARGUMENTS (idea or file path), `~/.claude/build-preferences.md`, `.planning/build-preferences.md`, `.planning/BUILD-STATE.md` (for resume)
 **Creates:** All `.planning/` artifacts, application source code, `.planning/BUILD-STATE.md`, `.planning/BUILD-REPORT.md`
@@ -79,6 +79,7 @@ Build a complete application from a project idea or PRD to working, validated co
 - Adaptive validation: per-phase + sprint boundary + final validation
 - One feedback attempt per failed phase, then skip and continue
 - 3-attempt auto-fix loop on final build/test failure
+- Completion audit: scans for gaps after report generation, bounded remediation (max 2 cycles)
 
 ---
 
@@ -492,6 +493,7 @@ Follow the finalization guide. It covers:
 - Step 10: Final validation (always run build + tests after all phases)
 - Step 11: Auto-fix loop (max 3 attempts on failure)
 - Step 12: Generate BUILD-REPORT.md from BUILD-STATE.md data
+- Step 12.5: Completion audit (scan for gaps, bounded remediation -- max 2 cycles)
 - Step 13: Present completion summary to user
 - Success criteria checklist
 
