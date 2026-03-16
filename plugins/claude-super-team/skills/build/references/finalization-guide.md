@@ -111,8 +111,8 @@ Write('.planning/BUILD-REPORT.md', populated_report)
 ```
 
 Update BUILD-STATE.md:
-- Set Status to `complete` (or `partial` or `failed` based on outcome).
-- Set Current stage to `done`.
+- Set Status to the pre-audit value (`complete`, `partial`, or `failed` based on outcome so far). The completion audit (Step 12.5) may upgrade `partial` to `complete` if it resolves all gaps.
+- Set Current stage to `completion-audit`.
 - Write final BUILD-STATE.md.
 
 Commit the final report:
@@ -121,6 +121,68 @@ Commit the final report:
 git add .planning/BUILD-REPORT.md .planning/BUILD-STATE.md
 git commit -m "[build] Build report: ${STATUS}"
 ```
+
+---
+
+### Step 12.5: Completion Audit
+
+Scan for remaining work that the pipeline missed or could not resolve, then autonomously remediate what is possible within bounded limits.
+
+Update BUILD-STATE.md: set Current stage to `completion-audit`. Add a Pipeline Progress row for `completion-audit` with status `in_progress`.
+
+#### 12.5a. Gap Detection
+
+Read BUILD-STATE.md and scan for gaps in these categories:
+
+**Category 1 -- Incomplete Phases:** Check the Phase Progress table for any phase where Status is `incomplete` or Validate is `failed`. These are phases where execution or validation did not fully succeed.
+
+**Category 2 -- Failed Verifications:** Check the Validation Results table for any row where Final Status is `incomplete` or `fail`. Cross-reference with VERIFICATION.md files in phase directories -- look for `status: gaps_found` or similar failure indicators.
+
+**Category 3 -- Unresolved Errors:** Check the Errors section of BUILD-STATE.md for logged errors that were not resolved by auto-fix (Step 11). Errors with no corresponding fix attempt are candidates.
+
+**Category 4 -- Build/Test Failures Still Present:** If Step 10/11 final validation ended with status `partial` (auto-fix failed after 3 attempts), the build or tests still fail.
+
+Compile a gap list with: gap category, phase number (if applicable), brief description.
+
+**If no gaps found:** Print `Completion audit: no gaps detected.` Set Pipeline Progress `completion-audit` to `complete`. Skip to Step 13.
+
+**If gaps found:** Print `Completion audit: {N} gap(s) detected. Starting remediation.` Continue to 12.5b.
+
+#### 12.5b. Bounded Remediation (Max 2 Cycles)
+
+For cycle 1 to 2:
+
+1. **Prioritize gaps:** Sort by impact -- build/test failures first, then incomplete phases, then failed verifications, then unresolved errors.
+
+2. **For each gap (in priority order):**
+
+   **Build/test failures (Category 4):** Run one more targeted auto-fix attempt using the same approach as Step 11 (analyze errors, apply targeted fixes, re-run build+test). This gives a total of up to 5 auto-fix attempts across the pipeline (3 from Step 11 + 2 from audit).
+
+   **Incomplete phases (Category 1):** Invoke `/phase-feedback` for the phase with a synthesized error description from the Errors section or Validation Results. Answer all AskUserQuestion calls autonomously per the decision guide. If /phase-feedback creates a subphase, invoke `/execute-phase` for it. Commit results.
+
+   **Failed verifications (Category 2):** Invoke `/phase-feedback` for the phase, describing the verification gap. Same autonomous handling as above.
+
+   **Unresolved errors (Category 3):** Attempt a direct fix using Edit/Write tools if the error is clear and localized. If the error is architectural or unclear, log it as unresolvable and skip.
+
+3. **After processing all gaps in this cycle:** Re-run build + test validation (same detection logic as Step 10). Record results.
+
+4. **If all gaps resolved and build+tests pass:** Print `Completion audit cycle {N}: all gaps resolved.` Break out of loop.
+
+5. **If gaps remain:** Log remaining gaps in BUILD-STATE.md Errors section. Continue to next cycle.
+
+**After 2 cycles (or earlier if all gaps resolved):**
+
+Update BUILD-REPORT.md with audit results. Add a new section "## Completion Audit" to BUILD-REPORT.md (before the "Next Steps" section) containing:
+- Gaps detected (count and categories)
+- Remediation attempts (count and outcomes)
+- Remaining unresolved gaps (if any)
+
+Update BUILD-STATE.md:
+- Set Pipeline Progress `completion-audit` to `complete`.
+- If audit resolved all gaps and build status was `partial`, upgrade Status to `complete`.
+- If gaps remain, keep Status as-is (`partial` or `failed`).
+
+Print: `Completion audit finished. {resolved}/{total} gaps resolved.`
 
 ---
 
@@ -199,3 +261,6 @@ State:  .planning/BUILD-STATE.md
 - [ ] Final validation ran (build + tests) with auto-fix if needed
 - [ ] Incomplete phases are documented with reasons
 - [ ] User sees a clear completion summary with next steps
+- [ ] Completion audit ran and scanned for gaps after BUILD-REPORT.md generation
+- [ ] Audit remediation bounded to max 2 cycles
+- [ ] Audit results recorded in BUILD-REPORT.md
