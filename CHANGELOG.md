@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.41] - 2026-03-16
+
+### claude-super-team
+- skill: Add `/drift` skill for comparing actual codebase state against planning artifacts to surface divergence
+- drift: `SKILL.md` orchestrator (sonnet model) extracts claims from SUMMARY.md, CONTEXT.md, PLAN.md, spawns opus Explore agents to verify against codebase, produces `.planning/DRIFT-REPORT.md`
+- drift: `gather-data.sh` sources `gather-common.sh`, emits PHASE_ARTIFACTS and CODEBASE_DOCS sections for drift analysis context
+- drift: `references/drift-analysis-guide.md` defines claim extraction methodology, verification protocol, and four-category classification (confirmed drift, potential drift, aligned, unverifiable)
+- drift: `assets/drift-report-template.md` provides structured report skeleton with summary counts and per-phase findings tables
+- cst-help: Add `/drift` to skill reference (new "Analysis" subsection), workflow-guide.md pipeline overview, troubleshooting.md (3 entries), and "When to Use Each Skill" section
+- config: Bump version to 1.0.41
+
 ## [1.0.40] - 2026-03-16
 
 ### claude-super-team

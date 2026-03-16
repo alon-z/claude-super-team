@@ -23,6 +23,7 @@ The main plugin. Provides a sequential pipeline of skills for planning and deliv
 | `/phase-feedback` | Feedback-driven subphase with opus agents |
 | `/code [N]` | Interactive coding session with project context |
 | `/build [idea or PRD]` | Autonomously build entire application from idea to working code |
+| `/drift [N \| --all]` | Compare codebase against planning artifacts to surface divergence |
 | `/add-security-findings` | Integrate security audit results into the roadmap |
 | `/optimize-artifacts [path]` | Rewrite existing PLAN.md and RESEARCH.md files to be concise |
 | `/cst-help [question]` | Get help, troubleshooting, and skill reference |

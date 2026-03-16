@@ -20,6 +20,15 @@ Claude Super Team is a structured project planning and execution workflow for so
 /progress             → Detect sync issues and check status with smart routing to next action
 ```
 
+### Analysis
+
+```
+/drift [N | --all] -> Compare codebase against planning artifacts (.planning/DRIFT-REPORT.md)
+                      Extracts claims from SUMMARY.md, CONTEXT.md, PLAN.md
+                      Spawns Explore agents to verify claims against actual code
+                      Categorizes findings: confirmed drift, potential drift, aligned
+```
+
 ### Brainstorming
 
 ```
@@ -333,6 +342,17 @@ For trusted phases or iteration speed:
 /plan-phase --all
 → Plans every unplanned phase sequentially
 ```
+
+### Checking for Drift
+
+After executing multiple phases, after long breaks, or before starting a new roadmap cycle:
+
+```
+/drift 3              → Check phase 3 claims against codebase
+/drift --all          → Check all executed phases
+```
+
+`/drift` verifies that what was planned and reported matches the actual codebase. Use it to catch divergence before it compounds.
 
 ## Anti-Patterns
 

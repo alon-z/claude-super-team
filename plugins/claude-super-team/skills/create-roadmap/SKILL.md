@@ -2,7 +2,7 @@
 name: create-roadmap
 description: Create or modify project roadmap with phased delivery plan, sprint grouping, and state tracking. MUST use this skill whenever the user mentions roadmap, phases, build order, delivery plan, milestones, sprints, or wants to figure out what to build in what order. Also use when user wants to add/insert/reorder/split/restructure/reprioritize/replace phases, squeeze in urgent work, or redo the roadmap. Reads .planning/PROJECT.md (required). Produces .planning/ROADMAP.md and .planning/STATE.md. Trigger even when user says things like "break this into phases", "figure out the build order", "what should we build first", "organize into milestones", "I need a delivery plan", or "help me plan the project phases". Pass modification intent as arguments.
 argument-hint: "[modification description]"
-allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(test *), Bash(bash *gather-data.sh)
+allowed-tools: Read, Write, Edit, AskUserQuestion, Glob, Grep, Bash(test *), Bash(bash *gather-data.sh)
 ---
 
 ## Step 0: Load Context
