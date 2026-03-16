@@ -2,6 +2,22 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.40] - 2026-03-16
+
+### claude-super-team
+- scripts: Create `gather-common.sh` as a sourceable library with 7 shared functions (`emit_project_section`, `emit_roadmap_section`, `emit_state_section`, `emit_phase_completion`, `emit_sync_check`, `emit_preferences`, `emit_structure`) -- replaces duplicated code across gather scripts
+- scripts: Add `create_phase_dir()` to `phase-utils.sh` -- derives phase name from ROADMAP.md, slugifies, creates directory, returns path; replaces inline ls/grep/sed/mkdir pipelines in 4 skills
+- gather scripts: Migrate all 9 active gather-data.sh scripts to source `gather-common.sh`; high-overlap scripts (build, execute-phase, progress) replace inline sections with shared function calls
+- emit_state_section: Truncates STATE.md output at `### Decision Archive` delimiter via awk, keeping archived decisions out of active context injection
+- discuss-phase, plan-phase, execute-phase: Replace inline phase directory creation pipelines with `create_phase_dir()` calls
+- quick-plan: Retain inline directory creation with explanatory comment (slug derived from user description, not ROADMAP.md)
+- execute-phase: Add STATE.md decision archival step to Phase 8 compaction -- moves completed-phase decisions below `### Decision Archive` delimiter
+- execute-phase, create-roadmap: Fix missing `Edit` in allowed-tools (Phase 8 state updates and roadmap modification flows both require surgical edits)
+- research-phase: Fix missing `Bash(mkdir *)` in allowed-tools (Phase 1.5 creates phase directory)
+
+### marketplace-utils
+- marketplace-manager: Fix missing `Bash(mkdir *)` in allowed-tools (plugin registration creates `.claude-plugin/` directory)
+
 ## [1.0.39] - 2026-03-13
 
 ### claude-super-team
