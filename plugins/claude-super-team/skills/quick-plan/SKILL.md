@@ -90,6 +90,8 @@ Report to user: `Inserting as Phase ${QUICK_PHASE}: ${DESCRIPTION}`
 ### Step 4: Create Phase Directory
 
 ```bash
+# Note: quick-plan derives slug from user description, not ROADMAP.md.
+# Cannot use create_phase_dir() here -- phase is not yet in ROADMAP.md.
 slug=$(echo "$DESCRIPTION" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//' | cut -c1-40)
 
 PHASE_DIR=".planning/phases/${QUICK_PHASE_PADDED}-${slug}"

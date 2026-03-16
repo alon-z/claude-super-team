@@ -5,6 +5,8 @@
 #           PHASE_NUM (e.g. "5" or "2.1") - target phase for trimmed sections
 #           PHASE_DIR (e.g. ".planning/phases/05-workflow-validation") - for phase-specific files
 
+source "$(dirname "$0")/../../scripts/gather-common.sh"
+
 ROADMAP_FILE=".planning/ROADMAP.md"
 STATE_FILE=".planning/STATE.md"
 

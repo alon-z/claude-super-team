@@ -2,6 +2,8 @@
 # gather-data.sh - Pre-load BUILD-STATE.md, preferences, and git status for /build skill
 # Called via dynamic context injection in SKILL.md
 
+source "$(dirname "$0")/../../scripts/gather-common.sh"
+
 # === BUILD_STATE ===
 echo "=== BUILD_STATE ==="
 if [ -f .planning/BUILD-STATE.md ]; then
@@ -64,24 +66,7 @@ fi
 [ -d .planning/codebase ] && echo "HAS_CODEBASE=true" || echo "HAS_CODEBASE=false"
 
 # === PHASE_COMPLETION === (filesystem source of truth for phase status)
-echo "=== PHASE_COMPLETION ==="
-if [ -d .planning/phases ]; then
-  for dir in .planning/phases/*/; do
-    [ -d "$dir" ] || continue
-    name=$(basename "$dir")
-    plans=$(find "$dir" -maxdepth 1 -name "*-PLAN.md" 2>/dev/null | wc -l | tr -d " ")
-    summaries=$(find "$dir" -maxdepth 1 -name "*-SUMMARY.md" 2>/dev/null | wc -l | tr -d " ")
-    if [ "$plans" -gt 0 ] && [ "$summaries" -ge "$plans" ]; then
-      echo "${name}|complete|plans=${plans}|summaries=${summaries}"
-    elif [ "$summaries" -gt 0 ]; then
-      echo "${name}|partial|plans=${plans}|summaries=${summaries}"
-    elif [ "$plans" -gt 0 ]; then
-      echo "${name}|planned|plans=${plans}|summaries=${summaries}"
-    else
-      echo "${name}|empty|plans=0|summaries=0"
-    fi
-  done
-fi
+emit_phase_completion
 
 # === EXTEND ===
 echo "=== EXTEND ==="

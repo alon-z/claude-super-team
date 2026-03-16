@@ -3,6 +3,7 @@
 # Called via dynamic context injection in SKILL.md
 
 P=.planning
+source "$(dirname "$0")/../../scripts/gather-common.sh"
 
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
@@ -89,26 +90,7 @@ if [ -d ".planning/phases" ]; then
 fi
 
 # === SYNC_CHECK ===
-echo "=== SYNC_CHECK ==="
-echo -n "DIR_PHASES: "
-if [ -d ".planning/phases" ]; then
-  for dir in .planning/phases/*/; do
-    [ -d "$dir" ] || continue
-    basename "$dir" | sed 's/^\([0-9.]*\)-.*/\1/' | sed 's/^0*//'
-  done 2>/dev/null | sort -V | tr '\n' ' '
-fi
-echo
-
-echo -n "ROADMAP_PHASES: "
-grep -oE 'Phase [0-9]+(\.[0-9]+)?' .planning/ROADMAP.md 2>/dev/null | awk '{print $2}' | sort -V | uniq | tr '\n' ' '
-echo
-
-echo -n "STATE_PHASE: "
-grep -E '^Phase:' .planning/STATE.md 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1
-echo
-
-grep -E '^\s*- \[x\] Phase' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "CHECKED: %s\n", $2}'
-grep -E '^\s*- \[ \] Phase' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "UNCHECKED: %s\n", $2}'
+emit_sync_check
 
 # === BUILD ===
 echo "=== BUILD ==="

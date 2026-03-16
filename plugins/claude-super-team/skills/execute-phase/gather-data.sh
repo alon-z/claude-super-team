@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute plan index and preferences for /execute-phase
 
+source "$(dirname "$0")/../../scripts/gather-common.sh"
+
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
   cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
@@ -15,11 +17,7 @@ if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
 fi
 
 # Preferences from STATE.md and environment
-echo "=== PREFERENCES ==="
-grep -E '^execution-model:' .planning/STATE.md 2>/dev/null || echo "execution-model: unset"
-grep -E '^simplifier:' .planning/STATE.md 2>/dev/null || echo "simplifier: unset"
-grep -E '^verification:' .planning/STATE.md 2>/dev/null || echo "verification: unset"
-[ "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-}" = "1" ] && echo "teams-available: true" || echo "teams-available: false"
+emit_preferences
 
 # Plan discovery with metadata for all phases
 echo "=== PHASE_PLANS ==="
@@ -42,24 +40,7 @@ if [ -d .planning/phases ]; then
 fi
 
 # Computed phase completion from filesystem (source of truth)
-echo "=== PHASE_COMPLETION ==="
-if [ -d .planning/phases ]; then
-  for dir in .planning/phases/*/; do
-    [ -d "$dir" ] || continue
-    name=$(basename "$dir")
-    plans=$(find "$dir" -maxdepth 1 -name "*-PLAN.md" 2>/dev/null | wc -l | tr -d " ")
-    summaries=$(find "$dir" -maxdepth 1 -name "*-SUMMARY.md" 2>/dev/null | wc -l | tr -d " ")
-    if [ "$plans" -gt 0 ] && [ "$summaries" -ge "$plans" ]; then
-      echo "${name}|complete|plans=${plans}|summaries=${summaries}"
-    elif [ "$summaries" -gt 0 ]; then
-      echo "${name}|partial|plans=${plans}|summaries=${summaries}"
-    elif [ "$plans" -gt 0 ]; then
-      echo "${name}|planned|plans=${plans}|summaries=${summaries}"
-    else
-      echo "${name}|empty|plans=0|summaries=0"
-    fi
-  done
-fi
+emit_phase_completion
 
 # Roadmap checkbox status (may be stale -- compare with PHASE_COMPLETION)
 echo "=== ROADMAP_CHECKED ==="

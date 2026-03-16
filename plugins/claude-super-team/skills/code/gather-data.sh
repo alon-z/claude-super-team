@@ -3,6 +3,7 @@
 # Called via dynamic context injection in SKILL.md
 
 P=.planning
+source "$(dirname "$0")/../../scripts/gather-common.sh"
 
 # === PLANNING_FILES ===
 echo "=== PROJECT ==="

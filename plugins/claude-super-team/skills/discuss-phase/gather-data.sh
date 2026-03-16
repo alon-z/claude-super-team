@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute cross-phase artifact inventory for /discuss-phase
 
+source "$(dirname "$0")/../../scripts/gather-common.sh"
+
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
   cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"

@@ -128,7 +128,7 @@ Print this once immediately after Phase 2 completes.
 ### Phase 3: Discover Plans
 
 ```bash
-PHASE_DIR=$(ls -d .planning/phases/${PHASE}-* 2>/dev/null | head -1)
+PHASE_DIR=$(create_phase_dir "$PHASE_NUM")
 ```
 
 If no phase directory, show error and exit.
@@ -356,6 +356,14 @@ Update `.planning/STATE.md` with:
 - Any blockers or issues for next phases
 - **Compact the Parallelism Map:** If a `### Parallelism Map` section exists, remove wave entries where all phases in the wave are now complete. Only keep waves that still contain at least one incomplete phase. If all waves are complete, remove the entire Parallelism Map section.
 - **Prune Blockers/Concerns:** If a `### Blockers/Concerns` section exists, remove entries that were only relevant to the just-completed phase and have no bearing on future work. Keep entries that describe API quirks, SDK behaviors, or gotchas that future phases or maintenance will encounter. Use the phase's PLAN.md and SUMMARY.md to determine which concerns the phase addressed.
+- **Archive completed-phase decisions:** After updating STATE.md with the current phase's status:
+  1. Read the `### Decisions` section of STATE.md
+  2. Identify entries that reference the just-completed phase (entries starting with `- Phase {N}:` where N matches the completed phase number)
+  3. Move those entries from `### Decisions` to a `### Decision Archive` section
+  4. If `### Decision Archive` does not exist, create it at the end of `## Accumulated Context`, after `### Blockers/Concerns`
+  5. The `### Decision Archive` delimiter is critical -- gather-common.sh's `emit_state_section` truncates STATE.md output at this line, keeping archived decisions out of active context injection
+
+  This follows the same principle as ROADMAP.md phase detail compaction: completed-phase context is preserved in the file but excluded from active context injection.
 
 Delete `${PHASE_DIR}/EXEC-PROGRESS.md` -- it served its purpose during execution and stale files would confuse the hooks on future phase runs.
 
