@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 11 complete -- /drift skill created for codebase-vs-planning artifact comparison
+**Current focus:** Phase 10 complete -- /cst-help explain capability and /build completion audit added
 
 ## Current Position
 
-Phase: 11 (complete)
+Phase: 10 (complete)
 Status: Executed
-Last activity: 2026-03-16 -- Phase 11 executed: /drift skill with gather-data.sh, drift-analysis-guide, drift-report-template, cst-help integration
+Last activity: 2026-03-16 -- Phase 10 executed: /cst-help explain artifact capability, /build Step 12.5 completion audit
 
 ## Preferences
 
@@ -26,9 +26,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - Execution model: opus (set during /execute-phase 1)
 
+### Decision Archive
+
 - Phase 11: Created /drift skill with 4 files: SKILL.md orchestrator (sonnet model, spawns opus Explore agents), gather-data.sh sourcing gather-common.sh with PHASE_ARTIFACTS and CODEBASE_DOCS sections, drift-analysis-guide.md with claim extraction methodology and categorization rules, drift-report-template.md for structured output. Updated cst-help with /drift in skill reference, workflow guide, and troubleshooting.
 
-### Decision Archive
+- Phase 10: Added /cst-help explain capability (new routing case + response section + reference doc updates) and /build completion audit Step 12.5 (4-category gap detection, bounded 2-cycle remediation, BUILD-REPORT.md audit section). Both changes are additive to existing skill logic.
 
 - Phase 9: Created gather-common.sh with 7 shared emit_* functions, added create_phase_dir() to phase-utils.sh. Migrated 3 high-overlap gather scripts (build, execute-phase, progress) to use shared functions; 6 lower-overlap scripts got source lines but kept inline sections due to HAS_* flag format differences. Replaced inline dir creation in 3 SKILL.md files with create_phase_dir(); quick-plan retained inline (documented exception). Added STATE.md decision archival to execute-phase Phase 8. Audited 24 entities for tool permissions: 4 missing permissions fixed (execute-phase/create-roadmap missing Edit, research-phase/marketplace-manager missing Bash(mkdir *)).
 
@@ -53,4 +55,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 None.
 
 ---
-*Last updated: 2026-03-16 -- Phase 11 executed*
+*Last updated: 2026-03-16 -- Phase 10 executed*

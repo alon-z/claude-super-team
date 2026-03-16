@@ -416,6 +416,28 @@
 - Resolve conflicts manually, then re-invoke `/build` to continue from where it stopped
 - If needed, use `git log --oneline --graph` to understand branch state
 
+### Artifact Explanation
+
+#### "Explain doesn't find the file"
+
+**Symptom:** `/cst-help explain path/to/file` returns "file not found"
+
+**Cause:** Path must be relative to project root and start with `.planning/`
+
+**Solution:**
+- Use the full relative path: `/cst-help explain .planning/phases/01-foundation/01-01-PLAN.md`
+- Check path with `ls .planning/phases/` if unsure
+
+#### "Explanation is too vague"
+
+**Symptom:** Explain output lacks specific reasoning
+
+**Cause:** Phase context files (CONTEXT.md, RESEARCH.md) may not exist for that phase
+
+**Solution:**
+- Run `/discuss-phase N` and/or `/research-phase N` to create context
+- More context files = richer explanation
+
 ### Drift Detection
 
 #### "No executed phases found"
@@ -604,6 +626,12 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Returning to a project after a long break
 - Before starting new work on a phase
 - Suspecting executed work diverged from plans or summaries
+
+### Use `/cst-help` when:
+- Need help understanding the workflow or a specific skill
+- Want to know what to do next in your project
+- Troubleshooting an issue with a skill
+- Want to understand what a .planning/ artifact means: `/cst-help explain .planning/path`
 
 ## Best Practices
 

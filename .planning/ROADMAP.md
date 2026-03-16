@@ -2,7 +2,7 @@
 
 ## Overview
 
-Phases 1-5, 6, 7.1, 8, 9, and 11 are complete. Remaining: Phase 7 (metrics), Phase 10 (skill capability enhancements).
+Phases 1-5, 6, 7.1, 8, 9, 10, and 11 are complete. Remaining: Phase 7 (metrics).
 
 ## Phases
 
@@ -23,7 +23,7 @@ Phases 1-5, 6, 7.1, 8, 9, and 11 are complete. Remaining: Phase 7 (metrics), Pha
 - [x] Phase 7.1: Build Skill Efficiency (QUICK)
 - [x] **Phase 8: Full Auto Mode** - Create /build skill that autonomously chains all pipeline skills to go from idea to fully built and validated application
 - [x] **Phase 9: Script Consolidation & State Compaction** - Centralize duplicated gather scripts and add state compaction
-- [ ] **Phase 10: Skill Capability Enhancements** - Enhance /cst-help with artifact explanation and /build with dynamic completion awareness
+- [x] **Phase 10: Skill Capability Enhancements** - Enhance /cst-help with artifact explanation and /build with dynamic completion awareness
 - [x] **Phase 11: Drift Detection** - Create /drift skill comparing codebase against planning artifacts
 
 ## Phase Details
@@ -142,13 +142,8 @@ Success Criteria:
 ### Phase 9: Script Consolidation & State Compaction [COMPLETE]
 Created gather-common.sh with 7 shared emit_* functions sourced by all 9 active gather-data.sh scripts. Added create_phase_dir() to phase-utils.sh replacing inline pipelines in 3 SKILL.md files. Extended execute-phase Phase 8 with STATE.md decision archival (### Decision Archive delimiter). Audited 24 skills/agents for tool permissions, fixing 4 missing declarations.
 
-### Phase 10: Skill Capability Enhancements
-**Goal**: Enhance /cst-help with artifact explanation and /build with dynamic completion awareness
-**Depends on**: Nothing
-**Requirements**: Add missing capabilities (Active req 4)
-**Success Criteria** (what must be TRUE when this phase completes):
-  1. /cst-help handles "explain [path]" queries by reading the target `.planning/` artifact plus surrounding context (CONTEXT.md, RESEARCH.md, ROADMAP.md) and producing a concise narrative explaining its purpose, constraints, and connections
-  2. /build includes a completion audit step after the main pipeline that checks for gaps (failed verifications, incomplete phases, new requirements surfaced during execution) and continues working autonomously or reports findings
+### Phase 10: Skill Capability Enhancements [COMPLETE]
+Added /cst-help explain capability (reads .planning/ artifacts + phase context, produces 5-10 sentence narrative) and /build completion audit (Step 12.5 with 4-category gap detection, bounded 2-cycle remediation via /phase-feedback).
 
 ### Phase 11: Drift Detection [COMPLETE]
 Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), gather-data.sh with PHASE_ARTIFACTS and CODEBASE_DOCS sections, drift-analysis-guide.md for claim extraction/verification methodology, drift-report-template.md for structured output. Updated cst-help with /drift in skill reference, workflow guide, and troubleshooting.
@@ -174,7 +169,7 @@ Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), ga
 | 7.1 Build Skill Efficiency (QUICK) | Complete | 2026-02-25 |
 | 8. Full Auto Mode | Complete | 2026-02-18 |
 | 9. Script Consolidation & State Compaction | Complete | 2026-03-16 |
-| 10. Skill Capability Enhancements | Not started | - |
+| 10. Skill Capability Enhancements | Complete | 2026-03-16 |
 | 11. Drift Detection | Complete | 2026-03-16 |
 
 ---

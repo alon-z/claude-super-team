@@ -26,7 +26,7 @@ The main plugin. Provides a sequential pipeline of skills for planning and deliv
 | `/drift [N \| --all]` | Compare codebase against planning artifacts to surface divergence |
 | `/add-security-findings` | Integrate security audit results into the roadmap |
 | `/optimize-artifacts [path]` | Rewrite existing PLAN.md and RESEARCH.md files to be concise |
-| `/cst-help [question]` | Get help, troubleshooting, and skill reference |
+| `/cst-help [question]` | Get help, troubleshooting, skill reference, and artifact explanation |
 
 All planning artifacts are stored in `.planning/` within your project.
 
