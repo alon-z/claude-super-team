@@ -8,7 +8,7 @@ Companion to [ORCHESTRATION-REFERENCE.md](./ORCHESTRATION-REFERENCE.md). This do
 - **Documented but unused**: Confirmed capability not leveraged by this marketplace (Phase 2 adoption opportunity)
 - **Unverified**: Found in single source only; needs empirical verification
 
-Generated: 2026-02-11 | Claude Code version: 2.1.49 (updated 2026-02-20)
+Generated: 2026-02-11 | Claude Code version: 2.1.77 (updated 2026-03-17)
 
 ---
 
@@ -24,7 +24,7 @@ Generated: 2026-02-11 | Claude Code version: 2.1.49 (updated 2026-02-20)
 | `disable-model-invocation`  | Prevent Claude from auto-loading the skill                 | In use | Skills System    | Used in several skills    |
 | `allowed-tools` / `tools`   | Tool access allowlist                                      | In use | Skills System    | Used in all 17 skills     |
 | `disallowedTools`           | Tool denylist                                              | Documented but unused | Skills System    | Alternative to allowlist; useful when most tools needed |
-| `model`                     | Override model (sonnet/opus/haiku)                         | In use | Skills System    | Used in 6 skills: cst-help, progress, map-codebase, marketplace-manager, skill-studio, github-issue-manager |
+| `model`                     | Override model (sonnet/opus/haiku)                         | In use | Skills System    | Used in 7 skills: cst-help, progress, map-codebase, drift, marketplace-manager, skill-studio, github-issue-manager |
 | `context`                   | `skill` (default) or `fork` (spawns subagent)              | In use | Skills System    | Used in 2 skills: progress, map-codebase (context: fork) |
 | `agent`                     | Agent type when `context: fork` is used                    | Documented but unused | Skills System    | Pairs with `context: fork` |
 | `user-invocable`            | Hide from `/` menu (default: true)                         | Documented but unused | Skills System    | Could hide internal-only skills |
@@ -72,11 +72,12 @@ Generated: 2026-02-11 | Claude Code version: 2.1.49 (updated 2026-02-20)
 | `disallowedTools`   | Tool denylist                                   | Documented but unused | Custom Agents    | Alternative to `tools` allowlist                |
 | `model`             | sonnet/opus/haiku/inherit                       | In use                | Custom Agents    | `phase-researcher` uses opus                    |
 | `permissionMode`    | Override permission mode for agent              | Documented but unused | Custom Agents    | Could enable `acceptEdits` for trusted agents   |
-| `maxTurns`          | Maximum agentic turns before stopping           | Documented but unused | Custom Agents    | Safety limit; prevents runaway agents           |
+| `maxTurns`          | Maximum agentic turns before stopping           | In use                | Custom Agents    | Used in plan-checker agent (maxTurns: 15)       |
 | `skills`            | Skills preloaded at agent startup               | In use                | Custom Agents    | `phase-researcher` preloads firecrawl           |
 | `mcpServers`        | MCP servers available to this agent             | Documented but unused | Custom Agents    | Would scope MCP access per agent                |
 | `hooks`             | Agent-scoped lifecycle hooks                    | Documented but unused | Custom Agents    | Per-agent validation hooks                      |
 | `memory`            | Persistent memory: user/project/local           | Documented but unused | Custom Agents    | Would let agents learn across sessions          |
+| `background`        | Run agent in background (default: false)        | Documented but unused | Custom Agents    | Concurrent execution; auto-denies unapproved tools |
 
 ### Built-in Agent Types
 
@@ -109,7 +110,7 @@ Generated: 2026-02-11 | Claude Code version: 2.1.49 (updated 2026-02-20)
 
 All hook capabilities are **Documented but unused** in this marketplace. See ORCH-REF "Hooks System" for detailed event tables, matcher syntax, and handler types.
 
-### Hook Events (16 Total)
+### Hook Events (21 Total)
 
 | Capability             | Description                                              | Status                | ORCH-REF Section | Notes                                        |
 |------------------------|----------------------------------------------------------|---------------------- |------------------|----------------------------------------------|
@@ -127,8 +128,14 @@ All hook capabilities are **Documented but unused** in this marketplace. See ORC
 | `TeammateIdle`         | Fires when teammate goes idle (teams)                    | Documented but unused | Hooks System     | Prevent idle or inject feedback              |
 | `TaskCompleted`        | Fires when team task completed (teams)                   | Documented but unused | Hooks System     | Validate before marking done                 |
 | `PreCompact`           | Fires before context compaction                          | Documented but unused | Hooks System     | Custom compaction instructions               |
+| `PostCompact`          | Fires after context compaction completes                 | Documented but unused | Not covered      | Added v2.1.76; runs after compaction finishes |
 | `ConfigChange`         | Fires when config files change during session            | Documented but unused | Not covered      | Added v2.1.49; security auditing, block settings changes |
 | `Setup`                | Fires via `--init`/`--maintenance`                       | Documented but unused | Hooks System     | Project initialization automation            |
+| `InstructionsLoaded`   | Fires when CLAUDE.md or .claude/rules/*.md loaded        | Documented but unused | Not covered      | Observability for memory file loading         |
+| `WorktreeCreate`       | Fires when worktree created; must print path to stdout   | Documented but unused | Not covered      | Enables non-git VCS support (SVN, Perforce)   |
+| `WorktreeRemove`       | Fires when worktree being removed                        | Documented but unused | Not covered      | Cleanup hook for custom worktree backends     |
+| `Elicitation`          | MCP server requests structured input via dialog          | Documented but unused | Not covered      | Matcher: MCP server name; intercept elicitation |
+| `ElicitationResult`    | Override response before sending to MCP server           | Documented but unused | Not covered      | Matcher: MCP server name; modify responses    |
 
 ### Handler Types & Fields
 
@@ -136,7 +143,8 @@ All hook capabilities are **Documented but unused** in this marketplace. See ORC
 |--------------------------|-----------------------------------------------|---------------------- |------------------|------------------------------------------|
 | `type: "command"`        | Shell command handler                         | Documented but unused | Hooks System     | Most common handler type                 |
 | `type: "prompt"`         | LLM evaluation handler                        | Documented but unused | Hooks System     | Claude evaluates and returns JSON        |
-| `type: "agent"`          | Subagent with tools for verification          | Documented but unused | Hooks System     | Most powerful; full agentic handler      |
+| `type: "agent"`          | Subagent with tools for verification          | Documented but unused | Hooks System     | Most powerful; full agentic handler; up to 50 tool turns |
+| `type: "http"`           | HTTP endpoint handler                         | Documented but unused | Not covered      | Receives JSON POST body; returns JSON    |
 | `timeout`                | Handler timeout in seconds                    | Documented but unused | Not covered      | Default varies by handler type           |
 | `statusMessage`          | Custom spinner text during execution          | Documented but unused | Not covered      | UX improvement for long-running hooks    |
 | `once`                   | Run only once per session, then removed       | Documented but unused | Not covered      | Skills-only; good for one-time setup     |
@@ -220,7 +228,7 @@ All hook capabilities are **Documented but unused** in this marketplace. See ORC
 
 ## 5. Tools
 
-See ORCH-REF "Task Tool (Spawning & Lifecycle)" and "Agent Teams" for detailed tool parameters. This section lists all 25 tools with permission requirements.
+See ORCH-REF "Agent Tool (Spawning & Lifecycle)" and "Agent Teams" for detailed tool parameters. This section lists all 35 tools with permission requirements.
 
 | Tool               | Permission Required | Status                | ORCH-REF Section  | Notes                               |
 |--------------------|---------------------|-----------------------|-------------------|-------------------------------------|
@@ -232,11 +240,12 @@ See ORCH-REF "Task Tool (Spawning & Lifecycle)" and "Agent Teams" for detailed t
 | `Grep`             | No                  | In use                | Not covered       | Content search with regex           |
 | `KillShell`        | No                  | Documented but unused | Not covered       | Kill background bash shell          |
 | `LSP`              | No                  | In use                | Not covered       | Language server operations          |
-| `MCPSearch`        | No                  | Documented but unused | Not covered       | Search/load MCP tools dynamically   |
+| `ListMcpResourcesTool` | No              | Documented but unused | Not covered       | List resources exposed by MCP servers |
+| `ReadMcpResourceTool`  | No              | Documented but unused | Not covered       | Read specific MCP resource by URI   |
 | `NotebookEdit`     | Yes                 | Documented but unused | Not covered       | Jupyter notebook cell editing       |
 | `Read`             | No                  | In use                | Not covered       | File content reading                |
 | `Skill`            | Yes                 | In use                | Not covered       | Invoke skill programmatically       |
-| `Task`             | No                  | In use                | Task Tool         | Subagent spawning                   |
+| `Agent`            | No                  | In use                | Agent Tool        | Subagent spawning with optional worktree isolation |
 | `TaskCreate`       | No                  | In use                | Task Management   | Create task in list                 |
 | `TaskGet`          | No                  | In use                | Task Management   | Fetch task details                  |
 | `TaskList`         | No                  | In use                | Task Management   | List all tasks                      |
@@ -249,6 +258,14 @@ See ORCH-REF "Task Tool (Spawning & Lifecycle)" and "Agent Teams" for detailed t
 | `WebFetch`         | Yes                 | In use                | Not covered       | Fetch URL content                   |
 | `WebSearch`        | Yes                 | In use                | Not covered       | Web search                          |
 | `Write`            | Yes                 | In use                | Not covered       | Create/overwrite files              |
+| `EnterWorktree`    | No                  | In use                | Worktree Isolation | Used by /build sprint teammates for parallel phase execution |
+| `ExitWorktree`     | No                  | In use                | Worktree Isolation | Sprint teammates exit worktree after phase execution |
+| `EnterPlanMode`    | No                  | Documented but unused | Plan Mode         | Enter plan mode programmatically        |
+| `ToolSearch`       | No                  | Documented but unused | Not covered       | Search/load deferred tool schemas       |
+| `CronCreate`       | No                  | Documented but unused | Not covered       | Schedule recurring/one-shot prompts (session-scoped) |
+| `CronDelete`       | No                  | Documented but unused | Not covered       | Cancel scheduled task by ID             |
+| `CronList`         | No                  | Documented but unused | Not covered       | List scheduled tasks (max 50/session)   |
+| `TodoWrite`        | No                  | Documented but unused | Not covered       | Session task checklist (non-interactive/SDK mode) |
 
 ### Notes
 
@@ -311,6 +328,8 @@ All CLI flags are **Documented but unused** by this marketplace (plugins do not 
 | `--init` / `--maintenance` | Trigger Setup hooks                | Documented but unused | CLI Flags        |
 | `--teammate-mode`       | Team display mode (auto/in-process/tmux) | Documented but unused | CLI Flags     |
 | `--plugin-dir`          | Load plugin from local directory      | Documented but unused | Not covered      |
+| `--worktree`            | Start session in a git worktree              | Documented but unused | Not covered      |
+| `-n` / `--name NAME`   | Set session display name at startup          | Documented but unused | Not covered      |
 
 ---
 
@@ -343,10 +362,19 @@ See ORCH-REF "Settings & Permissions" for precedence order, permission modes, an
 | `enabledPlugins`         | Plugin enable/disable list           | Documented but unused | Not covered            |
 | `statusLine`             | Custom status line config            | Documented but unused | Status Line            |
 | `sandbox.*`              | Sandbox configuration                | Documented but unused | Settings & Permissions |
+| `sandbox.allowRead`      | Re-allow read access within denyRead regions | Documented but unused | Not covered            |
 | `respectGitignore`       | Honor .gitignore in file ops         | Documented but unused | Not covered            |
 | `cleanupPeriodDays`      | Session cleanup period (default 30)  | Documented but unused | Not covered            |
 | `disableAllHooks`        | Global hook disable                  | Documented but unused | Not covered            |
 | `alwaysThinkingEnabled`  | Force thinking on all requests       | Documented but unused | Not covered            |
+| `worktree.sparsePaths`   | Sparse checkout paths for worktrees          | Documented but unused | Not covered            |
+| `worktree.symlinkDirectories` | Dirs to symlink into worktree (avoid duplication) | Documented but unused | Not covered      |
+| `modelOverrides`         | Map model picker entries to custom IDs       | Documented but unused | Not covered            |
+| `autoMemoryDirectory`    | Custom directory for auto-memory storage     | Documented but unused | Not covered            |
+| `feedbackSurveyRate`     | Enterprise survey sample rate (0-1)          | Documented but unused | Not covered            |
+| `effortLevel`            | Persist effort level across sessions         | Documented but unused | Not covered            |
+| `availableModels`        | Restrict models in model picker              | Documented but unused | Not covered            |
+| `plansDirectory`         | Custom plan file storage directory           | Documented but unused | Not covered            |
 
 ### Permission Modes
 
@@ -450,6 +478,16 @@ All monitoring capabilities are **Documented but unused** by this marketplace. S
 | `/rename`        | Rename current session           | Documented but unused | Session Management  |
 | `/rewind`        | Checkpoint restore               | Documented but unused | Not covered         |
 | `/fast`          | Toggle fast mode                 | Documented but unused | Not covered         |
+| `/effort`        | Set model effort level             | Documented but unused | Not covered         |
+| `/color`         | Set prompt-bar color for session   | Documented but unused | Not covered         |
+| `/branch`        | Fork conversation to new session   | Documented but unused | Not covered         |
+| `/copy`          | Copy assistant response to clipboard | Documented but unused | Not covered       |
+| `/diff`          | Interactive diff viewer for changes  | Documented but unused | Not covered       |
+| `/export`        | Export conversation as plain text    | Documented but unused | Not covered       |
+| `/insights`      | Analyze sessions and friction points | Documented but unused | Not covered       |
+| `/tasks`         | List and manage background tasks     | Documented but unused | Not covered       |
+| `/status`        | Settings interface (version, model)  | Documented but unused | Not covered       |
+| `/statusline`    | Configure status line                | Documented but unused | Not covered       |
 | `/vim`           | Toggle vim mode                  | Documented but unused | Not covered         |
 | `/doctor`        | Diagnose configuration issues    | Documented but unused | Not covered         |
 
@@ -483,18 +521,18 @@ All monitoring capabilities are **Documented but unused** by this marketplace. S
 
 ## 11. Agent Teams
 
-See ORCH-REF "Agent Teams (Experimental)" for detailed tool parameters, coordination mechanics, and display modes. This marketplace uses teams in `/execute-phase` with `--team` flag.
+See ORCH-REF "Agent Teams (Experimental)" for detailed tool parameters, coordination mechanics, and display modes. This marketplace uses teams in `/execute-phase` with `--team` flag and in `/build` for parallel sprint execution (team+worktrees).
 
 | Capability                             | Description                              | Status                | ORCH-REF Section | Notes                           |
 |----------------------------------------|------------------------------------------|-----------------------|------------------|---------------------------------|
-| `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` | Enable teams env var                     | In use                | Agent Teams      | Referenced in execute-phase     |
-| `TeamCreate`                           | Create team with shared task list        | In use                | Agent Teams      | Used in execute-phase           |
+| `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` | Enable teams env var                     | In use                | Agent Teams      | Required for /execute-phase teams and /build parallel sprints |
+| `TeamCreate`                           | Create team with shared task list        | In use                | Agent Teams      | Used in execute-phase and build sprint teams |
 | `TeamDelete`                           | Remove team resources                    | In use                | Agent Teams      | Cleanup after execution         |
-| `SendMessage`                          | Inter-agent DMs and broadcasts           | In use                | Agent Teams      | Teammate coordination           |
-| Shared task list                       | Cross-agent task visibility              | Documented but unused | Agent Teams      | Beyond current usage pattern    |
+| `SendMessage`                          | Inter-agent DMs and broadcasts           | In use                | Agent Teams      | Teammate coordination + shutdown |
+| Shared task list                       | Cross-agent task visibility              | In use                | Agent Teams      | /build tracks phase tasks per sprint |
 | Task dependencies                      | Cross-agent blocking/unblocking          | Documented but unused | Agent Teams      | `addBlocks`/`addBlockedBy`      |
 | `--teammate-mode`                      | Display mode (auto/in-process/tmux)      | Documented but unused | Agent Teams      | Visual preference               |
-| Graceful shutdown                      | Negotiated via shutdown_request/response | Documented but unused | Agent Teams      | Clean team teardown             |
+| Graceful shutdown                      | Negotiated via shutdown_request/response | In use                | Agent Teams      | /build sends shutdown after sprint completes |
 | Plan approval workflow                 | Lead approves/rejects teammate plans     | Documented but unused | Agent Teams      | Via `plan_approval_response`    |
 
 ---
@@ -541,6 +579,16 @@ See ORCH-REF "Agent Teams (Experimental)" for detailed tool parameters, coordina
 | `CLAUDE_CODE_PROXY_RESOLVES_HOSTS`             | Proxy DNS resolution                           | Documented but unused | Not covered           |       |
 | `CLAUDE_CODE_AUTO_CONNECT_IDE`                 | Auto-connect IDE integration                   | Documented but unused | Not covered           |       |
 | `IS_DEMO`                                      | Demo mode flag                                 | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_DISABLE_CRON`                     | Disable scheduled tasks and /loop                  | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS`      | Timeout for SessionEnd hooks (default 1500ms)      | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY`          | Disable session quality surveys                    | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING`        | Disable adaptive reasoning for Opus/Sonnet 4.6     | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_DISABLE_1M_CONTEXT`               | Disable 1M context window support                  | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_DISABLE_FAST_MODE`                | Disable fast mode                                  | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_PLUGIN_SEED_DIR`                  | Read-only plugin seed directory for containers     | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS`            | Git timeout for plugin install (default 120000)    | Documented but unused | Not covered           |       |
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW`              | Context capacity for auto-compaction calculations  | Documented but unused | Not covered           |       |
+| `ENABLE_CLAUDEAI_MCP_SERVERS`                  | Enable/disable claude.ai MCP servers               | Documented but unused | Not covered           |       |
 
 ---
 
@@ -550,7 +598,7 @@ Items found in a single source only. Empirical testing would confirm or deny.
 
 | Item                            | Single Source                  | What Would Confirm                                                                |
 |---------------------------------|--------------------------------|-----------------------------------------------------------------------------------|
-| Task tool `mode` parameter      | ORCHESTRATION-REFERENCE.md     | Spawn a Task with `mode: "plan"` and verify agent runs in plan mode              |
+| Agent tool `mode` parameter     | ORCHESTRATION-REFERENCE.md     | Spawn an Agent with `mode: "plan"` and verify agent runs in plan mode            |
 | Claude Agent SDK full API       | ORCH-REF + training data       | Install `@anthropic-ai/claude-agent-sdk`, verify `query()`, `canUseTool`, etc.   |
 
 ---
@@ -561,16 +609,16 @@ Capability areas to re-check when Claude Code updates. These are fast-moving or 
 
 | Area               | What to Check                                                      | Last Verified |
 |--------------------|--------------------------------------------------------------------|---------------|
-| Agent Teams        | New team tools, teammate modes, team-scoped hooks                  | 2026-02-20    |
-| Hooks              | New hook events, handler types, input/output fields                | 2026-02-20    |
-| Plugin system      | New component types, manifest fields, distribution methods         | 2026-02-20    |
-| Skills frontmatter | New fields, variable substitution enhancements                     | 2026-02-20    |
-| CLI flags          | New flags, especially `--from-pr`, `--remote` evolution            | 2026-02-20    |
-| Output Styles      | New predefined styles, frontmatter fields                          | 2026-02-11    |
-| MCP                | New MCP features, auto:N syntax, MCPSearch evolution               | 2026-02-11    |
-| Session management | Checkpointing improvements, remote session features                | 2026-02-20    |
-| Agent SDK          | New SDK features, Python SDK maturity                              | 2026-02-11    |
-| Memory             | Auto Memory improvements, modular rules enhancements               | 2026-02-11    |
+| Agent Teams        | New team tools, teammate modes, team-scoped hooks                  | 2026-03-17    |
+| Hooks              | New hook events, handler types, input/output fields                | 2026-03-17    |
+| Plugin system      | New component types, manifest fields, distribution methods         | 2026-03-17    |
+| Skills frontmatter | New fields, variable substitution enhancements                     | 2026-03-17    |
+| CLI flags          | New flags, especially `--from-pr`, `--remote` evolution            | 2026-03-17    |
+| Output Styles      | New predefined styles, frontmatter fields                          | 2026-03-17    |
+| MCP                | New MCP features, auto:N syntax, MCPSearch evolution               | 2026-03-17    |
+| Session management | Checkpointing improvements, remote session features                | 2026-03-17    |
+| Agent SDK          | New SDK features, Python SDK maturity                              | 2026-03-17    |
+| Memory             | Auto Memory improvements, modular rules enhancements               | 2026-03-17    |
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: execute-phase
 description: Execute planned phase by routing tasks to specialized agents. Reads PLAN.md files, infers the best agent type per task (security, TDD, general-purpose, etc.), executes in wave order with parallel plans, then verifies phase goal achievement. Use after /plan-phase to execute a specific phase. Supports --gaps-only for executing only gap closure plans and --skip-verify to skip verification.
-argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team]"
+argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team] [--no-team]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(grep *), Bash(test *), Bash(bash *gather-data.sh)
 hooks:
   PreCompact:
@@ -87,11 +87,13 @@ Extract from $ARGUMENTS:
 - `--gaps-only` flag: Execute only plans with `gap_closure: true` in frontmatter
 - `--skip-verify` flag: Skip the verifier after wave completion
 - `--team` flag: Force teams mode for wave execution
+- `--no-team` flag: Force task mode regardless of preferences (used by /build for sprint teammates to avoid nested teams)
 
 **Execution mode detection:**
 
 Set `EXEC_MODE` based on these conditions:
-- If `--team` flag is set: `EXEC_MODE=team`
+- If `--no-team` flag is set: `EXEC_MODE=task` (overrides `--team` and preferences)
+- Else if `--team` flag is set: `EXEC_MODE=team`
 - Else if `teams-available: true` in the pre-loaded PREFERENCES section: `EXEC_MODE=team`
 - Else: `EXEC_MODE=task`
 
@@ -116,6 +118,11 @@ Using teams mode (--team flag).
 **If `EXEC_MODE=team` triggered by PREFERENCES:**
 ```
 Using teams mode (teams-available: true in preferences).
+```
+
+**If `EXEC_MODE=task` triggered by `--no-team` flag:**
+```
+Using task mode (--no-team flag).
 ```
 
 **If `EXEC_MODE=task`:**

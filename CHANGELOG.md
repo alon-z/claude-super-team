@@ -2,6 +2,19 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.45] - 2026-03-18
+
+### claude-super-team
+- build: Add parallel sprint execution via Agent Teams + git worktrees. Multi-phase sprints spawn one teammate per phase, each in an isolated worktree, executing concurrently. Falls back to sequential branch-per-phase when teams are unavailable or for single-phase sprints
+- build: Add sprint-teammate-guide.md reference with self-contained instructions for worktree-based phase execution (enter worktree, execute, validate, feedback, commit, exit, report)
+- build: Smarter merge conflict handling for parallel mode -- auto-resolves .planning/ file conflicts, preserves worktree branches on source code conflicts for manual resolution
+- build: Add Agent, TeamCreate, TeamDelete, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, TaskOutput, TaskStop to allowed-tools for sprint team orchestration
+- build: Update resume logic to handle interrupted worktree-based executions
+- execute-phase: Add `--no-team` flag to force task mode regardless of preferences (prevents nested teams when running inside a sprint teammate)
+- reference: Update CAPABILITY-REFERENCE.md -- EnterWorktree/ExitWorktree now "In use", Agent Teams shared task list and graceful shutdown now "In use"
+- reference: Update ORCHESTRATION-REFERENCE.md -- add "Team + worktree combo" orchestration pattern
+- config: Bump version to 1.0.45
+
 ## [1.0.44] - 2026-03-17
 
 ### claude-super-team

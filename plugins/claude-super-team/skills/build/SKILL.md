@@ -1,8 +1,8 @@
 ---
 name: build
-description: "Autonomously build an entire application from idea to working code. Chains all claude-super-team skills (/new-project, /brainstorm, /create-roadmap, per-phase discuss/research/plan/execute) with zero user intervention. Maintains BUILD-STATE.md for compaction resilience and auto-resume. Makes autonomous decisions at every checkpoint using LLM reasoning and build preferences. Manages git branches per phase with squash-merge to main. Self-validates with bounded retry loops."
+description: "Autonomously build an entire application from idea to working code. Chains all claude-super-team skills (/new-project, /brainstorm, /create-roadmap, per-phase discuss/research/plan/execute) with zero user intervention. Maintains BUILD-STATE.md for compaction resilience and auto-resume. Makes autonomous decisions at every checkpoint using LLM reasoning and build preferences. Multi-phase sprints execute in parallel via team+worktrees (one teammate per phase in isolated worktrees), with sequential fallback. Self-validates with bounded retry loops."
 argument-hint: "<project idea OR path to PRD file>"
-allowed-tools: Read, Write, Edit, Glob, Grep, Skill, AskUserQuestion, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(test *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(cargo *), Bash(go *), Bash(make *), Bash(python *), Bash(pytest *), Bash(find *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh), Bash(chmod *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Skill, AskUserQuestion, Agent, TeamCreate, TeamDelete, SendMessage, TaskCreate, TaskUpdate, TaskList, TaskGet, TaskOutput, TaskStop, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(test *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(cargo *), Bash(go *), Bash(make *), Bash(python *), Bash(pytest *), Bash(find *), Bash(grep *), Bash(cat *), Bash(bash *gather-data.sh), Bash(chmod *)
 hooks:
   PreCompact:
     - matcher: "auto"
@@ -64,7 +64,7 @@ This skill builds an entire application without user intervention. You MUST foll
 
 Build a complete application from a project idea or PRD to working, validated code -- fully autonomously.
 
-**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss/research all phases -> plan all phases (parallel) -> execute all phases (branch per phase) -> validate + merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md -> [completion audit] -> Summary
+**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss/research all phases -> plan all phases (parallel) -> execute all phases (parallel via team+worktrees, or sequential fallback) -> merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md -> [completion audit] -> Summary
 
 **Reads:** $ARGUMENTS (idea or file path), `~/.claude/build-preferences.md`, `.planning/build-preferences.md`, `.planning/BUILD-STATE.md` (for resume)
 **Creates:** All `.planning/` artifacts, application source code, `.planning/BUILD-STATE.md`, `.planning/BUILD-REPORT.md`
@@ -73,8 +73,9 @@ Build a complete application from a project idea or PRD to working, validated co
 - Invokes all skills via the Skill tool (same session, shared context)
 - Makes autonomous decisions at every AskUserQuestion checkpoint
 - Maintains BUILD-STATE.md for compaction resilience and auto-resume
-- Sprint-based execution: groups phases by sprint, plans in parallel, validates at sprint boundaries
-- Creates feature branch per phase execution, squash-merges to main
+- Sprint-based execution: groups phases by sprint, plans in parallel, executes in parallel (team+worktrees) or sequentially (fallback)
+- Multi-phase sprints: one teammate per phase in isolated worktrees, parallel execution, squash-merge to main
+- Single-phase sprints: direct Skill invocation (no team overhead)
 - Adaptive pipeline depth: skips discuss/research for simple phases
 - Adaptive validation: per-phase + sprint boundary + final validation
 - One feedback attempt per failed phase, then skip and continue
@@ -102,11 +103,16 @@ Read('.planning/BUILD-STATE.md')
 3. Read the `Compaction count` field. Increment it by 1 and write back to BUILD-STATE.md.
 4. **Reconcile stale state:** Use the PHASE_COMPLETION section from gather-data.sh to sync ROADMAP.md and STATE.md with filesystem reality. For each phase with status `complete` in PHASE_COMPLETION that isn't marked `[x]` in ROADMAP.md, update ROADMAP.md (checkbox + progress table) and STATE.md (current position). This ensures planning files are accurate before resuming.
 5. **Rebuild SPRINT_MAP:** Re-parse sprint groupings from ROADMAP.md (same logic as Step 8). This is needed after compaction since the in-memory sprint map is lost.
-6. Check if `build/*` branch(es) exist (from gather-data.sh GIT section `BUILD_BRANCHES`):
-   - If `build/*` branches exist, identify which sprint they belong to from the Sprint Progress table.
-   - For each branch, check if execution completed: do SUMMARY.md files exist for all plans in the phase directory?
-     - If yes: squash-merge the branch to main (see Step 9g-iii) and continue.
-     - If no: checkout the branch and resume execution from Step 9f.
+6. Check if `build/*` branch(es) or worktree branches exist (from gather-data.sh GIT section `BUILD_BRANCHES` and `git worktree list`):
+   - If `build/*` branches exist (sequential mode): identify which sprint they belong to from the Sprint Progress table.
+     - For each branch, check if execution completed: do SUMMARY.md files exist for all plans in the phase directory?
+       - If yes: squash-merge the branch to main (see Step 9g-sequential-iii) and continue.
+       - If no: checkout the branch and resume execution from Step 9f-sequential.
+   - If worktree branches exist under `.claude/worktrees/sprint-*` (parallel mode was interrupted):
+     - For each worktree, check if SUMMARY.md files exist for the phase.
+       - If yes: squash-merge the worktree branch to main (see Step 9g-parallel-ii) and continue.
+       - If no: log as incomplete. The worktree teammate context is lost on resume, so re-executing in the worktree is not possible. Merge whatever was committed, mark phase as incomplete.
+     - Clean up stale worktrees: `git worktree remove <path> 2>/dev/null`
    - After handling all branches for the current sprint, proceed to sprint boundary validation (Step 9h) if all phases are merged.
 7. Re-read `${CLAUDE_SKILL_DIR}/references/autonomous-decision-guide.md` for the decision framework (it may have been lost to compaction).
 8. Apply context-aware gathering: since Step 0 re-loaded core files, use `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1` when child skills run their `gather-data.sh`.
@@ -480,9 +486,9 @@ Read('${CLAUDE_SKILL_DIR}/references/sprint-execution-guide.md')
 - 9-pre: Skip completed sprints
 - 9a-9c: Sprint setup, adaptive pipeline depth, discuss + research
 - 9d: Plan all sprint phases (parallel)
-- 9e: Git branching for sprint phases
-- 9f: Execute all sprint phases (sequential, separate branches)
-- 9g: Per-phase validation, feedback, and merge (9g-i through 9g-v)
+- 9e: Commit planning artifacts and prepare for execution
+- 9f: Execute sprint phases (parallel via team+worktrees for multi-phase, sequential fallback)
+- 9g: Per-phase merge, validation (parallel: teammate-side), feedback, state sync (9g-i through 9g-v)
 - 9h: Sprint boundary validation
 - 9i: Complete sprint
 

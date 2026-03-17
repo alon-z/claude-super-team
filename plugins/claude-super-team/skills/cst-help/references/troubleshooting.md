@@ -121,8 +121,10 @@
 
 **Solution:**
 - For teams mode: `/execute-phase N --team` or set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+- For task mode (force): `/execute-phase N --no-team` (overrides preferences)
 - Check execution start message for mode and how to change it
 - Single-plan waves auto-downgrade to task mode (expected)
+- `/build` sprint teammates use `--no-team` automatically to avoid nested teams
 
 #### "Cannot execute, no plans found"
 
@@ -423,8 +425,19 @@
 
 **Solution:**
 - `/build` operates locally and never pushes -- check `git status` for conflict markers
-- Resolve conflicts manually, then re-invoke `/build` to continue from where it stopped
+- In parallel mode (worktrees): planning file conflicts (.planning/) auto-resolve. Source code conflicts preserve the worktree branch for manual resolution -- check BUILD-STATE.md Errors section for the branch name
+- In sequential mode: resolve conflicts manually, then re-invoke `/build` to continue
 - If needed, use `git log --oneline --graph` to understand branch state
+
+#### "Parallel sprint execution not activating"
+
+**Symptom:** Multi-phase sprints execute sequentially instead of in parallel
+
+**Solution:**
+- Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable
+- Check BUILD-STATE.md Sprint Progress for `Execution mode: parallel|sequential`
+- Single-phase sprints always use sequential mode (expected, no parallelism benefit)
+- If TeamCreate fails, `/build` falls back to sequential with a note in output
 
 ### Artifact Explanation
 
@@ -591,7 +604,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 ### Use `/execute-phase` when:
 - Plans exist for the phase
 - Ready to execute work
-- Optionally use `--skip-verify` to skip verification, `--team` for teams mode
+- Optionally use `--skip-verify` to skip verification, `--team` for teams mode, `--no-team` to force task mode
 - Note: warns if on main/master branch. Requires code-simplifier plugin for post-task code refinement
 - Compaction resilient: hooks preserve execution state for long-running sessions. Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` for large phases
 

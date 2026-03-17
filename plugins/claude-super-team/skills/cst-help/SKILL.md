@@ -441,7 +441,7 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
   → Creates .planning/phases/{NN}-{name}/*-SUMMARY.md + *-VERIFICATION.md
   -> Compaction resilient: hooks re-inject execution state after context compaction
   -> Set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to control when compaction triggers (user-configured)
-  Options: --gaps-only (execute only gap plans), --skip-verify (skip verification), --team (use teams mode)
+  Options: --gaps-only (execute only gap plans), --skip-verify (skip verification), --team (use teams mode), --no-team (force task mode, used by /build sprint teammates)
   Requires: code-simplifier plugin (/plugin install code-simplifier@claude-plugins-official)
 
 /progress
@@ -505,7 +505,8 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
 /build [idea or PRD path]
   Autonomously build entire application from idea to working code
   → Chains all skills with zero user intervention
-  → Manages git branches per phase, squash-merges to main, never pushes
+  → Multi-phase sprints execute in parallel via Agent Teams + git worktrees (one teammate per phase)
+  → Falls back to sequential branch-per-phase when teams unavailable or single-phase sprints
   → Validates output after each phase, auto-fixes failures (bounded retries)
   → Creates .planning/BUILD-STATE.md for compaction resilience and auto-resume
   → Creates .planning/BUILD-REPORT.md at completion with decisions log

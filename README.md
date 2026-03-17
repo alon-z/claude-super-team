@@ -80,7 +80,7 @@ claude mcp add-plugin /path/to/claude-super-team/plugins/claude-super-team
 
 ## How It Works
 
-**Full automation:** Run `/build` with a project idea or PRD path and the entire pipeline runs autonomously -- from project definition through brainstorming, roadmap creation, and phased execution. Zero user intervention required. Works from any project state: fresh start, existing PROJECT.md, or existing roadmap (auto-extends). Creates BUILD-STATE.md for compaction resilience and BUILD-REPORT.md with a complete decisions log.
+**Full automation:** Run `/build` with a project idea or PRD path and the entire pipeline runs autonomously -- from project definition through brainstorming, roadmap creation, and phased execution. Zero user intervention required. Works from any project state: fresh start, existing PROJECT.md, or existing roadmap (auto-extends). Multi-phase sprints execute in parallel via Agent Teams + git worktrees (one teammate per phase in isolated worktrees), with sequential fallback when teams are unavailable. Creates BUILD-STATE.md for compaction resilience and BUILD-REPORT.md with a complete decisions log.
 
 **Step-by-step control:**
 
