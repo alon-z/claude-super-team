@@ -117,6 +117,14 @@ Read('.planning/BUILD-STATE.md')
 
 This is an EXTEND. A prior build completed successfully and the user is adding a new feature. Skip to Step 1-E.
 
+**Branch 2a -- AUTO-EXTEND: `AUTO_EXTEND=true` from gather-data.sh AND $ARGUMENTS is non-empty:**
+
+This is an AUTO-EXTEND. PROJECT.md and ROADMAP.md exist but there is no BUILD-STATE.md -- the project was set up outside of /build (e.g., manually or via individual skills). Print: `Auto-extend mode: existing project detected, adding feature.` Then skip to Step 1-E (same extend entry point as Branch 2). The extend flow will create a fresh BUILD-STATE.md and invoke /create-roadmap in extend mode to append new phases.
+
+**Branch 2b -- PARTIAL PROJECT: `PARTIAL_PROJECT=true` from gather-data.sh AND $ARGUMENTS is non-empty:**
+
+This is a PARTIAL PROJECT. PROJECT.md exists but there is no ROADMAP.md or BUILD-STATE.md -- the user started project definition but did not complete the full pipeline. Print: `Partial project detected: skipping /new-project, starting from brainstorm.` Then continue to Step 3 (Load Preferences). In Step 4 (Initialize BUILD-STATE.md), set the `new-project` pipeline row to `skipped` with Notes "Pre-existing PROJECT.md". In Step 5, check: since `HAS_PROJECT=true` from gather-data.sh, skip the /new-project invocation entirely -- set the pipeline row to `skipped` (if not already) and continue directly to Step 6. The pipeline proceeds normally from Step 7 (/brainstorm) onward.
+
 **Branch 3 -- FRESH START: Everything else (BUILD-STATE.md does not exist, or Status is `complete`/`failed` without extend conditions):**
 
 This is a FRESH START. Continue to Step 2.
@@ -179,6 +187,7 @@ If a file is very large (> 50KB): read first 50KB, note truncation in BUILD-STAT
 ```
 ERROR: /build requires a project idea or path to a PRD file.
 Usage: /build <project idea> or /build ./path/to/prd.md
+If you have an existing project, provide the feature you want to add.
 ```
 
 Stop execution.
