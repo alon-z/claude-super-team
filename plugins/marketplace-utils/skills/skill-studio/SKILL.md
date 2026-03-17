@@ -3,7 +3,7 @@ name: skill-studio
 description: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.
 allowed-tools: AskUserQuestion, Edit, Glob, Grep, Read, WebFetch, WebSearch, Write, Bash(uv run *)
 argument-hint: [skill-description]
-model: sonnet
+model: opus
 ---
 
 # Skill Studio

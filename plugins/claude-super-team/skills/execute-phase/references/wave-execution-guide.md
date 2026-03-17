@@ -13,7 +13,7 @@ For each task, infer the best agent type using these heuristics:
 **If `$EXEC_MODEL_PREF` = `opus`:**
 All execution tasks use opus regardless of signal analysis. Every task gets `model: "opus"`.
 
-**If `$EXEC_MODEL_PREF` = `sonnet` (default):**
+**If `$EXEC_MODEL_PREF` = `sonnet`:**
 Use the routing table (first match wins):
 
 | Signal | Agent Type | Model |
@@ -119,7 +119,7 @@ Task(
   - Execute each task in order. Task 2 may depend on task 1's output.
   - After each task, evaluate if any directory you created or heavily modified needs a CLAUDE.md (see task execution guide for rules -- only when something non-obvious and critical exists, max 3-5 lines, most dirs do NOT need one).
   - If simplifier is enabled ($SIMPLIFIER_PREF = enabled): After completing ALL tasks, run the code-simplifier agent on all created/modified files:
-    Task(subagent_type: "code-simplifier:code-simplifier", model: "sonnet", description: "Simplify {phase}-{plan} code", prompt: "Simplify and refine the recently modified files for clarity, consistency, and maintainability. Preserve ALL functionality. Files: {all created/modified files from task results}")
+    Task(subagent_type: "code-simplifier:code-simplifier", model: "opus", description: "Simplify {phase}-{plan} code", prompt: "Simplify and refine the recently modified files for clarity, consistency, and maintainability. Preserve ALL functionality. Files: {all created/modified files from task results}")
   - If simplifier is disabled: Skip the code-simplifier step and proceed directly to writing SUMMARY.md.
   - After simplification (or skipping it), write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
   - Use the summary template: {summary_template_content}
@@ -207,7 +207,7 @@ Gather all created/modified file paths from the task reports for the completed p
 ```
 Task(
   subagent_type: "code-simplifier:code-simplifier"
-  model: "sonnet"
+  model: "opus"
   description: "Simplify {phase}-{plan} code"
   prompt: """
   Simplify and refine the code in the following files that were just written as part of plan {phase}-{plan}.

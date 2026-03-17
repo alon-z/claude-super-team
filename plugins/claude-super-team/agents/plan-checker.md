@@ -2,7 +2,7 @@
 name: plan-checker
 description: Verify that execution plans will achieve phase goals through static analysis. Checks requirement coverage, task completeness, dependency correctness, key links, scope sanity, must-haves derivation, and context compliance. Returns VERIFICATION PASSED or ISSUES FOUND.
 tools: Read, Glob, Grep
-model: sonnet
+model: opus
 maxTurns: 15
 ---
 

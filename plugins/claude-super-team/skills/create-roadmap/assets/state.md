@@ -15,7 +15,7 @@ Last activity: [date] — Roadmap created
 
 ## Preferences
 
-execution-model: [sonnet|opus] <!-- default: sonnet. Set during /new-project or /execute-phase -->
+execution-model: [sonnet|opus] <!-- default: opus. Set during /new-project or /execute-phase -->
 
 ## Accumulated Context
 
