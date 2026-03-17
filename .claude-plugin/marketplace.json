@@ -1,21 +1,21 @@
 {
   "name": "claude-super-team",
-  "version": "1.0.45",
+  "version": "1.0.46",
   "owner": {
     "name": "Alon Zusman"
   },
   "plugins": [
     {
       "name": "claude-super-team",
-      "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, brainstorming with interactive and autonomous modes, phase planning with research/discussion/planning/execution loops, interactive coding sessions, autonomous full-pipeline build automation, drift detection between codebase and planning artifacts, progress tracking, quick phase insertion, security findings integration, hook-based telemetry capture, and interactive help system.",
+      "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, brainstorming with interactive and autonomous modes, phase planning with research/discussion/planning/execution loops, interactive coding sessions, autonomous full-pipeline build automation, drift detection between codebase and planning artifacts, progress tracking, quick phase insertion, security findings integration, and interactive help system.",
       "source": "./plugins/claude-super-team",
-      "version": "1.0.45",
-      "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management", "brainstorming", "help", "guidance"],
+      "version": "1.0.46",
+      "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management", "help", "guidance", "drift-detection"],
       "category": "development"
     },
     {
       "name": "marketplace-utils",
-      "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove/create plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests. Includes skill scaffolding and release automation.",
+      "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests.",
       "source": "./plugins/marketplace-utils",
       "version": "1.0.7",
       "keywords": [
@@ -45,10 +45,10 @@
     },
     {
       "name": "tools",
-      "description": "Collection of utility tools and helpers for development workflows. Includes Fly.io CLI control for deploying, scaling, managing secrets, logs, machines, volumes, and Postgres clusters.",
+      "description": "Collection of utility tools and helpers for development workflows",
       "source": "./plugins/tools",
       "version": "0.2.0",
-      "keywords": ["tools", "utilities", "development", "helpers", "fly.io", "deployment", "infrastructure"],
+      "keywords": ["tools", "utilities", "development", "helpers"],
       "category": "development"
     }
   ]
