@@ -2,6 +2,20 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.43] - 2026-03-17
+
+### claude-super-team
+- new-project: Add `--discuss` flag (Path C) for interactive brainstorming from zero context -- progressive narrowing from domain to problem to users to success criteria, producing PROJECT.md without requiring upfront input
+- build: Add auto-extend detection (Branch 2a) -- `/build` auto-detects existing PROJECT.md + ROADMAP.md without BUILD-STATE.md and enters extend mode; add partial-project detection (Branch 2b) for PROJECT.md-only state that skips /new-project
+- build: gather-data.sh emits `AUTO_EXTEND` and `PARTIAL_PROJECT` signals for 5-way entry branching
+- build: sprint-execution-guide.md Step 8-E documents auto-extend entry path
+- execute-phase: Add "What Changed" section to Phase 9 completion summary -- concise bullet-point summary of user-facing changes derived from SUMMARY.md artifacts
+- config: Bump version to 1.0.43
+
+### marketplace-utils
+- release: Remove hardcoded `model: sonnet` from frontmatter, defaults to parent model
+- config: Bump version to 1.0.6
+
 ## [1.0.42] - 2026-03-16
 
 ### claude-super-team

@@ -8,6 +8,7 @@ Claude Super Team is a structured project planning and execution workflow for so
 
 ```
 /new-project          → Initialize project vision (.planning/PROJECT.md)
+                        Supports --discuss for open-ended brainstorming from zero context
 /map-codebase         → Understand existing codebase (optional, brownfield only)
 /create-roadmap       → Define phases and goals (.planning/ROADMAP.md + STATE.md)
 /discuss-phase [N]    → Explore codebase, gather user decisions (.planning/phases/NN-name/NN-CONTEXT.md)
@@ -58,6 +59,8 @@ Claude Super Team is a structured project planning and execution workflow for so
                         Creates .planning/BUILD-REPORT.md (final summary with decisions and validation)
                         Manages git branches per phase (build/{NN}-{slug}), squash-merges to main
                         Supports: build-preferences.md for tech stack and style preferences
+                        Auto-extend: detects existing project state and enters extend mode without prior build
+                        Partial project: detects PROJECT.md only and skips /new-project
 ```
 
 ### Help

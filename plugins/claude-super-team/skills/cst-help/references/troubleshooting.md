@@ -407,6 +407,16 @@
 - Ensure the file uses plain markdown with clear preference declarations
 - Per-project preferences override global preferences
 
+#### "/build on existing project doesn't auto-extend"
+
+**Symptom:** `/build add feature` on a project with PROJECT.md + ROADMAP.md starts fresh instead of extending
+
+**Solution:**
+- Ensure both `.planning/PROJECT.md` and `.planning/ROADMAP.md` exist
+- If BUILD-STATE.md exists with status `complete`, /build uses Branch 2 (traditional extend)
+- If no BUILD-STATE.md exists, /build uses Branch 2a (auto-extend) -- both route to the same extend flow
+- If only PROJECT.md exists (no ROADMAP.md), /build uses Branch 2b (partial project) and starts from brainstorm
+
 #### "Git branch conflicts during squash-merge"
 
 **Symptom:** `/build` reports merge conflicts when squash-merging phase branches

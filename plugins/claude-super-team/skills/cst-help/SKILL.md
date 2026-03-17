@@ -152,6 +152,7 @@ You haven't started using Claude Super Team yet.
 
 Start here:
   /new-project <brief project idea OR path to vision doc>
+  /new-project --discuss   (open-ended brainstorming, no input needed)
 
 This will:
 - Gather your project vision through questions
@@ -161,6 +162,7 @@ This will:
 Example:
   /new-project a CLI tool for managing dotfiles
   /new-project ./docs/vision.md
+  /new-project --discuss
 ```
 
 **For `initialized` or `project_defined` state:**
@@ -401,8 +403,9 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
 
 ## Core Workflow
 
-/new-project <idea or path>
+/new-project <idea or path or --discuss>
   Initialize project vision
+  → --discuss: open-ended brainstorming from zero context (progressive narrowing)
   → Creates .planning/PROJECT.md
 
 /map-codebase
@@ -508,6 +511,8 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
   → Creates .planning/BUILD-REPORT.md at completion with decisions log
   → Supports build-preferences.md for tech stack and style preferences
   → Adaptive pipeline: LLM decides per-phase whether to discuss/research or skip
+  → Auto-extend: detects existing PROJECT.md + ROADMAP.md and enters extend mode without prior build
+  → Partial project: detects PROJECT.md only and starts from brainstorm (skips /new-project)
   → Extend mode: re-run on completed build to add features (skips init, adds phase to roadmap)
 
 ## Help

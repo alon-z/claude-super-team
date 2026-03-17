@@ -1,6 +1,5 @@
 ---
 name: release
-model: sonnet
 description: Automate the full release ceremony -- detect changes, bump versions, update docs (CHANGELOG, README, cst-help), sync marketplace, commit, push, and open PR. Use after making changes to any plugin when ready to cut a release.
 argument-hint: "[description of changes]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Skill, Bash(git *), Bash(test *), Bash(ls *), Bash(gh *), AskUserQuestion
