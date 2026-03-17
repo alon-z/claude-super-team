@@ -94,6 +94,100 @@ Mentally check these as you go. If gaps remain, weave questions naturally:
 - [ ] Who it's for (even if just themselves)
 - [ ] What "done" looks like (observable outcomes)
 
+**Path C: Discussion mode (no input)**
+
+The user invoked `/new-project --discuss` with little or no seed context. The goal is to progressively narrow from a broad domain to a concrete enough vision for PROJECT.md.
+
+**Progressive narrowing pattern:**
+
+1. **Domain** -- What area? (developer tools, consumer, SaaS, data/AI, open-ended)
+2. **Problem** -- What frustration or opportunity within that domain?
+3. **Users** -- Who specifically has this problem? What does their workflow look like?
+4. **Solution shape** -- What would using this actually feel like? CLI? Web app? Library?
+5. **Success criteria** -- How will you know it's working? What changes for the user?
+
+Each stage uses AskUserQuestion with concrete options derived from the previous answer. Never ask generic questions -- always ground options in what the user just said.
+
+**Example sequence 1 -- "Developer tools":**
+
+```
+AskUserQuestion:
+  header: "Developer tools"
+  question: "What kind of developer pain are you looking to solve?"
+  options:
+    - "Local dev environment" -- Setup, config, toolchain management
+    - "Code quality" -- Linting, testing, review automation
+    - "Deployment/DevOps" -- CI/CD, infrastructure, monitoring
+    - "Let me describe" -- Something else
+```
+
+User picks "Local dev environment":
+
+```
+AskUserQuestion:
+  header: "Local dev"
+  question: "What specifically frustrates you about local dev setup?"
+  options:
+    - "Inconsistent environments" -- Works on my machine, breaks on yours
+    - "Slow onboarding" -- New team members take days to get running
+    - "Config drift" -- Dotfiles, tool versions, settings get out of sync
+    - "Let me explain"
+```
+
+User picks "Config drift":
+
+```
+AskUserQuestion:
+  header: "Config drift"
+  question: "What have you tried so far to manage this?"
+  options:
+    - "Dotfile repos" -- Git-tracked dotfiles, but it's manual
+    - "Nix/Homebrew bundles" -- Package managers, but they drift
+    - "Nothing systematic" -- Just re-configure when things break
+    - "Let me explain"
+```
+
+Now the conversation has enough specificity to ask about scope, target users, and success criteria -- the same depth Path B reaches after a few rounds.
+
+**Example sequence 2 -- "Let me describe":**
+
+```
+AskUserQuestion:
+  header: "Your idea"
+  question: "Give me the elevator pitch -- what would this thing do?"
+  options:
+    - "Let me type it out" -- Free-form description
+```
+
+User describes their idea. From here, treat it like Path B -- you now have a brief idea to probe. Ask about the most ambiguous part of what they described.
+
+**Example sequence 3 -- "Data/AI":**
+
+```
+AskUserQuestion:
+  header: "Data/AI"
+  question: "What part of the data/AI space are you targeting?"
+  options:
+    - "Data pipelines" -- ETL, transformation, orchestration
+    - "ML tooling" -- Training, evaluation, experiment tracking
+    - "LLM applications" -- Agents, RAG, prompt management
+    - "Analytics" -- Dashboards, reporting, business intelligence
+    - "Let me describe"
+```
+
+**Key differences from Path B:**
+- Path B starts with a concrete idea and probes outward (clarifying, challenging, exploring edges)
+- Path C starts with nothing and funnels inward (domain -> problem -> users -> shape -> criteria)
+- Path C requires more AskUserQuestion rounds before reaching the decision gate (typically 4-6 vs 2-4 for Path B)
+- Once Path C reaches sufficient specificity, it converges with Path B's questioning style
+
+**Same anti-patterns apply** (see below). Additionally for Path C, avoid:
+- Asking "What do you want to build?" as the first question -- too open, paralyzing
+- Skipping the domain stage -- it anchors the whole conversation
+- Treating the domain choice as final -- users often pivot as they think out loud
+
+**Same decision gate applies.** When you could write a clear PROJECT.md, ask "Ready to create PROJECT.md?" / "Keep exploring" -- identical to Paths A and B.
+
 **Anti-patterns to avoid:**
 
 - Checklist walking — Going through domains regardless of what they said
