@@ -88,7 +88,7 @@ For each phase directory, spawn:
 ```
 Task(
   subagent_type: "general-purpose"
-  model: "sonnet"
+  model: "opus"
   description: "Optimize {phase-dir} artifacts"
   prompt: """
   You are an artifact optimizer. Rewrite planning files to be concise by replacing

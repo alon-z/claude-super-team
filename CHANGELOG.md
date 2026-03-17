@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.44] - 2026-03-17
+
+### claude-super-team
+- Migrate all `model: sonnet` references to `model: opus` across frontmatter (plan-checker agent, map-codebase, drift skills) and inline agent spawns (map-codebase mapper agents, execute-phase code-simplifier, optimize-artifacts). Driven by high Sonnet error rates observed over the past week; Opus provides more reliable execution for all agent workloads
+- Change default execution-model preference from sonnet to opus in create-roadmap, state templates, and new-project recommendation. Users can still explicitly choose sonnet if preferred
+- config: Bump version to 1.0.44
+
+### marketplace-utils
+- skill-studio: Migrate `model: sonnet` frontmatter to `model: opus` for consistency with the broader migration
+- config: Bump version to 1.0.7
+
 ## [1.0.43] - 2026-03-17
 
 ### claude-super-team

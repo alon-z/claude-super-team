@@ -3,7 +3,7 @@ name: map-codebase
 description: Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents. Use when user wants to understand existing code structure, refresh codebase understanding, onboard to unfamiliar codebase, or before major refactoring. Creates 7 structured documents (STACK, INTEGRATIONS, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, CONCERNS). Supports incremental updates to refresh specific topic areas without rewriting everything.
 argument-hint: "[optional: topic to update e.g. 'db and auth', or 'refresh' to remap from scratch]"
 context: fork
-model: sonnet
+model: opus
 allowed-tools: Read, Glob, Grep, Write, Task, Bash(ls *), Bash(rm *), Bash(mkdir *), Bash(wc *), Bash(grep *)
 ---
 
@@ -118,7 +118,7 @@ Continue to spawn_agents.
 <step name="spawn_agents">
 Spawn 4 parallel general-purpose mapper agents.
 
-Use Task tool with `subagent_type="general-purpose"`, `model="sonnet"`, and `run_in_background=true` for parallel execution.
+Use Task tool with `subagent_type="general-purpose"`, `model="opus"`, and `run_in_background=true` for parallel execution.
 
 **CRITICAL:** Each agent receives embedded mapper instructions from `${CLAUDE_SKILL_DIR}/references/mapper-instructions.md` and must write documents directly. Each agent also receives the **MODE** and **TOPIC FOCUS** determined in detect_mode.
 
@@ -130,7 +130,7 @@ Read `${CLAUDE_SKILL_DIR}/references/mapper-instructions.md` and `${CLAUDE_SKILL
 
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 run_in_background: true
 description: "Map codebase tech stack"
 prompt: """
@@ -163,7 +163,7 @@ Read existing documents from .planning/codebase/ first. Explore codebase specifi
 
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 run_in_background: true
 description: "Map codebase architecture"
 prompt: """
@@ -196,7 +196,7 @@ Read existing documents from .planning/codebase/ first. Explore codebase specifi
 
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 run_in_background: true
 description: "Map codebase conventions"
 prompt: """
@@ -229,7 +229,7 @@ Read existing documents from .planning/codebase/ first. Explore codebase specifi
 
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 run_in_background: true
 description: "Map codebase concerns"
 prompt: """
@@ -445,7 +445,7 @@ End workflow.
 <success_criteria>
 - .planning/codebase/ directory created
 - Mode correctly detected (full-map vs incremental-update)
-- 4 parallel general-purpose agents spawned with run_in_background=true and model=sonnet
+- 4 parallel general-purpose agents spawned with run_in_background=true and model=opus
 - Agents receive correct MODE and TOPIC FOCUS in their prompts
 - In incremental-update mode, agents read existing docs, explore only for topic focus, and merge
 - Agents write documents directly (orchestrator doesn't receive document contents)

@@ -116,7 +116,7 @@ Write `.planning/ROADMAP.md` using the template from `${CLAUDE_SKILL_DIR}/assets
 
 Write `.planning/STATE.md` using the template from `${CLAUDE_SKILL_DIR}/assets/state.md`. Initialize with Phase 1 as current position.
 
-**Carry preferences:** If `.planning/PROJECT.md` has a `## Preferences` section with `execution-model`, copy that value into STATE.md's `## Preferences` section. If PROJECT.md has no preference set, default to `sonnet`.
+**Carry preferences:** If `.planning/PROJECT.md` has a `## Preferences` section with `execution-model`, copy that value into STATE.md's `## Preferences` section. If PROJECT.md has no preference set, default to `opus`.
 
 **Do NOT commit.** Tell the user:
 

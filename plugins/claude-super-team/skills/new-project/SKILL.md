@@ -133,8 +133,8 @@ AskUserQuestion:
   header: "Exec model"
   question: "Which model should execution agents use when building code?"
   options:
-    - "Sonnet (Recommended)" -- "Faster and cheaper. Opus still used for TDD, security, planning, and verification."
-    - "Opus" -- "Higher reasoning quality for all execution tasks. Slower and more expensive."
+    - "Opus (Recommended)" -- "Higher reasoning quality for all execution tasks."
+    - "Sonnet" -- "Faster and cheaper. Opus still used for TDD, security, planning, and verification."
 ```
 
 Store the answer as `$EXEC_MODEL` (`sonnet` or `opus`). This will be written to the `## Preferences` section in PROJECT.md.

@@ -3,7 +3,7 @@ name: drift
 description: "Compare actual codebase state against planning artifacts to surface divergence. Reads SUMMARY.md, CONTEXT.md, PLAN.md files and spawns Explore agents to verify claims. Produces a categorized DRIFT-REPORT.md with confirmed drift, potential drift, and aligned findings."
 argument-hint: "[phase number | --all]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Agent, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(bash *gather-data.sh)
-model: sonnet
+model: opus
 ---
 
 ## Step 0: Load Context
