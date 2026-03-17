@@ -64,7 +64,7 @@ This skill builds an entire application without user intervention. You MUST foll
 
 Build a complete application from a project idea or PRD to working, validated code -- fully autonomously.
 
-**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss/research all phases -> plan all phases (parallel) -> execute all phases (parallel via team+worktrees, or sequential fallback) -> merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md -> [completion audit] -> Summary
+**Pipeline:** Input detection -> /new-project -> [/map-codebase] -> /brainstorm -> /create-roadmap -> For each sprint: { discuss all phases (sequential) -> research phases (parallel, dependency-aware) -> plan all phases (parallel) -> execute all phases (parallel via team+worktrees, or sequential fallback) -> merge each -> sprint boundary validation } -> Final validation -> [auto-fix] -> BUILD-REPORT.md -> [completion audit] -> Summary
 
 **Reads:** $ARGUMENTS (idea or file path), `~/.claude/build-preferences.md`, `.planning/build-preferences.md`, `.planning/BUILD-STATE.md` (for resume)
 **Creates:** All `.planning/` artifacts, application source code, `.planning/BUILD-STATE.md`, `.planning/BUILD-REPORT.md`
@@ -232,7 +232,7 @@ Read('${CLAUDE_SKILL_DIR}/assets/build-state-template.md')
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/assets/build-state-template.md`)
 
 Populate the Session section:
-- **Started:** current timestamp (YYYY-MM-DD HH:MM)
+- **Started:** run `date "+%Y-%m-%d %H:%M"` to get the real timestamp
 - **Input:** $IDEA_TEXT (or first line of $PRD_CONTENT if file-only input)
 - **Input source:** inline | file | both
 - **Status:** in_progress
@@ -245,7 +245,13 @@ Populate the Build Preferences section from Step 3 resolved values.
 
 Set Pipeline Progress "input-detection" row to `complete`, with `Started` and `Completed` set to the current timestamp (HH:MM).
 
-**Timestamp convention:** Throughout the entire build, whenever you update a Pipeline Progress or Phase Progress row to `in_progress`, record the current time in the `Started` column (HH:MM format). When you update a row to `complete`, `skipped`, or `failed`, record the current time in the `Completed` column. This applies to all steps below.
+**Timestamp convention:** Throughout the entire build, whenever you update a Pipeline Progress or Phase Progress row to `in_progress`, record the current time in the `Started` column (HH:MM format). When you update a row to `complete`, `skipped`, or `failed`, record the current time in the `Completed` column. This applies to all steps below. **You do not have a clock. NEVER guess or fabricate timestamps.** Always get the real time by running:
+
+```bash
+date "+%Y-%m-%d %H:%M"
+```
+
+Use the full output for `YYYY-MM-DD HH:MM` fields and the `%H:%M` portion for `HH:MM` fields. Run this command every time you need a timestamp -- do not reuse a previously fetched value if more than a few seconds have passed.
 
 Write to `.planning/BUILD-STATE.md`:
 
@@ -274,7 +280,7 @@ Read('${CLAUDE_SKILL_DIR}/assets/build-state-template.md')
 (Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/assets/build-state-template.md`)
 
 Populate the Session section:
-- **Started:** current timestamp (YYYY-MM-DD HH:MM)
+- **Started:** run `date "+%Y-%m-%d %H:%M"` to get the real timestamp
 - **Input:** $ARGUMENTS (the new feature description)
 - **Input source:** extend
 - **Build mode:** extend
@@ -484,7 +490,7 @@ Read('${CLAUDE_SKILL_DIR}/references/sprint-execution-guide.md')
 
 **Step 9** is the core execution loop. Follow it for each sprint in SPRINT_MAP. It covers:
 - 9-pre: Skip completed sprints
-- 9a-9c: Sprint setup, adaptive pipeline depth, discuss + research
+- 9a-9c: Sprint setup, adaptive pipeline depth, discuss (sequential) + research (parallel)
 - 9d: Plan all sprint phases (parallel)
 - 9e: Commit planning artifacts and prepare for execution
 - 9f: Execute sprint phases (parallel via team+worktrees for multi-phase, sequential fallback)
