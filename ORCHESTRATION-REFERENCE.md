@@ -8,13 +8,15 @@ A comprehensive guide to all Claude Code features, tools, and mechanisms for bui
 
 - [Thinking Control](#thinking-control)
 - [Context & Compaction](#context--compaction)
+- [Worktree Isolation](#worktree-isolation)
 - [Custom Agents (Subagents)](#custom-agents-subagents)
-- [Task Tool (Spawning & Lifecycle)](#task-tool-spawning--lifecycle)
+- [Agent Tool (Spawning & Lifecycle)](#agent-tool-spawning--lifecycle)
 - [Agent Teams (Experimental)](#agent-teams-experimental)
 - [Skills System](#skills-system)
 - [Hooks System](#hooks-system)
 - [Plan Mode](#plan-mode)
 - [Claude Agent SDK](#claude-agent-sdk)
+- [Scheduled Tasks (Cron)](#scheduled-tasks-cron)
 - [Task Management System](#task-management-system)
 - [Background Tasks & Async Execution](#background-tasks--async-execution)
 - [MCP Servers](#mcp-servers)
@@ -91,6 +93,51 @@ Analyze the following codebase for architectural issues...
 
 - `SessionStart` hook with `compact` matcher re-injects critical context
 - `PreCompact` hook fires before compaction with custom instructions
+- `PostCompact` hook fires after compaction completes
+
+---
+
+## Worktree Isolation
+
+### Tools
+
+| Tool             | Purpose                                                |
+| ---------------- | ------------------------------------------------------ |
+| `EnterWorktree`  | Enter a git worktree for isolated work within a session |
+| `ExitWorktree`   | Leave the worktree and return to the main working tree  |
+
+### Agent Isolation
+
+The Agent tool supports `isolation: "worktree"` to run a subagent in a temporary git worktree:
+
+- Agent gets a full isolated copy of the repository
+- Changes made by the agent do not affect the main working tree
+- If the agent makes changes, the worktree path and branch are returned in the result
+- Worktree is automatically cleaned up if no changes were made
+- Stale worktrees from interrupted runs are auto-cleaned on next startup
+
+### Settings
+
+- `worktree.sparsePaths`: Array of paths for `git sparse-checkout` in large monorepos -- only specified directories are checked out
+- `worktree.symlinkDirectories`: Directories to symlink from main repo into worktree (avoids duplicating large dirs)
+- `--worktree` (`-w`) CLI flag: Start entire session in a worktree at `.claude/worktrees/{name}/`
+
+### Hooks
+
+- `WorktreeCreate`: Fires when a worktree is created; handler must print the absolute worktree path to stdout. Enables non-git VCS support (SVN, Perforce, Mercurial)
+- `WorktreeRemove`: Fires when a worktree is being removed; cleanup hook for custom backends
+
+### ExitWorktree Behavior
+
+- **No changes made**: Worktree and branch automatically removed
+- **Changes or commits exist**: Prompts user to keep or remove. Keep preserves directory and branch; remove discards all uncommitted changes and commits
+
+### Use Cases
+
+- Running agents that modify files without risking the main working tree
+- Parallel agents that might conflict on the same files
+- Safe experimentation with rollback by discarding the worktree branch
+- Non-git VCS support via WorktreeCreate/WorktreeRemove hooks
 
 ---
 
@@ -115,7 +162,8 @@ Analyze the following codebase for architectural issues...
 | `model`           | `sonnet`, `opus`, `haiku`, or `inherit`                                      |
 | `permissionMode`  | `default`, `acceptEdits`, `delegate`, `dontAsk`, `bypassPermissions`, `plan` |
 | `maxTurns`        | Maximum agentic turns before stopping                                        |
-| `skills`          | Array of skill names to preload                                              |
+| `background`      | Run agent in background (default: false); auto-denies unapproved tools       |
+| `skills`          | Array of skill names to preload (injected into context, not just available)  |
 | `mcpServers`      | MCP servers available to this agent                                          |
 | `hooks`           | Lifecycle hooks scoped to this agent                                         |
 | `memory`          | Persistent memory scope: `user`, `project`, or `local`                       |
@@ -140,11 +188,13 @@ Analyze the following codebase for architectural issues...
 - Automatic delegation by description match
 - Explicit: "Use the X subagent to..."
 - `@agent-name` mention
-- Via the `Task` tool directly
+- Via the `Agent` tool directly
 
 ---
 
-## Task Tool (Spawning & Lifecycle)
+## Agent Tool (Spawning & Lifecycle)
+
+> Previously called "Task tool", renamed to "Agent tool" as of v2.1.72.
 
 ### Parameters
 
@@ -155,9 +205,7 @@ Analyze the following codebase for architectural issues...
 | `subagent_type`     | Agent type to use                                   |
 | `model`             | Optional model override (`sonnet`, `opus`, `haiku`) |
 | `run_in_background` | Run concurrently (boolean)                          |
-| `resume`            | Agent ID to continue from prior transcript          |
-| `team_name`         | Spawn as teammate in a team                         |
-| `name`              | Human-readable name for the teammate                |
+| `isolation`         | Worktree isolation mode (`"worktree"` for isolated git worktree copy) |
 | `mode`              | Permission mode override                            |
 | `max_turns`         | Turn limit                                          |
 
@@ -165,8 +213,14 @@ Analyze the following codebase for architectural issues...
 
 - **Foreground**: blocks main conversation until complete
 - **Background**: runs concurrently, check with `TaskOutput`
-- **Resume**: continue from previous transcript with full context
-- **Parallel**: multiple Task calls in one message for concurrent work
+- **Worktree isolation**: `isolation: "worktree"` runs agent in a temporary git worktree with isolated file state
+- **Parallel**: multiple Agent calls in one message for concurrent work
+
+### Resuming Agents
+
+Use `SendMessage({to: agentId})` to continue a previously spawned agent with new instructions. The agent resumes with its full context preserved (all previous tool calls, results, and reasoning). Stopped agents are auto-resumed in the background when they receive a SendMessage.
+
+Subagent transcripts persist at `~/.claude/projects/{project}/{sessionId}/subagents/agent-{agentId}.jsonl` and are cleaned up per `cleanupPeriodDays` setting (default 30 days).
 
 ### Key Constraints
 
@@ -174,6 +228,7 @@ Analyze the following codebase for architectural issues...
 - Background agents cannot use MCP tools
 - Each subagent has an independent context window
 - Main conversation history is NOT passed to workers
+- Worktree agents get an isolated copy of the repo; changes are returned as a branch if modifications were made
 
 ---
 
@@ -412,7 +467,7 @@ Note: TaskCreate/Update/Get/List/Output/Stop exist without teams too, but with t
 
 ## Hooks System
 
-### All Hook Events (15 Total)
+### All Hook Events (21 Total)
 
 #### Session Lifecycle
 
@@ -466,7 +521,8 @@ Note: TaskCreate/Update/Get/List/Output/Stop exist without teams too, but with t
 
 | Event        | Matcher          | Can Block | Purpose                        |
 | ------------ | ---------------- | --------- | ------------------------------ |
-| `PreCompact` | `manual`, `auto` | No        | Inject compaction instructions |
+| `PreCompact`  | `manual`, `auto` | No        | Inject compaction instructions |
+| `PostCompact` | `manual`, `auto` | No        | Fires after compaction completes   |
 
 #### Setup
 
@@ -474,11 +530,38 @@ Note: TaskCreate/Update/Get/List/Output/Stop exist without teams too, but with t
 | ------- | ------- | --------- | --------------------------------------- |
 | `Setup` | N/A     | No        | Triggered via `--init`, `--maintenance` |
 
+#### Configuration
+
+| Event          | Matcher                                                          | Can Block | Purpose                                        |
+| -------------- | ---------------------------------------------------------------- | --------- | ---------------------------------------------- |
+| `ConfigChange` | Config source: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` | Yes       | Audit/block settings changes; policy_settings cannot be blocked |
+
+#### Memory & Instructions
+
+| Event                | Matcher | Can Block | Purpose                                  |
+| -------------------- | ------- | --------- | ---------------------------------------- |
+| `InstructionsLoaded` | N/A     | No        | Fires when CLAUDE.md or .claude/rules/*.md loaded |
+
+#### Worktree Lifecycle
+
+| Event             | Matcher | Can Block | Purpose                                              |
+| ----------------- | ------- | --------- | ---------------------------------------------------- |
+| `WorktreeCreate`  | N/A     | No        | Custom worktree creation; must print path to stdout  |
+| `WorktreeRemove`  | N/A     | No        | Custom worktree cleanup (supports non-git VCS)       |
+
+#### MCP Elicitation
+
+| Event               | Matcher         | Can Block | Purpose                                        |
+| ------------------- | --------------- | --------- | ---------------------------------------------- |
+| `Elicitation`       | MCP server name | No        | Intercept MCP elicitation requests; exit 2 denies |
+| `ElicitationResult` | MCP server name | Yes       | Override elicitation responses before sending   |
+
 ### Handler Types
 
 1. **Command** (`type: "command"`): shell commands
-2. **Prompt** (`type: "prompt"`): LLM evaluation
-3. **Agent** (`type: "agent"`): subagent with tools for verification
+2. **HTTP** (`type: "http"`): HTTP endpoint (receives JSON POST body)
+3. **Prompt** (`type: "prompt"`): LLM evaluation (default 30s timeout)
+4. **Agent** (`type: "agent"`): subagent with tools for verification (up to 50 tool turns, default 60s timeout)
 
 ### Hook Input/Output
 
@@ -543,6 +626,26 @@ Note: TaskCreate/Update/Get/List/Output/Stop exist without teams too, but with t
 
 ---
 
+## Scheduled Tasks (Cron)
+
+### Tools
+
+| Tool         | Purpose                                                          |
+| ------------ | ---------------------------------------------------------------- |
+| `CronCreate` | Schedule recurring or one-shot prompt (5-field cron expression)  |
+| `CronDelete` | Cancel scheduled task by 8-character ID                          |
+| `CronList`   | List all scheduled tasks (max 50 per session)                    |
+
+### Behavior
+
+- Session-scoped: tasks are gone when Claude exits
+- Recurring tasks auto-expire after 3 days (fire once more, then delete)
+- Jitter: recurring tasks fire up to 10% of period late (max 15 min); one-shot tasks at :00/:30 fire up to 90s early
+- Disable with `CLAUDE_CODE_DISABLE_CRON=1` environment variable
+- Also accessible via `/loop` command for repeating slash commands
+
+---
+
 ## Task Management System
 
 ### Tools
@@ -576,7 +679,7 @@ Note: TaskCreate/Update/Get/List/Output/Stop exist without teams too, but with t
 ## Background Tasks & Async Execution
 
 - **Ctrl+B**: background any running bash command or agent
-- **`run_in_background`** on Task tool: agent runs concurrently
+- **`run_in_background`** on Agent tool: agent runs concurrently
 - **`TaskOutput`**: check on background tasks (`block: true` to wait, `block: false` to poll)
 - **Async hooks**: `"async": true` for non-blocking hook execution
 - **Auto-backgrounding**: long-running bash commands auto-background (configurable via `BASH_DEFAULT_TIMEOUT_MS`)
@@ -801,7 +904,7 @@ Note: TaskCreate/Update/Get/List/Output/Stop exist without teams too, but with t
 ### What Works
 
 **Spawning multiple agents in parallel:**
-The Task tool supports multiple calls in a single message for concurrent execution.
+The Agent tool supports multiple calls in a single message for concurrent execution.
 
 **Background execution + checking results:**
 
@@ -826,8 +929,7 @@ Subagents share the filesystem. Establish conventions:
 4. Adjusts plan, spawns Wave 2 based on findings
 5. Repeat
 
-**Resuming agents:**
-Pass agent ID to Task tool with `resume` for follow-up instructions.
+**Resuming agents:** Use `SendMessage({to: agentId})` to continue a previously spawned agent with new instructions.
 
 **Task management as shared state:**
 `TaskCreate`, `TaskUpdate`, `TaskList` track work items between waves.
@@ -862,7 +964,7 @@ Manager (main agent or skill with context: fork)
   |-- Analyze, update task list, adjust plan
   |
   |-- [Wave 2] Spawn based on Wave 1 results
-  |     |-- Implementation Agent C (resume or new)
+  |     |-- Implementation Agent C
   |     |-- Implementation Agent D
   |
   |-- Wait + Read + Validate
@@ -880,8 +982,8 @@ You get **batch orchestration** (spawn, wait, react, repeat) but not **real-time
 
 | Pattern                 | Mechanism                                                    |
 | ----------------------- | ------------------------------------------------------------ |
-| Sequential pipeline     | Main agent chains subagents via Task tool                    |
-| Parallel execution      | Multiple Task calls in one message, or agent teams           |
+| Sequential pipeline     | Main agent chains subagents via Agent tool                   |
+| Parallel execution      | Multiple Agent calls in one message, or agent teams          |
 | Hierarchical delegation | Lead agent + teammates with shared task list                 |
 | Conditional gates       | PreToolUse / Stop / TaskCompleted hooks                      |
 | Context preservation    | Session resume, subagent memory, CLAUDE.md                   |
@@ -890,3 +992,5 @@ You get **batch orchestration** (spawn, wait, react, repeat) but not **real-time
 | CI/CD integration       | Headless `-p` mode with JSON output and budget caps          |
 | Wave coordination       | Manager spawns waves, waits, adjusts, repeats                |
 | File-based IPC          | Subagents write to shared filesystem for the manager to read |
+| Worktree isolation      | Agent tool `isolation: "worktree"` for safe parallel file modifications |
+| Team + worktree combo   | Teammates use EnterWorktree for isolated parallel work; avoids subagent nesting limit since teammates are separate instances that can spawn their own agents |

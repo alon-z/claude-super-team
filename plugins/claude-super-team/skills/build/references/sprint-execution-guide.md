@@ -1,6 +1,6 @@
 # Sprint Execution Guide
 
-Steps 8-E and 9 of the /build pipeline. Covers extend-mode roadmap creation and the full sprint execution loop (discuss/research, parallel planning, sequential execution, per-phase validation/feedback/merge, sprint boundary validation).
+Steps 8-E and 9 of the /build pipeline. Covers extend-mode roadmap creation and the full sprint execution loop (discuss/research, parallel planning, parallel execution via team+worktrees or sequential fallback, per-phase merge/validation/feedback, sprint boundary validation).
 
 ### Step 8-E: Invoke /create-roadmap (Extend Mode)
 
@@ -185,9 +185,9 @@ Log decisions in BUILD-STATE.md Decisions Log.
 
 Update Phase Progress: set Plan to `complete` for all active phases.
 
-#### 9e. Git: Commit Planning Artifacts and Create Feature Branches
+#### 9e. Commit Planning Artifacts and Prepare for Execution
 
-Update `Current stage` to `sprint-{S}-branch`.
+Update `Current stage` to `sprint-{S}-prepare`.
 
 For each active phase N in sprint S:
 
@@ -202,20 +202,155 @@ For each active phase N in sprint S:
    git commit -m "[build] Plan sprint ${S} phase ${N}: ${PHASE_NAME}"
    ```
 
-3. Create feature branch and return to main:
-   ```bash
-   git checkout -b build/${PHASE_DIR_BASENAME}
-   git checkout ${MAIN_BRANCH}
-   ```
-   **Important:** Return to main immediately so the next branch also forks from the same main commit. All sprint branches must share the same base.
-
-4. Update Phase Progress: set Git Merge to `branched`.
-
 Write BUILD-STATE.md with updated progress.
 
-#### 9f. Execute All Sprint Phases (Sequential, Separate Branches)
+##### Execution Mode Selection
+
+Determine whether this sprint uses **parallel** (team+worktrees) or **sequential** (branch-per-phase) execution:
+
+**Use PARALLEL when ALL of these are true:**
+- Sprint has 2 or more active phases
+- TeamCreate succeeds (teams feature is available)
+
+**Use SEQUENTIAL when ANY of these are true:**
+- Sprint has only 1 active phase (no parallelism benefit)
+- TeamCreate fails (teams feature not enabled -- requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)
+
+**To test team availability:** Attempt `TeamCreate("sprint-{S}-exec")`. If it succeeds, set `SPRINT_EXEC_MODE=parallel` and proceed to Step 9f-parallel. If it fails, set `SPRINT_EXEC_MODE=sequential`, print `Teams not available -- falling back to sequential execution.`, and proceed to Step 9f-sequential.
+
+For single-phase sprints, skip TeamCreate entirely and set `SPRINT_EXEC_MODE=sequential`.
+
+Update BUILD-STATE.md: add `Execution mode: {parallel|sequential}` to the Sprint Progress row.
+
+Print: `Sprint {S} execution mode: {parallel|sequential}`
+
+#### 9f. Execute Sprint Phases
+
+---
+
+##### 9f-parallel. Parallel Execution (Team + Worktrees)
+
+> **When:** `SPRINT_EXEC_MODE=parallel` (multi-phase sprint, teams available)
+
+The sprint team was already created in Step 9e. Each phase gets its own teammate running in an isolated worktree. Teammates execute, validate, and commit independently. The lead merges after all complete.
+
+**1. Read the teammate guide:**
+
+```
+Read('${CLAUDE_SKILL_DIR}/references/sprint-teammate-guide.md')
+```
+
+(Resolved path: `${CLAUDE_PLUGIN_ROOT}/skills/build/references/sprint-teammate-guide.md`)
+
+**2. Create tasks for each phase:**
+
+For each active phase N in sprint S:
+```
+TaskCreate(
+  subject: "Execute Phase {N}: {phase_name}"
+  description: "Execute phase {N} in an isolated worktree. Follow the sprint teammate guide."
+  activeForm: "Executing phase {N}"
+)
+```
+
+Record the task IDs for tracking.
+
+**3. Spawn one teammate per phase:**
+
+Update Phase Progress: set Execute to `in_progress` for all active phases.
+
+For each active phase N in sprint S, spawn a teammate. **Spawn all teammates in a single message** (parallel Agent calls):
+
+```
+Agent(
+  subagent_type: "general-purpose"
+  model: "opus"
+  team_name: "sprint-{S}-exec"
+  name: "phase-{N}"
+  mode: "bypassPermissions"
+  description: "Execute phase {N} in worktree"
+  prompt: """
+  You are a sprint teammate executing phase {N} ({phase_name}) in an isolated worktree.
+
+  Follow this guide exactly:
+
+  {sprint_teammate_guide_content}
+
+  ---
+
+  ## Your Assignment
+
+  - **Phase:** {N} - {phase_name}
+  - **Phase goal:** {phase_goal_from_roadmap}
+  - **Worktree name:** sprint-{S}-phase-{N}
+  - **Task ID:** {task_id}
+  - **Exec model:** {$PREF_EXEC_MODEL}
+
+  ## Template Values
+
+  Replace these in the guide:
+  - {worktree_name} = sprint-{S}-phase-{N}
+  - {phase_number} = {N}
+  - {phase_name} = {phase_name}
+  - {exec_model} = {$PREF_EXEC_MODEL}
+  - {task_id} = {task_id}
+  - {N} = {N}
+
+  Begin with Step 1: Enter Worktree.
+  """
+)
+```
+
+**4. Wait for all teammates to complete:**
+
+Teammates will go idle after completing their work and send completion reports. As each teammate reports, note its results (branch name, validation status, plans completed).
+
+After each idle notification, check `TaskList()`. When all phase tasks have status `completed`, proceed to Step 9g-parallel.
+
+**If a teammate fails or goes idle without completing:** Check the task status. If the task is not `completed`, log the phase as incomplete in BUILD-STATE.md Errors section. Continue with other teammates. Mark the phase's Execute column as `failed`.
+
+**5. Shut down the team:**
+
+After all teammates have completed (or failed):
+
+```
+SendMessage(type: "shutdown_request", recipient: "phase-{N1}", content: "Sprint execution complete.")
+SendMessage(type: "shutdown_request", recipient: "phase-{N2}", content: "Sprint execution complete.")
+... (one per teammate)
+```
+
+Wait for shutdown responses, then:
+
+```
+TeamDelete()
+```
+
+Update Phase Progress: set Execute to `complete` for all successful phases.
+
+---
+
+##### 9f-sequential. Sequential Execution (Branch per Phase, Fallback)
+
+> **When:** `SPRINT_EXEC_MODE=sequential` (single-phase sprint, or teams unavailable)
+
+This is the original sequential execution path. Each phase gets a dedicated branch, executes one at a time.
 
 Update `Current stage` to `sprint-{S}-execute`.
+
+**Create feature branches:**
+
+For each active phase N in sprint S:
+
+```bash
+git checkout -b build/${PHASE_DIR_BASENAME}
+git checkout ${MAIN_BRANCH}
+```
+
+**Important:** Return to main immediately so the next branch also forks from the same main commit. All sprint branches must share the same base.
+
+Update Phase Progress: set Git Merge to `branched`.
+
+**Execute each phase:**
 
 For each active phase N in sprint S:
 
@@ -256,13 +391,104 @@ For each active phase N in sprint S:
    git checkout ${MAIN_BRANCH}
    ```
 
-#### 9g. Per-Phase Validation, Feedback, and Merge
+#### 9g. Per-Phase Merge, Validation, Feedback, and State Sync
 
 Update `Current stage` to `sprint-{S}-merge`.
 
+---
+
+##### 9g for PARALLEL mode (SPRINT_EXEC_MODE=parallel)
+
+In parallel mode, each teammate already ran validation and feedback in its worktree. The lead only needs to merge branches and sync planning state.
+
 For each active phase N in sprint S (sequential):
 
-##### 9g-i. Adaptive Validation
+###### 9g-parallel-i. Parse Teammate Results
+
+From the teammate's completion report, extract:
+- **Branch name** (the worktree branch)
+- **Validation result** (pass/fail/skipped)
+- **Feedback result** (pass/fail/N/A)
+- **Plans completed** (M/total)
+
+Record in BUILD-STATE.md Validation Results table: Phase, Build (from teammate report), Tests (from teammate report), Feedback Attempt, Final Status.
+
+If the teammate reported validation failure after feedback: set Phase Progress Validate to `failed`, Feedback to `failed`.
+If the teammate reported validation pass: set Phase Progress Validate to `complete`, Feedback to the teammate's feedback result.
+If skipped: set Phase Progress Validate to `skipped`, Feedback to `N/A`.
+
+###### 9g-parallel-ii. Squash-Merge Worktree Branch to Main
+
+```bash
+git checkout ${MAIN_BRANCH}
+git merge --squash ${WORKTREE_BRANCH_NAME}
+git commit -m "[build] Sprint ${S}, Phase ${N}: ${PHASE_NAME}
+
+Validation: ${VALIDATION_RESULT} (teammate-side)
+Feedback: ${FEEDBACK_RESULT}
+Plans executed: ${PLANS_COMPLETED}/${PLANS_TOTAL}
+Execution mode: parallel (worktree)
+
+Autonomous build by /build skill."
+```
+
+Replace `${MAIN_BRANCH}` with the actual main branch name from BUILD-STATE.md `Git main branch` field.
+Replace `${WORKTREE_BRANCH_NAME}` with the branch name from the teammate's report.
+
+Clean up the worktree and branch:
+
+```bash
+git worktree remove .claude/worktrees/sprint-${S}-phase-${N} 2>/dev/null
+git branch -d ${WORKTREE_BRANCH_NAME} 2>/dev/null
+```
+
+**If merge fails:** Handle the conflict:
+
+1. Try to resolve automatically:
+   ```bash
+   # Check if conflict is only in .planning/ files (state sync conflicts)
+   git diff --name-only --diff-filter=U
+   ```
+   If conflicts are only in `.planning/` files (STATE.md, ROADMAP.md, BUILD-STATE.md), accept the main branch version for those files (the lead manages planning state) and keep the phase's source code changes:
+   ```bash
+   git checkout --ours .planning/STATE.md .planning/ROADMAP.md .planning/BUILD-STATE.md 2>/dev/null
+   git add .planning/
+   ```
+   Then check if unresolved conflicts remain. If none, complete the merge commit.
+
+2. If source code conflicts remain or auto-resolution fails:
+   ```bash
+   git merge --abort 2>/dev/null
+   git checkout ${MAIN_BRANCH}
+   ```
+   Log: `Merge conflict for phase {N} (worktree branch: ${WORKTREE_BRANCH_NAME}). Keeping worktree for manual resolution.`
+
+   **Do NOT delete the worktree branch** on conflict. The user may want to resolve manually. Log the branch name in BUILD-STATE.md Errors section.
+
+Update Phase Progress: set Git Merge to `complete` (or `conflict` if merge failed).
+
+###### 9g-parallel-iii. Sync Planning State Files
+
+Same as sequential mode (see 9g-sequential-iv below).
+
+###### 9g-parallel-iv. Update Phase Progress
+
+Set the Phase Progress row's `Completed` column to the current time (HH:MM).
+Set Status to `complete` (or `incomplete` if merge failed or validation failed).
+
+Write BUILD-STATE.md.
+
+Print: `Phase {N} merged. Validation: {result}. Feedback: {result}.`
+
+---
+
+##### 9g for SEQUENTIAL mode (SPRINT_EXEC_MODE=sequential)
+
+Original sequential merge flow. The lead runs validation and feedback on each branch before merging.
+
+For each active phase N in sprint S (sequential):
+
+###### 9g-sequential-i. Adaptive Validation
 
 Checkout the phase branch:
 ```bash
@@ -312,7 +538,7 @@ Determine if validation should run for this phase.
 
 Update Phase Progress: set Validate to `skipped`.
 
-##### 9g-ii. Phase Feedback (One Attempt, On Validation Failure)
+###### 9g-sequential-ii. Phase Feedback (One Attempt, On Validation Failure)
 
 If validation failed:
 
@@ -350,7 +576,7 @@ If validation failed:
 
 **If validation passed or was skipped:** Update Phase Progress: set Feedback to `N/A`.
 
-##### 9g-iii. Squash-Merge to Main
+###### 9g-sequential-iii. Squash-Merge to Main
 
 ```bash
 git checkout ${MAIN_BRANCH}
@@ -385,7 +611,7 @@ Log: `Merge conflict for phase {N}. Branch deleted, changes lost. Phase marked i
 
 Update Phase Progress: set Git Merge to `complete` (or `failed` if merge failed), Status to `complete` (or `incomplete`).
 
-##### 9g-iv. Sync Planning State Files
+###### 9g-sequential-iv. Sync Planning State Files
 
 After each phase merges, sync ROADMAP.md and STATE.md to reflect reality. Do NOT rely on execute-phase having done this.
 
@@ -398,7 +624,7 @@ After each phase merges, sync ROADMAP.md and STATE.md to reflect reality. Do NOT
 2. Set "Status:" to the appropriate value
 3. Update "Last activity:" to today's date with a brief note
 
-##### 9g-v. Update Phase Progress
+###### 9g-sequential-v. Update Phase Progress
 
 Set the Phase Progress row's `Completed` column to the current time (HH:MM).
 
@@ -408,7 +634,7 @@ Print: `Phase {N} complete.`
 
 #### 9h. Sprint Boundary Validation
 
-After ALL active phases in sprint S are merged to main:
+After ALL active phases in sprint S are merged to main (applies to both parallel and sequential modes):
 
 Update `Current stage` to `sprint-{S}-boundary-validation`.
 
@@ -417,7 +643,7 @@ Update `Current stage` to `sprint-{S}-boundary-validation`.
    git checkout ${MAIN_BRANCH}
    ```
 
-2. Determine if any phase in this sprint produced source code (check the per-phase validation decisions from 9g-i). If no phase in the sprint warranted validation, skip sprint boundary validation.
+2. Determine if any phase in this sprint produced source code. For parallel mode, check teammate reports for validation results. For sequential mode, check the per-phase validation decisions from 9g-sequential-i. If no phase in the sprint warranted validation, skip sprint boundary validation.
 
 3. **If validation warranted:** Run build + test commands using the same detection logic from the Adaptive Validation Heuristic (Section 3 of pipeline-guide.md).
 
@@ -429,11 +655,13 @@ Update `Current stage` to `sprint-{S}-boundary-validation`.
 
 7. **If skipped (no build system or no code phases):** Print `Sprint {S} boundary validation skipped.`
 
+> **Note for parallel mode:** Sprint boundary validation is especially important because per-phase validation ran in isolated worktrees and did not test cross-phase integration. This is where integration conflicts surface.
+
 #### 9i. Complete Sprint
 
 Update Sprint Progress row: set Status to `complete`, Completed to current time (HH:MM).
 
 Write BUILD-STATE.md.
 
-Print: `Sprint {S} complete. Moving to next sprint.`
+Print: `Sprint {S} complete ({SPRINT_EXEC_MODE} mode). Moving to next sprint.`
 

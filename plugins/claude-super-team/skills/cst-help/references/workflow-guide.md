@@ -57,7 +57,7 @@ Claude Super Team is a structured project planning and execution workflow for so
                         Then per phase: [/discuss-phase] -> [/research-phase] -> /plan-phase -> /execute-phase
                         Creates .planning/BUILD-STATE.md (compaction resilience, auto-resume)
                         Creates .planning/BUILD-REPORT.md (final summary with decisions and validation)
-                        Manages git branches per phase (build/{NN}-{slug}), squash-merges to main
+                        Multi-phase sprints run in parallel (team+worktrees), sequential fallback
                         Supports: build-preferences.md for tech stack and style preferences
                         Auto-extend: detects existing project state and enters extend mode without prior build
                         Partial project: detects PROJECT.md only and skips /new-project
@@ -248,6 +248,16 @@ Plans grouped for execution:
 - Verification ensures phase goals achieved
 - Requires code-simplifier plugin: `/plugin install code-simplifier@claude-plugins-official`
 - **Agent lifecycle**: Press ESC to cancel the main thread without killing background agents. Use ctrl+f to kill all background agents. Shift+Down navigates between teammates.
+- **`--no-team` flag**: Forces task mode regardless of preferences. Used by `/build` sprint teammates to avoid nested teams.
+
+### Parallel Sprint Execution (/build)
+
+Multi-phase sprints in `/build` execute in parallel via Agent Teams + git worktrees:
+
+- **Parallel mode** (multi-phase sprint, teams available): Lead creates a sprint team, spawns one teammate per phase. Each teammate enters a worktree (isolated repo copy), runs `/execute-phase --no-team`, validates, commits, then exits. Lead merges all worktree branches to main.
+- **Sequential fallback** (single-phase sprint or teams unavailable): Original branch-per-phase flow. Lead checks out `build/{slug}` branch per phase, executes sequentially.
+- **Merge conflict handling**: Planning file conflicts auto-resolved (lead manages state). Source code conflicts preserve the worktree branch for manual resolution.
+- **Sprint boundary validation**: After all phases merged, build+test on main catches integration issues that per-phase worktree validation missed.
 
 ### Compaction Resilience
 
