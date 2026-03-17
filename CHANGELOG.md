@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.46] - 2026-03-18
+
+### claude-super-team
+- build: Parallelize sprint research with dependency-aware scheduling. Split Step 9c into sequential discuss and parallel research. Overlap analysis scans CONTEXT.md files for shared technical domains -- independent phases research simultaneously, overlapping phases chain sequentially so later phases get prior RESEARCH.md context
+- build: Fix timestamp hallucination throughout the build pipeline. Add explicit `date` command instructions since the model has no clock and was fabricating timestamps in BUILD-STATE.md
+- config: Bump version to 1.0.46
+
 ## [1.0.45] - 2026-03-18
 
 ### claude-super-team

@@ -14,10 +14,13 @@ Complete pipeline sequence:
 5.  Invoke /create-roadmap
 6.  Parse sprint groupings from ROADMAP.md (Section 9)
 7.  For each sprint S:
-    a. For each phase N in sprint S:
+    a. For each phase N in sprint S (sequential):
        - Evaluate adaptive pipeline depth (Section 2)
        - [If full pipeline] Invoke /discuss-phase N
-       - [If full pipeline] Invoke /research-phase N
+    a2. Research FULL phases (parallel with dependency awareness):
+       - Overlap analysis on CONTEXT.md files for shared domains
+       - Independent phases: parallel Skill('research-phase', N) calls
+       - Overlapping phases: chained sequentially (earlier feeds later)
     b. Plan all sprint phases in parallel:
        - Invoke /plan-phase N for each phase (parallel Skill calls)
     c. Git: commit planning artifacts and create feature branches for all phases
@@ -191,31 +194,40 @@ Within each sprint, phases progress through stages together:
 
 ```
 SPRINT S:
-  STAGE 1 - Discuss + Research (sequential per phase)
-    For each phase: adaptive depth -> discuss -> research
+  STAGE 1 - Discuss (sequential per phase)
+    For each phase: adaptive depth -> discuss (AskUserQuestion requires sequential)
 
-  STAGE 2 - Plan (parallel)
+  STAGE 2 - Research (parallel with dependency awareness)
+    Overlap analysis: scan CONTEXT.md files for shared domains
+    Independent phases: Skill('research-phase', N) called in parallel
+    Overlapping phases: chained sequentially (earlier feeds into later)
+
+  STAGE 3 - Plan (parallel)
     All phases: Skill('plan-phase', N) called in parallel
 
-  STAGE 3 - Branch + Execute (sequential, separate branches)
+  STAGE 4 - Branch + Execute (sequential, separate branches)
     Create all branches from main
     For each phase: checkout branch -> execute -> commit -> back to main
 
-  STAGE 4 - Validate + Merge (sequential per phase)
+  STAGE 5 - Validate + Merge (sequential per phase)
     For each phase: validate on branch -> feedback if failed -> merge to main
 
-  STAGE 5 - Sprint Boundary Validation
+  STAGE 6 - Sprint Boundary Validation
     On main: run build + tests after all phases merged
 ```
 
-### Why Sequential Execution Within Sprints
+### Why This Parallelism Split
 
-Planning can be parallel because each `/plan-phase` operates on an isolated phase directory. Execution must be sequential because all Skill() calls share the same working directory -- you cannot checkout two branches simultaneously. Each phase is executed on its own branch, then the working directory switches to the next branch.
+- **Discuss is sequential:** Each `/discuss-phase` call involves multiple AskUserQuestion rounds. Even with autonomous answers, interleaving multiple discuss sessions would cause confusion about which phase's question is being answered.
+- **Research is parallel with dependency awareness:** Each `/research-phase` spawns an independent `phase-researcher` agent. Before parallelizing, overlap analysis scans CONTEXT.md files for shared technical domains. Independent phases research in parallel; overlapping phases chain sequentially so the later phase's researcher receives the earlier phase's RESEARCH.md as prior context.
+- **Planning is parallel:** Each `/plan-phase` operates on an isolated phase directory.
+- **Execution must be sequential (or use worktrees):** All Skill() calls share the same working directory -- you cannot checkout two branches simultaneously. Team+worktree mode enables true parallel execution.
 
 The primary efficiency gains from sprint-based execution are:
-1. **Batch planning** -- all sprint phases planned before any execute (vs interleaved plan-execute-plan-execute)
-2. **Integration validation** -- sprint boundary validation catches cross-phase integration issues early
-3. **Smarter ordering** -- respects the dependency graph from /create-roadmap
+1. **Smart parallel research** -- independent phases researched simultaneously, overlapping phases chained to preserve cross-pollination
+2. **Batch planning** -- all sprint phases planned before any execute (vs interleaved plan-execute-plan-execute)
+3. **Integration validation** -- sprint boundary validation catches cross-phase integration issues early
+4. **Smarter ordering** -- respects the dependency graph from /create-roadmap
 
 ## 6. Git Branch Flow (Sprint-Aware)
 
@@ -225,7 +237,7 @@ The primary efficiency gains from sprint-based execution are:
 SPRINT S (phases N1, N2, ... in same sprint):
 
 PLANNING (on main branch):
-  # After discuss/research complete for all sprint phases
+  # After discuss (sequential) + research (parallel) complete for all sprint phases
   # Plan all sprint phases (parallel Skill calls)
   # Commit planning artifacts for each phase
   For each phase N in sprint:

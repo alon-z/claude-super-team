@@ -1,6 +1,6 @@
 # Sprint Execution Guide
 
-Steps 8-E and 9 of the /build pipeline. Covers extend-mode roadmap creation and the full sprint execution loop (discuss/research, parallel planning, parallel execution via team+worktrees or sequential fallback, per-phase merge/validation/feedback, sprint boundary validation).
+Steps 8-E and 9 of the /build pipeline. Covers extend-mode roadmap creation and the full sprint execution loop (sequential discuss, parallel research, parallel planning, parallel execution via team+worktrees or sequential fallback, per-phase merge/validation/feedback, sprint boundary validation).
 
 ### Step 8-E: Invoke /create-roadmap (Extend Mode)
 
@@ -62,6 +62,8 @@ For auto-extend builds (Branch 2a), the prior BUILD-STATE.md did not exist. Step
 
 ### Step 9: Sprint Execution Loop
 
+**Timestamps:** Every reference to "current time" or "today's date" in this guide means: run `date "+%H:%M"` (for HH:MM) or `date "+%Y-%m-%d"` (for dates). Never guess timestamps.
+
 Parse sprint groupings from SPRINT_MAP (built in Step 8). Process sprints in ascending order.
 
 For each sprint S in SPRINT_MAP:
@@ -79,7 +81,7 @@ If ALL phases in sprint S are already complete:
 
 #### 9a. Sprint Setup
 
-Set `Current stage` to `sprint-{S}-discuss-research`.
+Set `Current stage` to `sprint-{S}-discuss`.
 
 For each active phase N in sprint S:
 - Set the Phase Progress row's `Started` column to the current time (HH:MM).
@@ -124,7 +126,9 @@ Log decisions in BUILD-STATE.md Decisions Log: Phase N, Skill "build", Question 
 
 Print: `Sprint {S} pipeline depths: {Phase N: FULL, Phase M: SIMPLE, ...}`
 
-#### 9c. Discuss + Research (Sequential Per Phase)
+#### 9c. Discuss All Sprint Phases (Sequential)
+
+Discuss must run sequentially because each invocation involves multiple rounds of AskUserQuestion interaction.
 
 For each active phase N in sprint S:
 
@@ -142,22 +146,80 @@ For each active phase N in sprint S:
 4. Log decisions in BUILD-STATE.md Decisions Log.
 5. Update Phase Progress: set Discuss to `complete`.
 
-6. Update Phase Progress: set Research to `in_progress`.
-7. Invoke:
-   ```
-   Skill('research-phase', '{N}')
-   ```
-8. Answer any AskUserQuestion calls autonomously per the decision guide:
-   - "Continue research / Done" -> **"Done"**
-   - "RESEARCH.md already exists" -> **"Replace entirely"**
-   - "Research was blocked / failed" -> **"Plan without research"**
-   - "Research conflicts with decisions" -> **"Keep decisions"**
-9. Log decisions in BUILD-STATE.md Decisions Log.
-10. Update Phase Progress: set Research to `complete`.
-
 **If pipeline depth = SIMPLE:**
 
-Update Phase Progress: set Discuss to `skipped`, Research to `skipped`.
+Update Phase Progress: set Discuss to `skipped`.
+
+#### 9c-ii. Research Sprint Phases (Parallel with Dependency Awareness)
+
+Research spawns background agents (phase-researcher) that work independently. Parallelize when phases research independent domains; sequence when cross-pollination matters.
+
+Collect all active phases in this sprint with pipeline depth = FULL. Call these the RESEARCH_PHASES list.
+
+**If RESEARCH_PHASES is empty:** Skip to 9d.
+
+**If RESEARCH_PHASES has only one phase:** Skip overlap analysis, invoke directly (see "Execute Research Schedule" below).
+
+##### Overlap Analysis (2+ RESEARCH_PHASES)
+
+For each pair of phases in RESEARCH_PHASES, detect domain overlap by scanning their CONTEXT.md files (created in 9c) and phase goals from ROADMAP.md:
+
+1. Extract key technical terms from each phase: library names, service names, API names, protocol names, data layer references (e.g., "OpenRouter", "structured output", "HealthKit", "CoreData", "Stripe", "WebSocket").
+2. Compare term sets between each pair. Score overlap:
+   - **0 -- Independent:** No shared technical terms, different domains entirely (e.g., "UI theming" vs "payment processing")
+   - **1 -- Minor:** Shared general terms only (e.g., both mention "REST API" or "database" but for different purposes)
+   - **2+ -- Significant:** Shared specific libraries, services, or patterns (e.g., both use OpenRouter, both touch the same data model, both involve the same external API)
+
+3. Build the research schedule:
+   - **All pairs score 0-1 (independent):** PARALLEL -- all phases research simultaneously
+   - **Any pair scores 2+ (dependent):** CHAINED -- sequence the overlapping phases (earlier phase number first so its RESEARCH.md feeds into the later phase via prior-research-selection), parallelize any remaining independent phases alongside the first phase in the chain
+
+**Example -- 3 phases, one overlapping pair:**
+- Phase 11 and 12 overlap (score 2, shared AI/OpenRouter domain)
+- Phase 13 is independent (score 0 with both)
+- Schedule: `[Phase 11 + Phase 13] (parallel) -> Phase 12 (sequential, gets 11's RESEARCH.md)`
+
+**Example -- 2 phases, overlapping:**
+- Phase 11 and 12 overlap (score 2)
+- Schedule: `Phase 11 -> Phase 12 (sequential, gets 11's RESEARCH.md)`
+
+**Example -- 3 phases, all independent:**
+- All pairs score 0
+- Schedule: `[Phase 11 + Phase 12 + Phase 13] (parallel)`
+
+Log the overlap analysis in BUILD-STATE.md Decisions Log: `"Research scheduling: {PARALLEL|CHAINED} -- {rationale}"`.
+
+Print: `Sprint {S} research schedule: {description}`
+
+##### Execute Research Schedule
+
+Update Phase Progress: set Research to `in_progress` for all RESEARCH_PHASES.
+
+**PARALLEL phases** -- invoke simultaneously as parallel Skill calls:
+
+```
+Skill('research-phase', '{N1}')
+Skill('research-phase', '{N2}')
+... (one per parallel phase)
+```
+
+**CHAINED phases** -- after the parallel batch completes, invoke sequentially (each gets the prior phase's RESEARCH.md via prior-research-selection):
+
+```
+Skill('research-phase', '{N_chained}')
+```
+
+Answer any AskUserQuestion calls autonomously per the decision guide:
+- "Continue research / Done" -> **"Done"**
+- "RESEARCH.md already exists" -> **"Replace entirely"**
+- "Research was blocked / failed" -> **"Plan without research"**
+- "Research conflicts with decisions" -> **"Keep decisions"**
+
+Log decisions in BUILD-STATE.md Decisions Log.
+
+Update Phase Progress: set Research to `complete` for all RESEARCH_PHASES.
+
+**For SIMPLE phases:** Update Phase Progress: set Research to `skipped`.
 
 #### 9d. Plan All Sprint Phases (Parallel)
 
