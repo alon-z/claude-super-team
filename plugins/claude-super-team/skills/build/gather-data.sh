@@ -81,6 +81,16 @@ else
   echo "EXTEND_CANDIDATE=false"
 fi
 
+# Detect partial project state (no BUILD-STATE.md but planning artifacts exist)
+if [ "$HAS_PROJECT" = "true" ] && [ "$HAS_ROADMAP" = "true" ] && [ ! -f .planning/BUILD-STATE.md ]; then
+  echo "AUTO_EXTEND=true"
+elif [ "$HAS_PROJECT" = "true" ] && [ "$HAS_ROADMAP" = "false" ] && [ ! -f .planning/BUILD-STATE.md ]; then
+  echo "PARTIAL_PROJECT=true"
+else
+  echo "AUTO_EXTEND=false"
+  echo "PARTIAL_PROJECT=false"
+fi
+
 # === BROWNFIELD ===
 echo "=== BROWNFIELD ==="
 CODE_FILES=$(find . -maxdepth 3 -type f \( -name "*.ts" -o -name "*.js" -o -name "*.py" -o -name "*.go" -o -name "*.rs" \) -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null | wc -l | tr -d ' ')

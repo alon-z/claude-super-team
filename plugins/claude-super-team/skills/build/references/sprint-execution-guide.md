@@ -4,6 +4,8 @@ Steps 8-E and 9 of the /build pipeline. Covers extend-mode roadmap creation and 
 
 ### Step 8-E: Invoke /create-roadmap (Extend Mode)
 
+> **Entry paths:** This step is reached from both **Branch 2** (traditional extend with an existing BUILD-STATE.md) and **Branch 2a** (auto-extend, where no BUILD-STATE.md existed before this build run). The behavior is identical in both cases -- /create-roadmap's "add" flow works the same regardless of whether a prior BUILD-STATE.md existed. By the time this step executes, Step 4-E (Initialize BUILD-STATE.md for Extend) has already run, so BUILD-STATE.md is guaranteed to exist.
+
 Update BUILD-STATE.md: set Pipeline Progress "create-roadmap" row to `in_progress`, set Current stage to `create-roadmap`.
 
 Invoke /create-roadmap with the "add" modification intent, passing the user's feature description:
@@ -53,6 +55,8 @@ Update BUILD-STATE.md:
 Print: `Roadmap updated. New phase(s) added. Skipping {N} completed phases.`
 
 Continue to Step 9 (the sprint execution loop will skip completed sprints automatically).
+
+For auto-extend builds (Branch 2a), the prior BUILD-STATE.md did not exist. Step 4-E created a fresh one. The PHASE_COMPLETION data from gather-data.sh reflects filesystem state, so completed phases are correctly identified regardless of BUILD-STATE.md history.
 
 ---
 

@@ -428,6 +428,10 @@ Wave summary:
 
 Verification: {Passed | Gaps found | Skipped}
 
+## What Changed
+
+{Read all SUMMARY.md "What Was Built" sections for this phase. For each user-facing change, write one concise bullet: what changed + how to use/test it. Skip internal plumbing unless it affects usage. Target 3-7 bullets. Derive from SUMMARY.md, not plan descriptions.}
+
 ---
 
 ## Next Steps

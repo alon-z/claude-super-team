@@ -2,7 +2,7 @@
 
 ## Overview
 
-Phases 1-5, 6, 7.1, 8, 9, 10, and 11 are complete. Remaining: Phase 7 (metrics).
+Phases 1-5, 6, 7.1, 8, 9, 10, 11, and 12 are complete. Remaining: Phase 7 (metrics).
 
 ## Phases
 
@@ -25,6 +25,7 @@ Phases 1-5, 6, 7.1, 8, 9, 10, and 11 are complete. Remaining: Phase 7 (metrics).
 - [x] **Phase 9: Script Consolidation & State Compaction** - Centralize duplicated gather scripts and add state compaction
 - [x] **Phase 10: Skill Capability Enhancements** - Enhance /cst-help with artifact explanation and /build with dynamic completion awareness
 - [x] **Phase 11: Drift Detection** - Create /drift skill comparing codebase against planning artifacts
+- [x] **Phase 12: New-Project Discussion Mode & Build Auto-Extend** - Add interactive app definition to /new-project and make /build work from any project state
 
 ## Phase Details
 
@@ -148,6 +149,9 @@ Added /cst-help explain capability (reads .planning/ artifacts + phase context, 
 ### Phase 11: Drift Detection [COMPLETE]
 Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), gather-data.sh with PHASE_ARTIFACTS and CODEBASE_DOCS sections, drift-analysis-guide.md for claim extraction/verification methodology, drift-report-template.md for structured output. Updated cst-help with /drift in skill reference, workflow guide, and troubleshooting.
 
+### Phase 12: New-Project Discussion Mode & Build Auto-Extend [COMPLETE]
+/new-project --discuss mode (Path C) with progressive domain/problem/users narrowing via AskUserQuestion. /build 5-way branching: auto-extend (PROJECT.md + ROADMAP.md, no BUILD-STATE.md) and partial-project (PROJECT.md only) detection via new gather-data.sh signals.
+
 ## Progress
 
 | Phase | Status | Completed |
@@ -171,6 +175,7 @@ Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), ga
 | 9. Script Consolidation & State Compaction | Complete | 2026-03-16 |
 | 10. Skill Capability Enhancements | Complete | 2026-03-16 |
 | 11. Drift Detection | Complete | 2026-03-16 |
+| 12. New-Project Discuss + Build Auto-Extend | Complete | 2026-03-17 |
 
 ---
 *Created: 2026-02-11*

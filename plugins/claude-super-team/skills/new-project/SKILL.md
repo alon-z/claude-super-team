@@ -1,6 +1,6 @@
 ---
 name: new-project
-description: Initialize a new project to produce .planning/PROJECT.md. Requires either a path to a project vision document (recommended) or a brief project idea as argument. Use when starting a new project, onboarding to existing codebase, or defining what to build next.
+description: Initialize a new project to produce .planning/PROJECT.md. Requires either a path to a project vision document (recommended), a brief project idea, or `--discuss` for open-ended brainstorming. Use when starting a new project, onboarding to existing codebase, or defining what to build next.
 argument-hint: "<brief project idea OR path to project document>"
 allowed-tools: Read, Write, AskUserQuestion, Glob, Grep, Bash(git *), Bash(mkdir *), Bash(find *), Bash(test *)
 ---
@@ -77,7 +77,9 @@ Exit skill.
 
 ### Phase 3: Gather Project Vision
 
-**$ARGUMENTS is required.** The user must provide either a file path to a project document OR a brief project idea. If $ARGUMENTS is empty, tell the user:
+**Check for --discuss flag first.** If $ARGUMENTS contains `--discuss`, strip the flag from $ARGUMENTS and enter Path C (Discussion mode). If $ARGUMENTS is ONLY `--discuss` (nothing else after stripping), that is valid -- do not exit.
+
+**If $ARGUMENTS is empty (and --discuss was NOT present)**, tell the user:
 
 ```
 Usage: /new-project <brief project idea OR path to project document>
@@ -85,18 +87,42 @@ Usage: /new-project <brief project idea OR path to project document>
 Examples:
   /new-project a CLI tool for managing dotfiles across machines
   /new-project ./docs/vision.md
-  /new-project ~/projects/idea.md
+  /new-project --discuss
 ```
 
 Exit skill.
 
-**Determine input type:** Check if $ARGUMENTS looks like a file path (starts with `/`, `./`, `~/`, or ends with `.md`/`.txt`). If so, treat as Path A. Otherwise, treat as Path B.
+**Determine input type:** Check if $ARGUMENTS looks like a file path (starts with `/`, `./`, `~/`, or ends with `.md`/`.txt`). If so, treat as Path A. If `--discuss` was detected, use Path C. Otherwise, treat as Path B.
 
 **Path A: Project document provided** -- Analyze the document, identify gaps, ask clarifying questions.
 
 **Path B: Brief idea provided** -- Use the idea to drive an exploratory questioning conversation.
 
-Read `${CLAUDE_SKILL_DIR}/references/questioning-methodology.md` for the detailed questioning methodology (Path A: document analysis, Path B: brief idea exploration, AskUserQuestion patterns, anti-patterns).
+**Path C: Discussion mode** -- Open-ended brainstorming session starting from zero context.
+
+1. Start with a broad domain question using AskUserQuestion:
+   - header: "What area?"
+   - question: "What domain or area are you interested in building for?"
+   - options:
+     - "Developer tools" -- CLIs, libraries, DevOps, productivity for engineers
+     - "Consumer app" -- Mobile, web, social, lifestyle, entertainment
+     - "Business/SaaS" -- B2B workflows, dashboards, internal tools, automation
+     - "Data/AI" -- Pipelines, ML tools, analytics, LLM applications
+     - "Let me describe" -- I have something specific in mind
+
+2. Based on the answer, ask progressively narrower questions using AskUserQuestion to discover:
+   - **Core problem:** What frustration or opportunity drives this? What exists today and why is it insufficient?
+   - **Target users:** Who specifically would use this? What does their day look like?
+   - **Success shape:** What does "working" look like? What would a user actually do with it?
+   - **Key constraints:** Timeline, solo vs team, technical preferences, scale expectations
+
+3. Use the same questioning techniques as Path B (challenge vagueness, make abstract concrete, surface motivation) but start from zero context rather than a provided idea. Each answer narrows the next question.
+
+4. When enough context has been gathered to write a clear PROJECT.md, hit the same decision gate as Paths A and B ("Ready to create PROJECT.md?" / "Keep exploring").
+
+If $ARGUMENTS contained text beyond `--discuss`, use that text as additional seed context for the first question (e.g., `/new-project --discuss something for developers` -- start the domain question pre-focused on developer tools).
+
+Read `${CLAUDE_SKILL_DIR}/references/questioning-methodology.md` for the detailed questioning methodology (Path A: document analysis, Path B: brief idea exploration, Path C: discussion mode, AskUserQuestion patterns, anti-patterns).
 
 ### Phase 3.5: Execution Model Preference
 

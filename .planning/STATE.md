@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** Phase 10 complete -- /cst-help explain capability and /build completion audit added
+**Current focus:** Phase 12 -- New-project discussion mode and build auto-extend
 
 ## Current Position
 
-Phase: 10 (complete)
-Status: Executed
-Last activity: 2026-03-16 -- Phase 10 executed: /cst-help explain artifact capability, /build Step 12.5 completion audit
+Phase: 12 (complete)
+Status: Complete
+Last activity: 2026-03-17 -- Phase 12 executed: /new-project --discuss mode + /build auto-extend detection
 
 ## Preferences
 
@@ -27,6 +27,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Execution model: opus (set during /execute-phase 1)
 
 ### Decision Archive
+
+- Phase 12: Added /new-project --discuss mode (Path C with progressive domain/problem/users narrowing via AskUserQuestion) and /build auto-extend detection (5-way branching: Resume, Extend, Auto-Extend, Partial Project, Fresh Start). gather-data.sh emits AUTO_EXTEND and PARTIAL_PROJECT signals. sprint-execution-guide.md Step 8-E updated for auto-extend context.
+
 
 - Phase 11: Created /drift skill with 4 files: SKILL.md orchestrator (sonnet model, spawns opus Explore agents), gather-data.sh sourcing gather-common.sh with PHASE_ARTIFACTS and CODEBASE_DOCS sections, drift-analysis-guide.md with claim extraction methodology and categorization rules, drift-report-template.md for structured output. Updated cst-help with /drift in skill reference, workflow guide, and troubleshooting.
 
@@ -55,4 +58,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 None.
 
 ---
-*Last updated: 2026-03-16 -- Phase 10 executed*
+*Last updated: 2026-03-17 -- Phase 12 executed*
