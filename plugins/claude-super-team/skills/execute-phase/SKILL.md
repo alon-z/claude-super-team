@@ -91,10 +91,16 @@ Extract from $ARGUMENTS:
 
 **Execution mode detection:**
 
-Set `EXEC_MODE` based on these conditions:
-- If `--no-team` flag is set: `EXEC_MODE=task` (overrides `--team` and preferences)
+First, run an explicit teams availability check (do NOT rely on parsing the PREFERENCES section for this):
+
+```bash
+[ "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-}" = "1" ] && echo "TEAMS_AVAILABLE=true" || echo "TEAMS_AVAILABLE=false"
+```
+
+Then set `EXEC_MODE` based on these conditions (in order):
+- If `--no-team` flag is set: `EXEC_MODE=task` (overrides everything)
 - Else if `--team` flag is set: `EXEC_MODE=team`
-- Else if `teams-available: true` in the pre-loaded PREFERENCES section: `EXEC_MODE=team`
+- Else if the bash check above output `TEAMS_AVAILABLE=true`: `EXEC_MODE=team`
 - Else: `EXEC_MODE=task`
 
 When `EXEC_MODE=team`, waves use Agent Teams (TeamCreate + teammates) instead of parallel Task calls. This provides inter-agent messaging, shared task list coordination, and better progress visibility within waves.
@@ -115,9 +121,9 @@ After determining `EXEC_MODE`, print one message so the user understands which m
 Using teams mode (--team flag).
 ```
 
-**If `EXEC_MODE=team` triggered by PREFERENCES:**
+**If `EXEC_MODE=team` triggered by env check (TEAMS_AVAILABLE=true):**
 ```
-Using teams mode (teams-available: true in preferences).
+Using teams mode (auto-detected from environment).
 ```
 
 **If `EXEC_MODE=task` triggered by `--no-team` flag:**

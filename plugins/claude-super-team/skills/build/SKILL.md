@@ -24,7 +24,7 @@ Run the gather script to load build state, preferences, git status, and planning
 bash "${CLAUDE_PLUGIN_ROOT}/skills/build/gather-data.sh"
 ```
 
-Parse the output sections (BUILD_STATE, PREFERENCES, GIT, PROJECT, BROWNFIELD) before proceeding.
+Parse the output sections (BUILD_STATE, PREFERENCES, BUILD_PREFERENCES, GIT, PROJECT, BROWNFIELD) before proceeding.
 
 ### Context-Aware Gathering
 
@@ -202,10 +202,10 @@ Stop execution.
 
 ### Step 3: Load Preferences
 
-Read build preferences from both locations (if they exist). These are in the PREFERENCES section of the gather-data.sh output.
+Read build preferences from both locations (if they exist). These are in the BUILD_PREFERENCES section of the gather-data.sh output.
 
-1. **Global preferences:** `~/.claude/build-preferences.md` (from `GLOBAL_PREFS` in gather-data.sh output)
-2. **Project preferences:** `.planning/build-preferences.md` (from `PROJECT_PREFS` in gather-data.sh output)
+1. **Global preferences:** `~/.claude/build-preferences.md` (from `GLOBAL_PREFS` in BUILD_PREFERENCES section)
+2. **Project preferences:** `.planning/build-preferences.md` (from `PROJECT_PREFS` in BUILD_PREFERENCES section)
 
 If project-level exists, it takes precedence for any overlapping fields. Merge into a unified preference context:
 

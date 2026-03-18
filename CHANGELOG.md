@@ -2,6 +2,14 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.47] - 2026-03-18
+
+### claude-super-team
+- execute-phase: Fix teams detection by replacing unreliable gather-output parsing with explicit bash env var check (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`). The LLM now runs a dedicated command at the decision point instead of searching for `teams-available: true` in prior text output
+- build: Call `emit_preferences()` in gather-data.sh to include `teams-available` flag; rename build-specific preferences to `BUILD_PREFERENCES` section to avoid collision
+- build: Pass `--team` explicitly to execute-phase in sequential sprint path when teams are available, as belt-and-suspenders alongside the env check
+- config: Bump version to 1.0.47
+
 ## [1.0.46] - 2026-03-18
 
 ### claude-super-team
