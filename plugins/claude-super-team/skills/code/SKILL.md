@@ -2,7 +2,7 @@
 name: code
 description: Interactive coding session with project context. Applies changes through direct conversation and tracks modifications in a session log. Use for ad-hoc coding, phase refinement, or any work you want to do conversationally without pre-planning.
 argument-hint: "[phase number] [description of what to work on]"
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *), Bash(bash *gather-data.sh)
+allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *), Bash(date *), Bash(bash *gather-data.sh)
 ---
 
 ## Step 0: Load Context
@@ -89,22 +89,26 @@ Use AskUserQuestion:
 
 ### Phase 4: Initialize Session
 
+**Timestamp convention:** You do not have a clock. NEVER guess or fabricate timestamps. Always get the real time by running `date "+%Y-%m-%d %H:%M"`. Use the full output for `YYYY-MM-DD HH:MM` fields and the `%H:%M` portion for `HH:MM` fields. Run this command every time you need a timestamp -- do not reuse a previously fetched value if more than a few seconds have passed.
+
 Create session log directory and file:
 
 ```bash
 mkdir -p .planning/.sessions
 ```
 
+Run `date "+%Y-%m-%d-%H%M"` to get the timestamp for the filename.
+
 Create `.planning/.sessions/{timestamp}-{slug}.md` where:
-- `{timestamp}` = current date in `YYYY-MM-DD-HHMM` format
+- `{timestamp}` = output of `date "+%Y-%m-%d-%H%M"`
 - `{slug}` = kebab-case summary of focus (e.g., `phase-3-refinement`, `login-bug-fix`, `free-form`)
 
-**Session log initial content:**
+**Session log initial content** (run `date "+%Y-%m-%d"` for the date field):
 
 ```markdown
 # Coding Session: {description}
 
-- **Date:** {YYYY-MM-DD}
+- **Date:** {date output}
 - **Mode:** {Phase-linked (Phase N: Name) | Free-form}
 - **Focus:** {user's description or phase goal}
 
@@ -147,9 +151,9 @@ This phase is behavioral -- it defines how to handle each user request during th
    - `Bash(test *)` for test suites
    - `Bash(npm *)`, `Bash(bun *)`, etc. for builds
    - `Bash(git diff *)` to show what changed
-4. **Log** -- Append an entry to the session log:
+4. **Log** -- Run `date "+%H:%M"` then append an entry to the session log:
    ```markdown
-   ### {HH:MM} - {brief description}
+   ### {HH:MM from date command} - {brief description}
    - **Files:** {list of modified files}
    - **What:** {1-2 sentence summary}
    ```
@@ -168,11 +172,11 @@ When the user says "done", "wrap up", "finish", "that's it", or similar:
 1. **Read the session log** to review all changes made.
 
 2. **Phase-linked mode:**
-   - Create `{NN}-REFINEMENT.md` in the phase directory (e.g., `.planning/phases/03-api/03-REFINEMENT.md`):
+   - Run `date "+%Y-%m-%d"` for the date. Create `{NN}-REFINEMENT.md` in the phase directory (e.g., `.planning/phases/03-api/03-REFINEMENT.md`):
      ```markdown
      # Phase {N} Refinement
 
-     **Date:** {YYYY-MM-DD}
+     **Date:** {date output}
      **Session:** {link to session log path}
 
      ## Changes Made

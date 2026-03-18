@@ -1,7 +1,7 @@
 ---
 name: add-security-findings
 description: Store security audit findings in .planning/SECURITY-AUDIT.md and integrate remediation into the project roadmap. Critical/high findings become urgent inserted phases. Medium findings become regular phases. Low findings go to backlog. Use after a security review or scan, or invoked automatically after security analysis to capture findings.
-allowed-tools: Read, Write, Edit, AskUserQuestion, Glob, Grep, Skill, Bash(test *)
+allowed-tools: Read, Write, Edit, AskUserQuestion, Glob, Grep, Skill, Bash(test *), Bash(date *)
 ---
 
 ## Objective
@@ -144,7 +144,7 @@ Loop until "Approve".
 Read `${CLAUDE_SKILL_DIR}/assets/security-audit.md` template. Populate with:
 
 - Project name from PROJECT.md
-- Current date
+- Current date (run `date "+%Y-%m-%d"` to get it -- never guess)
 - Findings grouped by severity (Critical, High, Medium, Low)
 - Summary table with counts (all findings start as "Open")
 - Remediation Phase initially set to "Not yet planned"

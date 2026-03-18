@@ -2,7 +2,7 @@
 name: execute-phase
 description: Execute planned phase by routing tasks to specialized agents. Reads PLAN.md files, infers the best agent type per task (security, TDD, general-purpose, etc.), executes in wave order with parallel plans, then verifies phase goal achievement. Use after /plan-phase to execute a specific phase. Supports --gaps-only for executing only gap closure plans and --skip-verify to skip verification.
 argument-hint: "[phase number] [--gaps-only] [--skip-verify] [--team] [--no-team]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(grep *), Bash(test *), Bash(bash *gather-data.sh)
+allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, TaskList, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, Bash(git *), Bash(mkdir *), Bash(ls *), Bash(grep *), Bash(test *), Bash(date *), Bash(bash *gather-data.sh)
 hooks:
   PreCompact:
     - matcher: "auto"
@@ -270,7 +270,7 @@ Create `${PHASE_DIR}/EXEC-PROGRESS.md` to track execution state for compaction r
 - **Mode:** {EXEC_MODE}
 - **Team:** {team_name or "N/A (task mode)"}
 - **Current wave:** 1
-- **Started:** {current date}
+- **Started:** {run `date "+%Y-%m-%d %H:%M"` to get the real timestamp}
 
 ### Wave Progress
 | Wave | Plans | Status |
@@ -285,6 +285,8 @@ Create `${PHASE_DIR}/EXEC-PROGRESS.md` to track execution state for compaction r
 ```
 
 Populate the tables from the wave groupings determined in Phase 4. This file is re-injected by hooks after context compaction, allowing the orchestrator to resume from where it left off.
+
+**Timestamp convention:** You do not have a clock. NEVER guess or fabricate timestamps. Always get the real time by running `date "+%Y-%m-%d %H:%M"`. Use the full output for `YYYY-MM-DD HH:MM` fields and the `%H:%M` portion for `HH:MM` fields. Run this command every time you need a timestamp -- do not reuse a previously fetched value if more than a few seconds have passed.
 
 ### Phase 5: Execute Waves
 
@@ -382,7 +384,7 @@ Delete `${PHASE_DIR}/EXEC-PROGRESS.md` -- it served its purpose during execution
 
 Update `.planning/ROADMAP.md`:
 - In the **Phases** checklist, change `- [ ]` to `- [x]` for the completed phase entry
-- In the **Progress** table, update the phase row: set Status to "Complete" and Completed to today's date (YYYY-MM-DD format)
+- In the **Progress** table, update the phase row: set Status to "Complete" and Completed to today's date (run `date "+%Y-%m-%d"` to get it)
 - **Compact the completed phase's detail section:** Replace the full detail block (Goal, Depends on, Requirements, Success Criteria) with a 1-2 line summary of what was built. Keep `### Phase N: Name` heading and append `[COMPLETE]`. Include any Completion Notes if relevant. Example:
 
   Before:

@@ -1,7 +1,7 @@
 ---
 phase: XX
 plan: NN
-completed: YYYY-MM-DD
+completed: {run `date "+%Y-%m-%d"` -- never guess}
 key_files:
   created: []
   modified: []

@@ -4,7 +4,7 @@ description: Analyze codebase with parallel mapper agents to produce .planning/c
 argument-hint: "[optional: topic to update e.g. 'db and auth', or 'refresh' to remap from scratch]"
 context: fork
 model: opus
-allowed-tools: Read, Glob, Grep, Write, Task, Bash(ls *), Bash(rm *), Bash(mkdir *), Bash(wc *), Bash(grep *)
+allowed-tools: Read, Glob, Grep, Write, Task, Bash(ls *), Bash(rm *), Bash(mkdir *), Bash(wc *), Bash(grep *), Bash(date *)
 ---
 
 <objective>

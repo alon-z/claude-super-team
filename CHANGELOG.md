@@ -2,6 +2,12 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.48] - 2026-03-18
+
+### claude-super-team
+- Fix timestamp hallucination across all skills. Add `Bash(date *)` to allowed-tools and explicit `date` command instructions in code, execute-phase, drift, map-codebase, and add-security-findings skills. Extends the fix from v1.0.46 (which only covered build) to every skill that uses timestamps
+- config: Bump version to 1.0.48
+
 ## [1.0.47] - 2026-03-18
 
 ### claude-super-team
