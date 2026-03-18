@@ -3,3 +3,4 @@ __pycache__/
 .firecrawl/
 .planning/.sessions/
 .planning/.telemetry/
+plugins/*/skills/*-workspace/iteration-*/
