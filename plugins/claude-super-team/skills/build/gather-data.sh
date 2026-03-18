@@ -13,8 +13,11 @@ else
   echo "EXISTS=false"
 fi
 
-# === PREFERENCES ===
-echo "=== PREFERENCES ==="
+# === PREFERENCES === (execution-model, simplifier, verification, teams-available)
+emit_preferences
+
+# === BUILD_PREFERENCES ===
+echo "=== BUILD_PREFERENCES ==="
 if [ -f "$HOME/.claude/build-preferences.md" ]; then
   echo "GLOBAL_PREFS=true"
   cat "$HOME/.claude/build-preferences.md"

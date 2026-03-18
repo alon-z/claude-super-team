@@ -278,9 +278,15 @@ Determine whether this sprint uses **parallel** (team+worktrees) or **sequential
 - Sprint has only 1 active phase (no parallelism benefit)
 - TeamCreate fails (teams feature not enabled -- requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)
 
-**To test team availability:** Attempt `TeamCreate("sprint-{S}-exec")`. If it succeeds, set `SPRINT_EXEC_MODE=parallel` and proceed to Step 9f-parallel. If it fails, set `SPRINT_EXEC_MODE=sequential`, print `Teams not available -- falling back to sequential execution.`, and proceed to Step 9f-sequential.
+**To test team availability:** Attempt `TeamCreate("sprint-{S}-exec")`. If it succeeds, set `SPRINT_EXEC_MODE=parallel` and `TEAMS_AVAILABLE=true`, then proceed to Step 9f-parallel. If it fails, set `SPRINT_EXEC_MODE=sequential` and `TEAMS_AVAILABLE=false`, print `Teams not available -- falling back to sequential execution.`, and proceed to Step 9f-sequential.
 
-For single-phase sprints, skip TeamCreate entirely and set `SPRINT_EXEC_MODE=sequential`.
+For single-phase sprints, skip TeamCreate but still check teams availability:
+
+```bash
+[ "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-}" = "1" ] && echo "TEAMS_AVAILABLE=true" || echo "TEAMS_AVAILABLE=false"
+```
+
+Set `SPRINT_EXEC_MODE=sequential` (no parallelism benefit for single phase). Record `TEAMS_AVAILABLE` from the check above -- this is passed to execute-phase so it can use teams for wave-level parallelism within the phase.
 
 Update BUILD-STATE.md: add `Execution mode: {parallel|sequential}` to the Sprint Progress row.
 
@@ -423,9 +429,10 @@ For each active phase N in sprint S:
 
 2. Update Phase Progress: set Execute to `in_progress`.
 
-3. Invoke:
+3. Invoke execute-phase. Pass `--team` if `TEAMS_AVAILABLE=true` so execute-phase uses teams for wave-level parallelism:
    ```
-   Skill('execute-phase', '{N}')
+   Skill('execute-phase', '{N} --team')   # if TEAMS_AVAILABLE=true
+   Skill('execute-phase', '{N}')           # if TEAMS_AVAILABLE=false
    ```
 
    The verification preference (`$PREF_VERIFICATION`) is already persisted in STATE.md from Step 3 preference resolution. Execute-phase reads it from its gather script PREFERENCES section automatically.
