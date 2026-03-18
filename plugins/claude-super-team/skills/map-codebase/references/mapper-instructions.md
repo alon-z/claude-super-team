@@ -115,7 +115,7 @@ Write document(s) to `.planning/codebase/` using the templates provided in your 
 **Document naming:** UPPERCASE.md (e.g., STACK.md, ARCHITECTURE.md)
 
 **Template filling:**
-1. Replace `[YYYY-MM-DD]` with current date
+1. Replace `[YYYY-MM-DD]` with current date (run `date "+%Y-%m-%d"` to get it -- never guess)
 2. Replace `[Placeholder text]` with findings from exploration
 3. If something is not found, use "Not detected" or "Not applicable"
 4. Always include file paths with backticks
@@ -212,7 +212,7 @@ For each document you own, produce an updated version by merging:
    - Not related to topic focus? Copy verbatim.
    - Related to topic focus? Replace with your fresh findings.
    - Topic introduced something new? Add it in the right template section.
-3. Update the **Analysis Date** to the current date
+3. Update the **Analysis Date** to the current date (run `date "+%Y-%m-%d"` to get it -- never guess)
 4. Add or update a **Last Update Focus** field right below the Analysis Date: `**Last Update Focus:** {topic_focus}`
 5. Write the complete merged document using the Write tool
 

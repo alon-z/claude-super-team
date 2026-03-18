@@ -84,7 +84,7 @@ Severity: BLOCKER (must fix), WARNING (should fix), INFO (suggestion)
 ```yaml
 ---
 phase: XX-name
-verified: YYYY-MM-DDTHH:MM:SSZ
+verified: {run `date "+%Y-%m-%dT%H:%M:%SZ"` -- never guess timestamps}
 status: passed | gaps_found | human_needed
 score: N/M must-haves verified
 gaps:  # only if gaps_found

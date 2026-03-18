@@ -15,7 +15,7 @@ Use the **PHASE_COMPLETION** and **ROADMAP_CHECKED** sections from the gather sc
 For each phase in PHASE_COMPLETION with status `complete`:
 1. Check if ROADMAP.md has it marked as `[x]`. If not (still `[ ]`), fix it:
    - In the **Phases** checklist: change `- [ ]` to `- [x]` for that phase's entry
-   - In the **Progress** table: set Status to "Complete" and Completed to today's date
+   - In the **Progress** table: set Status to "Complete" and Completed to today's date (run `date "+%Y-%m-%d"` to get it -- never guess)
 
 For each phase in PHASE_COMPLETION with status `complete` or `partial`:
 2. Check if STATE.md's "Current Position" Phase number is behind the actual progress. If the current phase in STATE.md is equal to or lower than a completed phase, update STATE.md to point to the next incomplete phase.
