@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.50] - 2026-03-20
+
+### claude-super-team
+- Add /metrics skill for telemetry resource reporting and threshold violation detection. Includes gather-data.sh (JSONL aggregation with jq/grep fallback), SKILL.md (haiku model, context: fork), and report-template.md
+- Update /cst-help with /metrics documentation in skill reference, workflow guide, and troubleshooting
+- Add "metrics" and "telemetry" keywords to plugin manifests
+
 ## [1.0.49] - 2026-03-20
 
 ### claude-super-team
