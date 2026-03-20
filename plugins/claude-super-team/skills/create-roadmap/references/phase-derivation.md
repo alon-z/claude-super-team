@@ -30,12 +30,12 @@ Sprint 3: All UI screens
 
 Slice by user journey:
 ```
-Sprint 1: [S] Design system + [M] Home screen + [M] Places API + search endpoint
-Sprint 2: [L] Place detail (frontend + backend) + [M] User auth (frontend + backend)
+Sprint 1: [S] Design system + [M] Home screen + [M] Places API + [M] Auth flow
+Sprint 2: [L] Place detail (frontend + backend) + [M] User profiles + [M] Reviews
 Sprint 3: [XL] Live tour (frontend + backend + AI engine)
 ```
 
-Each sprint delivers a testable feature. The user can open the app and try searching for places after Sprint 1, view place details after Sprint 2, take a tour after Sprint 3.
+Each sprint delivers testable features. The user can open the app and try searching for places after Sprint 1, view place details and leave reviews after Sprint 2, take a tour after Sprint 3.
 
 **When infrastructure is unavoidable:** Some foundation work (project scaffolding, CI/CD, design tokens) has no user-visible output. Keep these phases small (S-sized) and bundle them into Sprint 1 alongside a real feature slice. Never let a full sprint be pure infrastructure.
 
@@ -45,19 +45,23 @@ Phases that have no dependencies between them belong in the same sprint. Think o
 
 **Sprint assignment rules:**
 
-1. Phases with **no shared dependencies** -> same sprint
+1. Phases with **no shared dependencies** -> same sprint. No cap on how many.
 2. Phases where one **consumes the output** of another -> sequential sprints
 3. When in doubt, **same sprint** -- the cost of unnecessary sequencing (delayed feedback, blocked features) exceeds the cost of minor integration work later
+4. The only valid reason to start a new sprint is a **genuine dependency barrier**. If 6 phases are all independent, they all belong in Sprint 1.
 
 **Annotate phases with their sprint:**
 ```
 - [ ] **Phase 1: Foundation & Design System** [Sprint 1] [S] - Scaffolding, theme, tokens
 - [ ] **Phase 2: Home Screen & Places API** [Sprint 1] [M] - Home UI + backend search endpoint
 - [ ] **Phase 3: Auth Flow** [Sprint 1] [M] - Sign-in UI + backend auth
-- [ ] **Phase 4: Place Detail** [Sprint 2] [L] - Detail screen + backend place data
+- [ ] **Phase 4: User Profiles** [Sprint 1] [M] - Profile management screens + API
+- [ ] **Phase 5: Place Detail** [Sprint 2] [L] - Detail screen + backend place data
+- [ ] **Phase 6: Reviews & Ratings** [Sprint 2] [M] - Review UI + backend
+- [ ] **Phase 7: Live Tour** [Sprint 3] [XL] - Tour engine with AI narration
 ```
 
-Phases 1, 2, and 3 run in parallel during Sprint 1. Phase 4 waits for Sprint 2 because it depends on the places API from Phase 2.
+Phases 1-4 run in parallel during Sprint 1 (no dependencies between them). Phases 5-6 run in Sprint 2 (depend on places API and auth from Sprint 1). Phase 7 runs in Sprint 3 (depends on place detail from Sprint 2).
 
 ## T-Shirt Sizing
 
@@ -104,3 +108,4 @@ Bad: "Build authentication system"
 - Enterprise PM artifacts (time estimates in hours/days, Gantt charts, risk matrices)
 - Phases for team coordination, documentation, or ceremonies
 - Single-phase sprints when phases could run in parallel
+- Artificially capping sprint size -- if phases are independent, they belong in the same sprint regardless of count
