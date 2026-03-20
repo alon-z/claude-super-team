@@ -66,15 +66,16 @@ Note: Could not determine branch (git unavailable or detached HEAD). Continuing.
 
 **If the branch is `main` or `master`:**
 
-Use AskUserQuestion:
+Auto-switch to a feature branch. Derive the branch name from the phase being executed:
+
+```bash
+git checkout -b phase-{PHASE_NUM}-{phase_name_slug}
+```
+
+Where `{phase_name_slug}` is the phase name from the directory (e.g., `01-foundation` yields `phase-1-foundation`). Print:
 
 ```
-AskUserQuestion:
-  header: "Branch warning"
-  question: "You are on the '{CURRENT_BRANCH}' branch. Running execute-phase on main/master is not recommended."
-  options:
-    - "Switch branch" -- Tell the user to switch to a feature branch and re-run, then STOP execution.
-    - "Continue anyway" -- Proceed with execution on the current branch.
+Switched to new branch 'phase-{PHASE_NUM}-{phase_name_slug}' (was on {CURRENT_BRANCH}).
 ```
 
 **Otherwise:** Proceed normally.

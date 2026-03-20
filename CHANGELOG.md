@@ -2,6 +2,12 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.49] - 2026-03-20
+
+### claude-super-team
+- create-roadmap: Fix sprint sizing always capping at 2 phases. Updated roadmap template to show 3-phase sprints and phase-derivation guide to remove artificial sprint size limits. Only dependency barriers should create new sprints.
+- execute-phase: Auto-switch to feature branch instead of warning when on main
+
 ## [1.0.48] - 2026-03-18
 
 ### claude-super-team

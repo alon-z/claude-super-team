@@ -8,7 +8,10 @@
 
 - [ ] **Phase 1: [Name]** [Sprint 1] [S] - [One-line description]
 - [ ] **Phase 2: [Name]** [Sprint 1] [M] - [One-line description]
-- [ ] **Phase 3: [Name]** [Sprint 2] [L] - [One-line description]
+- [ ] **Phase 3: [Name]** [Sprint 1] [M] - [One-line description]
+- [ ] **Phase 4: [Name]** [Sprint 2] [L] - [One-line description]
+- [ ] **Phase 5: [Name]** [Sprint 2] [M] - [One-line description]
+- [ ] **Phase 6: [Name]** [Sprint 3] [XL] - [One-line description]
 
 ## Phase Details
 
@@ -41,9 +44,39 @@
 
 ### Phase 3: [Name]
 **Goal**: [What this phase delivers]
+**Sprint**: 1
+**Size**: M
+**Depends on**: Nothing
+**Requirements**: [Requirements covered]
+**Success Criteria** (what must be TRUE):
+  1. [Observable behavior from user perspective]
+  2. [Observable behavior from user perspective]
+
+### Phase 4: [Name]
+**Goal**: [What this phase delivers]
 **Sprint**: 2
 **Size**: L
 **Depends on**: Phase 1, Phase 2
+**Requirements**: [Requirements covered]
+**Success Criteria** (what must be TRUE):
+  1. [Observable behavior from user perspective]
+  2. [Observable behavior from user perspective]
+
+### Phase 5: [Name]
+**Goal**: [What this phase delivers]
+**Sprint**: 2
+**Size**: M
+**Depends on**: Phase 3
+**Requirements**: [Requirements covered]
+**Success Criteria** (what must be TRUE):
+  1. [Observable behavior from user perspective]
+  2. [Observable behavior from user perspective]
+
+### Phase 6: [Name]
+**Goal**: [What this phase delivers]
+**Sprint**: 3
+**Size**: XL
+**Depends on**: Phase 4, Phase 5
 **Requirements**: [Requirements covered]
 **Success Criteria** (what must be TRUE):
   1. [Observable behavior from user perspective]
@@ -53,8 +86,9 @@
 
 | Sprint | Phases | What's Demoable After |
 |--------|--------|-----------------------|
-| 1 | Phase 1, Phase 2 | [User-visible capability] |
-| 2 | Phase 3 | [User-visible capability] |
+| 1 | Phase 1, Phase 2, Phase 3 | [User-visible capability] |
+| 2 | Phase 4, Phase 5 | [User-visible capability] |
+| 3 | Phase 6 | [User-visible capability] |
 
 ## Progress
 
@@ -62,7 +96,10 @@
 |-------|--------|------|--------|-----------|
 | 1. [Name] | 1 | S | Not started | - |
 | 2. [Name] | 1 | M | Not started | - |
-| 3. [Name] | 2 | L | Not started | - |
+| 3. [Name] | 1 | M | Not started | - |
+| 4. [Name] | 2 | L | Not started | - |
+| 5. [Name] | 2 | M | Not started | - |
+| 6. [Name] | 3 | XL | Not started | - |
 
 ---
 *Created: [date]*
