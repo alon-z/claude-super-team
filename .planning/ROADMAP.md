@@ -2,7 +2,7 @@
 
 ## Overview
 
-Phases 1-5, 6, 7.1, 8, 9, 10, 11, and 12 are complete. Remaining: Phase 7 (metrics).
+All 12 phases (plus 7 quick phases) are complete. The roadmap is fully delivered.
 
 ## Phases
 
@@ -19,7 +19,7 @@ Phases 1-5, 6, 7.1, 8, 9, 10, 11, and 12 are complete. Remaining: Phase 7 (metri
 - [x] **Phase 4: Harden Fragile Areas** - Address tech debt, phase numbering, state coordination, and large file decomposition
 - [x] **Phase 5: Workflow Validation & Gap Closure** - Dogfood updated marketplace on a real project, discover and fix remaining gaps
 - [x] **Phase 6: Hook-Based Telemetry Capture** - Add passive telemetry to orchestrator skills via shared shell script and skill-scoped hooks
-- [ ] **Phase 7: Efficiency Regression Detection** - Create /metrics skill for resource reporting and threshold-based violation detection
+- [x] **Phase 7: Efficiency Regression Detection** - Create /metrics skill for resource reporting and threshold-based violation detection
 - [x] Phase 7.1: Build Skill Efficiency (QUICK)
 - [x] **Phase 8: Full Auto Mode** - Create /build skill that autonomously chains all pipeline skills to go from idea to fully built and validated application
 - [x] **Phase 9: Script Consolidation & State Compaction** - Centralize duplicated gather scripts and add state compaction
@@ -109,14 +109,8 @@ Validated 10/16 skills post-audit via tevel project dogfooding, catalogued 6 gap
   3. Telemetry data accumulates in `.planning/.telemetry/` in a format validated by research (JSONL, SQLite, or CSV)
   4. Hook script gracefully no-ops when `.planning/` or `.planning/.telemetry/` directories don't exist
 
-### Phase 7: Efficiency Regression Detection
-**Goal**: Create a `/metrics` skill that reads telemetry data, compares against configurable absolute thresholds, and reports resource usage and violations
-**Depends on**: Phase 6
-**Requirements**: Add missing capabilities (Active req 4)
-**Success Criteria** (what must be TRUE when this phase completes):
-  1. A `/metrics` skill exists that reads `.planning/.telemetry/` data and generates per-phase and per-skill resource summaries
-  2. Absolute thresholds are configurable via `.planning/.telemetry/config.json`
-  3. The skill flags threshold violations and presents them alongside the summary report
+### Phase 7: Efficiency Regression Detection [COMPLETE]
+Created /metrics skill with gather-data.sh (telemetry JSONL aggregation, 8 structured sections, jq with grep/sed fallback), SKILL.md (haiku model, context: fork, threshold violation detection), and report-template.md. Registered in plugin manifests (v1.0.50) and documented in /cst-help (skill reference, workflow guide, troubleshooting).
 
 ### Phase 7.1: Build Skill Efficiency (QUICK)
 **Goal:** Make /build significantly faster for well-understood projects by fixing teams detection, adding smarter pipeline depth, skipping verification when validation passes clean, and enabling parallel phase execution
@@ -169,7 +163,7 @@ Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), ga
 | 4. Harden Fragile Areas | Complete | 2026-03-12 |
 | 5. Workflow Validation & Gap Closure | Complete | 2026-03-13 |
 | 6. Hook-Based Telemetry Capture | Complete | 2026-02-17 |
-| 7. Efficiency Regression Detection | Not started | - |
+| 7. Efficiency Regression Detection | Complete | 2026-03-20 |
 | 7.1 Build Skill Efficiency (QUICK) | Complete | 2026-02-25 |
 | 8. Full Auto Mode | Complete | 2026-02-18 |
 | 9. Script Consolidation & State Compaction | Complete | 2026-03-16 |
