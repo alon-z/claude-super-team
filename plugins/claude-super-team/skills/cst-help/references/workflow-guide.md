@@ -28,6 +28,11 @@ Claude Super Team is a structured project planning and execution workflow for so
                       Extracts claims from SUMMARY.md, CONTEXT.md, PLAN.md
                       Spawns Explore agents to verify claims against actual code
                       Categorizes findings: confirmed drift, potential drift, aligned
+
+/metrics           -> Analyze telemetry data for resource usage and threshold violations
+                      Reads .planning/.telemetry/ session files (captured by hook-based telemetry)
+                      Reports per-session: tool calls, agents, failures, duration
+                      Compares against configurable thresholds in .planning/.telemetry/config.json
 ```
 
 ### Brainstorming
@@ -295,6 +300,9 @@ Phases define **observable, user-verifiable outcomes**, not task lists.
 ├── BUILD-STATE.md                       # Build pipeline state and recovery (from /build)
 ├── BUILD-REPORT.md                      # Final build summary (from /build)
 ├── build-preferences.md                 # Per-project build preferences (optional)
+├── .telemetry/                          # Telemetry data (captured by hooks)
+│   ├── config.json                      # Threshold configuration (optional)
+│   └── session-{id}.jsonl               # Per-session event logs
 ├── .sessions/                           # Coding session logs (gitignored)
 │   └── 2026-02-16-1430-phase-3-refinement.md
 ├── codebase/                            # Codebase map (brownfield only)
@@ -375,6 +383,21 @@ After executing multiple phases, after long breaks, or before starting a new roa
 ```
 
 `/drift` verifies that what was planned and reported matches the actual codebase. Use it to catch divergence before it compounds.
+
+### Reviewing Telemetry Metrics
+
+```
+/metrics
+→ Reads .planning/.telemetry/ session files
+→ Reports per-session resource usage (tool calls, agent spawns, durations)
+→ Flags threshold violations from .planning/.telemetry/config.json
+```
+
+Use `/metrics` when:
+- Want to see resource usage across sessions (tool calls, agent spawns, durations)
+- Checking if any session exceeded configured thresholds
+- Reviewing efficiency after completing several phases
+- Diagnosing slow or resource-heavy skill invocations
 
 ## Anti-Patterns
 

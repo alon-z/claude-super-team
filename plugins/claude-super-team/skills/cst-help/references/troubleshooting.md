@@ -494,6 +494,41 @@
 - Future plans should include concrete deliverables in SUMMARY.md
 - Focus on the confirmed and potential drift items for action
 
+### Telemetry and Metrics
+
+#### "No telemetry data found"
+
+**Symptom:** `/metrics` reports no data
+
+**Cause:** No `.planning/.telemetry/` directory or no session files
+
+**Solution:**
+- Telemetry is captured automatically by hook-based instrumentation
+- Run any skill (e.g., `/progress`) to generate telemetry data
+- Check `.planning/.telemetry/` for session-*.jsonl files
+
+#### "Thresholds not taking effect"
+
+**Symptom:** Custom thresholds in config.json ignored
+
+**Cause:** config.json format incorrect or file not found
+
+**Solution:**
+- File must be at `.planning/.telemetry/config.json`
+- Must be valid JSON with numeric values
+- Example: `{"max_tool_calls_per_session": 300, "max_session_duration_minutes": 45}`
+- Default thresholds apply when config.json is missing
+
+#### "Duration shows 0 for all sessions"
+
+**Symptom:** All sessions report 0 duration
+
+**Cause:** Timestamp parsing failed (platform-specific date command differences)
+
+**Solution:**
+- This is cosmetic -- other metrics (tool counts, agents, failures) are still accurate
+- Ensure sessions have both skill_start and skill_end events
+
 ### Interactive Coding
 
 #### "When to use /code vs /phase-feedback"
@@ -649,6 +684,12 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Returning to a project after a long break
 - Before starting new work on a phase
 - Suspecting executed work diverged from plans or summaries
+
+### Use `/metrics` when:
+- Want to review telemetry data across sessions
+- Checking for threshold violations after running several skills
+- Diagnosing which sessions used the most resources
+- Before planning new phases, to understand typical resource usage
 
 ### Use `/cst-help` when:
 - Need help understanding the workflow or a specific skill
