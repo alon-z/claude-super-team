@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.51] - 2026-03-26
+
+### claude-super-team
+- Switch model from haiku to sonnet in /progress, /metrics, and /cst-help skills. ToolSearch is not available on the haiku model
+
+### marketplace-utils
+- Switch model from haiku to sonnet in /marketplace-manager skill
+
+### task-management
+- Switch model from haiku to sonnet in /github-issue-manager skill
+
 ## [1.0.50] - 2026-03-20
 
 ### claude-super-team
