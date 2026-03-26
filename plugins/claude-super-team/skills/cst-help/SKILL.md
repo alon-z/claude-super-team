@@ -2,7 +2,7 @@
 name: cst-help
 description: Interactive help system for Claude Super Team workflow. Analyzes current project state in .planning/ to provide context-aware guidance on which skill to run next. Explains workflow concepts, troubleshoots issues, provides skill reference. Use when user asks "what's next?", "how does this work?", "I'm stuck", or needs help understanding the planning pipeline.
 allowed-tools: Read, Grep, Glob, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(find *)
-model: sonnet
+agent: cst-help
 argument-hint: "[question]"
 ---
 

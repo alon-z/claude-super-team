@@ -2,6 +2,14 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.52] - 2026-03-26
+
+### claude-super-team
+- progress: Switch from inline `model: sonnet` to custom `agent: progress` for delegated execution via agent definition
+- cst-help: Switch from inline `model: sonnet` to custom `agent: cst-help` for delegated execution via agent definition
+- agent: Add `progress.md` custom agent definition -- read-only sonnet agent for analyzing `.planning/` files, detecting sync issues, and routing to next action
+- agent: Add `cst-help.md` custom agent definition -- interactive sonnet agent for workflow help, troubleshooting, and artifact explanation
+
 ## [1.0.51] - 2026-03-26
 
 ### claude-super-team
