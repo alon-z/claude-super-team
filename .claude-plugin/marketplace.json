@@ -1,6 +1,6 @@
 {
   "name": "claude-super-team",
-  "version": "1.0.50",
+  "version": "1.0.51",
   "owner": {
     "name": "Alon Zusman"
   },
@@ -9,7 +9,7 @@
       "name": "claude-super-team",
       "description": "Structured project planning and execution workflow with phased delivery. Includes roadmap management, brainstorming with interactive and autonomous modes, phase planning with research/discussion/planning/execution loops, interactive coding sessions, autonomous full-pipeline build automation, drift detection between codebase and planning artifacts, telemetry metrics reporting, progress tracking, quick phase insertion, security findings integration, and interactive help system.",
       "source": "./plugins/claude-super-team",
-      "version": "1.0.50",
+      "version": "1.0.51",
       "keywords": ["planning", "execution", "phases", "roadmap", "workflow", "project-management", "help", "guidance", "drift-detection", "metrics", "telemetry"],
       "category": "development"
     },
@@ -17,7 +17,7 @@
       "name": "marketplace-utils",
       "description": "Manage and fix Claude Code plugin marketplaces -- audit for issues, register/remove plugins, update entries, sync versions, configure distribution, and maintain marketplace.json manifests.",
       "source": "./plugins/marketplace-utils",
-      "version": "1.0.7",
+      "version": "1.0.8",
       "keywords": [
         "marketplace",
         "plugins",
@@ -31,7 +31,7 @@
       "name": "task-management",
       "description": "Task management integration for Linear and GitHub. Sync planning artifacts to Linear and manage GitHub issues with consistency standards.",
       "source": "./plugins/task-management",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "keywords": ["task-management", "linear", "github", "issues", "sync"],
       "category": "development"
     },
