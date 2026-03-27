@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute planning structure for /create-roadmap
 
+source "$(dirname "$0")/../../../scripts/gather-common.sh"
+
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+  cat_project .planning/PROJECT.md
 fi
 echo "=== ROADMAP ==="
 if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
-  cat .planning/ROADMAP.md 2>/dev/null || echo "(missing)"
+  cat_roadmap .planning/ROADMAP.md
 fi
 
 echo "=== STRUCTURE ==="

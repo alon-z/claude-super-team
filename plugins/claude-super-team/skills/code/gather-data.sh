@@ -8,11 +8,11 @@ source "$(dirname "$0")/../../scripts/gather-common.sh"
 # === PLANNING_FILES ===
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat "$P/PROJECT.md" 2>/dev/null || echo "(missing)"
+  cat_project "$P/PROJECT.md"
 fi
 echo "=== ROADMAP ==="
 if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
-  cat "$P/ROADMAP.md" 2>/dev/null || echo "(missing)"
+  cat_roadmap "$P/ROADMAP.md"
 fi
 echo "=== STATE ==="
 if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else

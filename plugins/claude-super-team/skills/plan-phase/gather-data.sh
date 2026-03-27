@@ -14,11 +14,11 @@ STATE_FILE=".planning/STATE.md"
 
 echo "=== PROJECT ==="
 if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat .planning/PROJECT.md 2>/dev/null || echo "(missing)"
+  cat_project .planning/PROJECT.md
 fi
 echo "=== ROADMAP ==="
 if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
-  cat "$ROADMAP_FILE" 2>/dev/null || echo "(missing)"
+  cat_roadmap_compact "$ROADMAP_FILE"
 fi
 echo "=== STATE ==="
 if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
@@ -95,8 +95,11 @@ if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
 fi
 
 # CODEBASE_DOCS: Aggregated planning-relevant codebase docs
+# Only loaded on second pass (when PHASE_NUM is set) to avoid bloating initial context
 echo "=== CODEBASE_DOCS ==="
-if [ "${SKIP_CODEBASE:-}" = "1" ]; then echo "(in context)"; else
+if [ "${SKIP_CODEBASE:-}" = "1" ]; then echo "(in context)"
+elif [ -z "${PHASE_NUM:-}" ]; then echo "(deferred to second pass)"
+else
   if [ ! -d .planning/codebase ]; then
     echo "(no codebase docs)"
   else

@@ -10,7 +10,59 @@
 
 P="${P:-.planning}"
 
-# emit_project_section: Emit === PROJECT === section.
+# cat_project: Output PROJECT.md with validated requirements trimmed.
+# Strips "- [x]" items from ### Validated section, emits count instead.
+# Usage: cat_project [file]  (defaults to $P/PROJECT.md)
+cat_project() {
+  local f="${1:-$P/PROJECT.md}"
+  if [ ! -f "$f" ]; then echo "(missing)"; return 1; fi
+  awk '
+    /^### Validated/ { in_val=1; count=0; print; next }
+    in_val && /^- \[x\]/ { count++; next }
+    in_val && /^(### |## )/ {
+      if (count > 0) printf "\n*(%d validated requirements omitted -- see PROJECT.md)*\n\n", count
+      in_val=0; print; next
+    }
+    in_val && /^[[:space:]]*$/ { next }
+    { print }
+    END { if (in_val && count > 0) printf "\n*(%d validated requirements omitted -- see PROJECT.md)*\n\n", count }
+  ' "$f"
+}
+
+# cat_roadmap: Output ROADMAP.md with completed phase details trimmed.
+# Strips ### Phase ... [COMPLETE] blocks from ## Phase Details, keeps incomplete/deferred.
+# Usage: cat_roadmap [file]  (defaults to $P/ROADMAP.md)
+cat_roadmap() {
+  local f="${1:-$P/ROADMAP.md}"
+  if [ ! -f "$f" ]; then echo "(missing)"; return 1; fi
+  awk '
+    /^## Phase Details/ { in_details=1; print; next }
+    in_details && /^### Phase .* \[COMPLETE\]/ { in_complete=1; skipped++; next }
+    in_details && /^### Phase / { in_complete=0; print; next }
+    in_details && /^## / {
+      if (skipped > 0) printf "\n*(%d completed phase details omitted)*\n\n", skipped
+      in_details=0; in_complete=0; print; next
+    }
+    in_complete { next }
+    { print }
+    END { if (in_details && skipped > 0) printf "\n*(%d completed phase details omitted)*\n\n", skipped }
+  ' "$f"
+}
+
+# cat_roadmap_compact: Output ROADMAP.md with ONLY Overview + Phases checklist.
+# Strips the entire ## Phase Details section. Use for skills that get phase info
+# from structured gather data (execute-phase, progress, build, plan-phase, research-phase).
+# Usage: cat_roadmap_compact [file]  (defaults to $P/ROADMAP.md)
+cat_roadmap_compact() {
+  local f="${1:-$P/ROADMAP.md}"
+  if [ ! -f "$f" ]; then echo "(missing)"; return 1; fi
+  awk '
+    /^## Phase Details/ { exit }
+    { print }
+  ' "$f"
+}
+
+# emit_project_section: Emit === PROJECT === section (trimmed).
 # Honors SKIP_PROJECT env var. Emits HAS_PROJECT flag.
 emit_project_section() {
   echo "=== PROJECT ==="
@@ -19,7 +71,7 @@ emit_project_section() {
     if [ "${SKIP_PROJECT:-}" = "1" ]; then
       echo "(in context)"
     else
-      cat "$P/PROJECT.md"
+      cat_project "$P/PROJECT.md"
     fi
   else
     echo "HAS_PROJECT=false"
@@ -27,7 +79,7 @@ emit_project_section() {
   fi
 }
 
-# emit_roadmap_section: Emit === ROADMAP === section.
+# emit_roadmap_section: Emit === ROADMAP === section (trimmed).
 # Honors SKIP_ROADMAP env var. Emits HAS_ROADMAP flag.
 emit_roadmap_section() {
   echo "=== ROADMAP ==="
@@ -36,7 +88,7 @@ emit_roadmap_section() {
     if [ "${SKIP_ROADMAP:-}" = "1" ]; then
       echo "(in context)"
     else
-      cat "$P/ROADMAP.md"
+      cat_roadmap "$P/ROADMAP.md"
     fi
   else
     echo "HAS_ROADMAP=false"

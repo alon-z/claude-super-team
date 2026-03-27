@@ -2,6 +2,16 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.53] - 2026-03-26
+
+### claude-super-team
+- Optimize gather context for mature projects: add `cat_project()`, `cat_roadmap()`, and `cat_roadmap_compact()` trimming functions to `gather-common.sh`
+- Strip validated `[x]` requirements from PROJECT.md output, emit count instead (saves ~61 lines per gather)
+- Strip `[COMPLETE]` phase detail blocks from ROADMAP.md output, keep incomplete/deferred only (saves ~156 lines)
+- Add compact roadmap mode (phases checklist only, no Phase Details) for execute-phase, progress, build, plan-phase, research-phase (saves ~370 lines)
+- Defer CODEBASE_DOCS loading in plan-phase to second pass only (saves ~786 lines from initial gather)
+- Update all 11 gather-data.sh scripts and 2 workspace snapshots to use trimmed functions
+
 ## [1.0.52] - 2026-03-26
 
 ### claude-super-team
