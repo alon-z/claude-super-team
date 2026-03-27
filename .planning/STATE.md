@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Every skill and agent must leverage the right Claude Code primitive for its purpose, and the end-to-end workflow must have no gaps.
-**Current focus:** All phases complete -- roadmap fully delivered
+**Current focus:** Phase 13 -- JSON schema infrastructure for planning files
 
 ## Current Position
 
-Phase: 7 (complete)
-Status: Complete
-Last activity: 2026-03-20 -- Phase 7 executed: /metrics skill for telemetry reporting and threshold violation detection
+Phase: 13 (not started)
+Status: Not started
+Last activity: 2026-03-27 -- Phase 13 added: JSON schema infrastructure for planning files
 
 ## Preferences
 
