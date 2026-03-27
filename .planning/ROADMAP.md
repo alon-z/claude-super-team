@@ -2,7 +2,7 @@
 
 ## Overview
 
-Phases 1-12 (plus 7 quick phases) are complete. Phase 13 adds JSON schema infrastructure for planning files.
+All 13 phases (plus 7 quick phases) are complete. The roadmap is fully delivered.
 
 ## Phases
 
@@ -26,7 +26,7 @@ Phases 1-12 (plus 7 quick phases) are complete. Phase 13 adds JSON schema infras
 - [x] **Phase 10: Skill Capability Enhancements** - Enhance /cst-help with artifact explanation and /build with dynamic completion awareness
 - [x] **Phase 11: Drift Detection** - Create /drift skill comparing codebase against planning artifacts
 - [x] **Phase 12: New-Project Discussion Mode & Build Auto-Extend** - Add interactive app definition to /new-project and make /build work from any project state
-- [ ] **Phase 13: JSON Schema Infrastructure for Planning Files** [Sprint 13] [L] - Add structured JSON alongside top-level .planning/ MD files, update gather scripts to use jq, add /cst-help migration
+- [x] **Phase 13: JSON Schema Infrastructure for Planning Files** [Sprint 13] [L] - Add structured JSON alongside top-level .planning/ MD files, update gather scripts to use jq, add /cst-help migration
 
 ## Phase Details
 
@@ -147,18 +147,8 @@ Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), ga
 ### Phase 12: New-Project Discussion Mode & Build Auto-Extend [COMPLETE]
 /new-project --discuss mode (Path C) with progressive domain/problem/users narrowing via AskUserQuestion. /build 5-way branching: auto-extend (PROJECT.md + ROADMAP.md, no BUILD-STATE.md) and partial-project (PROJECT.md only) detection via new gather-data.sh signals.
 
-### Phase 13: JSON Schema Infrastructure for Planning Files
-**Goal**: Add structured JSON representations alongside top-level `.planning/` MD files (PROJECT, ROADMAP, STATE, IDEAS) so gather scripts can use `jq` for reliable data extraction, while preserving MD files as human-readable versions. Give `/cst-help` the ability to migrate existing MD-only projects to dual MD+JSON format.
-**Sprint**: 13
-**Size**: L
-**Depends on**: Phase 12 (all prior phases complete)
-**Requirements**: Add missing capabilities (Active req 4) -- structured data extraction from planning files is currently fragile (grep/sed on markdown)
-**Success Criteria** (what must be TRUE when this phase completes):
-  1. JSON schema definitions exist for PROJECT, ROADMAP, STATE, and IDEAS -- each `.planning/*.md` file has a corresponding `.planning/*.json` with structured, queryable data
-  2. A shared script (`json-sync.sh` or similar in `plugins/claude-super-team/scripts/`) can generate JSON from existing MD content and validate JSON structure
-  3. All `gather-data.sh` scripts that read top-level planning files use `jq` on JSON files for data extraction, with fallback to MD parsing when JSON files don't exist (backward compatibility)
-  4. All skills that create or modify top-level planning files (`/new-project`, `/create-roadmap`, `/brainstorm`) produce both MD and JSON output on every write
-  5. `/cst-help` includes a "migrate" action that generates JSON files from existing MD-only `.planning/` projects, making them queryable without re-running the full pipeline
+### Phase 13: JSON Schema Infrastructure for Planning Files [COMPLETE]
+json-sync.sh (676 lines) converts PROJECT/ROADMAP/STATE/IDEAS MD files to structured JSON. gather-common.sh emit_* functions use JSON-first extraction with silent MD fallback. 6 gather-data.sh scripts updated with inline JSON-first paths. /new-project, /create-roadmap, /brainstorm produce dual MD+JSON output. /cst-help migrate action generates JSON from existing MD-only projects.
 
 ## Sprint Summary
 
@@ -190,7 +180,7 @@ Created /drift skill with SKILL.md orchestrator (sonnet, spawns opus agents), ga
 | 10. Skill Capability Enhancements | Complete | 2026-03-16 |
 | 11. Drift Detection | Complete | 2026-03-16 |
 | 12. New-Project Discuss + Build Auto-Extend | Complete | 2026-03-17 |
-| 13. JSON Schema Infrastructure | Not started | - |
+| 13. JSON Schema Infrastructure | Complete | 2026-03-27 |
 
 ---
 *Created: 2026-02-11*
