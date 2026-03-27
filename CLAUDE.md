@@ -21,10 +21,10 @@ Each plugin has `.claude-plugin/plugin.json` for metadata, `skills/` containing 
 The skills form a sequential pipeline. Each skill reads/writes files in `.planning/`:
 
 ```
-/new-project          --> .planning/PROJECT.md
+/new-project          --> .planning/PROJECT.md + PROJECT.json
 /map-codebase         --> .planning/codebase/ (7 docs: STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS)
-/create-roadmap       --> .planning/ROADMAP.md + STATE.md
-/brainstorm [topic]   --> .planning/IDEAS.md (interactive brainstorming, optionally updates roadmap)
+/create-roadmap       --> .planning/ROADMAP.md + ROADMAP.json + STATE.md + STATE.json
+/brainstorm [topic]   --> .planning/IDEAS.md + IDEAS.json (interactive brainstorming, optionally updates roadmap)
 /discuss-phase [N]    --> .planning/phases/{NN}-{name}/{NN}-CONTEXT.md (user decisions)
 /research-phase [N]   --> .planning/phases/{NN}-{name}/{NN}-RESEARCH.md (ecosystem research)
 /plan-phase [N]       --> .planning/phases/{NN}-{name}/*-PLAN.md
@@ -36,7 +36,8 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 /add-security-findings --> .planning/SECURITY-AUDIT.md + roadmap integration
 /build [idea or PRD]  --> .planning/BUILD-STATE.md + BUILD-REPORT.md (autonomous full pipeline, chains all skills)
 /drift [N | --all]    --> .planning/DRIFT-REPORT.md (compare codebase against planning artifacts)
-/cst-help [question]  --> context-aware help, troubleshooting, skill reference
+/cst-help [question]  --> context-aware help, troubleshooting, skill reference, JSON migration
+/cst-help migrate     --> generate JSON companions from existing MD-only .planning/ files
 ```
 
 ## Key Conventions
@@ -48,6 +49,7 @@ The skills form a sequential pipeline. Each skill reads/writes files in `.planni
 - **Parallel sprint execution**: `/build` executes multi-phase sprints in parallel using Agent Teams + git worktrees. Each phase gets a teammate in an isolated worktree. Teammates run `/execute-phase` with `--no-team` (avoids nested teams), validate, and commit. The lead merges worktree branches to main after all teammates complete. Falls back to sequential branch-per-phase execution when teams are unavailable or for single-phase sprints.
 - **Goal-backward success criteria**: Each phase defines observable, user-verifiable outcomes -- not task lists.
 - **State tracking**: `STATE.md` tracks current phase position, decisions, and blockers. `ROADMAP.md` tracks phase completion.
+- **JSON data layer**: Top-level `.planning/` files (PROJECT, ROADMAP, STATE, IDEAS) have JSON companions (`.json` alongside `.md`). MD remains source of truth; JSON is derived. Gather scripts use `jq` on JSON with silent fallback to MD parsing. Skills that create/update planning files write both formats. Existing projects migrate via `/cst-help migrate`. Shared infrastructure: `scripts/json-sync.sh` (MD→JSON conversion), `scripts/gather-common.sh` (`_JQ_AVAILABLE` caching, JSON-first `emit_*` functions).
 - **Skill YAML frontmatter**: Each SKILL.md declares `allowed-tools`, optional `model`, `context`, and `disable-model-invocation` fields.
 
 ## Marketplace Plugin (marketplace-utils)
