@@ -27,7 +27,7 @@ The main plugin. Provides a sequential pipeline of skills for planning and deliv
 | `/metrics` | Analyze telemetry data for resource usage and threshold violations |
 | `/add-security-findings` | Integrate security audit results into the roadmap |
 | `/optimize-artifacts [path]` | Rewrite existing PLAN.md and RESEARCH.md files to be concise |
-| `/cst-help [question]` | Get help, troubleshooting, skill reference, and artifact explanation |
+| `/cst-help [question]` | Get help, troubleshooting, skill reference, artifact explanation, and JSON migration |
 
 All planning artifacts are stored in `.planning/` within your project.
 

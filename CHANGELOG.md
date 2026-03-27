@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.52] - 2026-03-27
+
+### claude-super-team
+- Add JSON schema infrastructure for planning files: json-sync.sh converts PROJECT/ROADMAP/STATE/IDEAS MD files to structured JSON
+- Update gather-common.sh with _JQ_AVAILABLE caching and JSON-first emit_* functions (emit_preferences, emit_sync_check, emit_structure)
+- Update 6 gather-data.sh scripts with inline JSON-first extraction paths (progress, plan-phase, research-phase, phase-feedback, code, create-roadmap)
+- Add dual MD+JSON output to /new-project, /create-roadmap, and /brainstorm skills
+- Add /cst-help migrate action for generating JSON from existing MD-only projects
+- Update workflow-guide.md with JSON Data Layer section and troubleshooting.md with JSON troubleshooting
+- Update CLAUDE.md with JSON data layer conventions
+
 ## [1.0.51] - 2026-03-26
 
 ### claude-super-team
