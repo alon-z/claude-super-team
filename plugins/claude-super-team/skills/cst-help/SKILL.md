@@ -1,7 +1,7 @@
 ---
 name: cst-help
 description: Interactive help system for Claude Super Team workflow. Analyzes current project state in .planning/ to provide context-aware guidance on which skill to run next. Explains workflow concepts, troubleshoots issues, provides skill reference. Use when user asks "what's next?", "how does this work?", "I'm stuck", or needs help understanding the planning pipeline.
-allowed-tools: Read, Grep, Glob, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(find *)
+allowed-tools: Read, Grep, Glob, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(find *), Bash(bash *)
 model: sonnet
 argument-hint: "[question]"
 ---
@@ -51,6 +51,10 @@ Use AskUserQuestion to clarify:
   - "Troubleshoot issue" -- Help diagnose a problem or error
   - "Skill reference" -- List all skills with descriptions
 
+**If $ARGUMENTS is "migrate" (case-insensitive):**
+
+Route to "Help Response: Migrate to JSON" below. Skip Phase 2.
+
 **If $ARGUMENTS starts with "explain" followed by a file path (contains `.planning/`):**
 
 Route directly to "Help Response: Explain Artifact" below. Skip Phase 2.
@@ -81,6 +85,12 @@ Only run state detection when the user needs project-specific guidance. Use Bash
 
 # Check for codebase map (brownfield indicator)
 [ -d .planning/codebase ] && echo "HAS_CODEBASE_MAP=true" || echo "HAS_CODEBASE_MAP=false"
+
+# Check for JSON companions
+[ -f .planning/PROJECT.json ] && echo "HAS_PROJECT_JSON=true" || echo "HAS_PROJECT_JSON=false"
+[ -f .planning/ROADMAP.json ] && echo "HAS_ROADMAP_JSON=true" || echo "HAS_ROADMAP_JSON=false"
+[ -f .planning/STATE.json ] && echo "HAS_STATE_JSON=true" || echo "HAS_STATE_JSON=false"
+[ -f .planning/IDEAS.json ] && echo "HAS_IDEAS_JSON=true" || echo "HAS_IDEAS_JSON=false"
 ```
 
 **State categories:**
@@ -528,6 +538,7 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
 /cst-help [question]
   Context-aware help, troubleshooting, and artifact explanation
   Explain mode: /cst-help explain .planning/path/to/artifact.md
+  Migrate mode: /cst-help migrate (regenerate JSON from MD sources)
 ```
 
 **Then add current state context:**
@@ -535,6 +546,96 @@ For more: see ${CLAUDE_SKILL_DIR}/references/troubleshooting.md
 ```
 Your current state: {state from Phase 2}
 Suggested next step: {specific skill command}
+```
+
+---
+
+## Help Response: Migrate to JSON
+
+**Goal:** Regenerate all JSON companion files from existing MD source-of-truth files using json-sync.sh.
+
+**Step 1: Check prerequisites**
+
+```bash
+# Check json-sync.sh exists
+SYNC_SCRIPT="${CLAUDE_PLUGIN_ROOT}/scripts/json-sync.sh"
+[ -f "$SYNC_SCRIPT" ] && echo "SYNC_EXISTS=true" || echo "SYNC_EXISTS=false"
+
+# Check for MD source files
+[ -f .planning/PROJECT.md ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"
+[ -f .planning/ROADMAP.md ] && echo "HAS_ROADMAP=true" || echo "HAS_ROADMAP=false"
+[ -f .planning/STATE.md ] && echo "HAS_STATE=true" || echo "HAS_STATE=false"
+[ -f .planning/IDEAS.md ] && echo "HAS_IDEAS=true" || echo "HAS_IDEAS=false"
+
+# Check which JSON files already exist
+[ -f .planning/PROJECT.json ] && echo "PROJECT_JSON=exists" || echo "PROJECT_JSON=missing"
+[ -f .planning/ROADMAP.json ] && echo "ROADMAP_JSON=exists" || echo "ROADMAP_JSON=missing"
+[ -f .planning/STATE.json ] && echo "STATE_JSON=exists" || echo "STATE_JSON=missing"
+[ -f .planning/IDEAS.json ] && echo "IDEAS_JSON=exists" || echo "IDEAS_JSON=missing"
+```
+
+**If SYNC_EXISTS=false:** Report error and exit:
+
+```
+json-sync.sh not found at ${CLAUDE_PLUGIN_ROOT}/scripts/json-sync.sh
+
+This script is part of the JSON schema infrastructure. Ensure the claude-super-team plugin is up to date.
+```
+
+**Step 2: Display current state**
+
+Show the user which MD files exist and which JSON companions are present or missing:
+
+```
+JSON Migration Status:
+
+  MD Source          JSON Companion
+  PROJECT.md  ✓     PROJECT.json  {exists|missing}
+  ROADMAP.md  ✓     ROADMAP.json  {exists|missing}
+  STATE.md    ✓     STATE.json    {exists|missing}
+  IDEAS.md    ✓     IDEAS.json    {exists|missing}
+```
+
+Only show rows where the MD source exists.
+
+**Step 3: Confirm and run**
+
+Use AskUserQuestion:
+
+- header: "Migrate"
+- question: "Regenerate all JSON files from MD sources?"
+- options:
+  - "Yes, regenerate all" -- Run json-sync.sh --all
+  - "Cancel" -- Abort migration
+
+**If "Yes, regenerate all":**
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/json-sync.sh" --all
+```
+
+**Step 4: Report results**
+
+```
+Migration complete.
+
+{List JSON files created/updated}
+
+To commit when ready:
+  git add .planning/*.json && git commit -m "docs: regenerate JSON companions from MD sources"
+```
+
+---
+
+## Help Response: Skill Reference (migrate mode addendum)
+
+Append to the Skill Reference output under the Help section:
+
+```
+/cst-help migrate
+  Regenerate all JSON companion files from MD sources
+  → Runs json-sync.sh --all
+  → Creates/updates PROJECT.json, ROADMAP.json, STATE.json, IDEAS.json
 ```
 
 ---

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "claude-monitor": {
+      "command": "bun",
+      "args": [
+        "/home/claude/claude-monitor/packages/agent/src/channel-server.ts"
+      ],
+      "env": {
+        "CCM_SESSION_ID": "ccm-claude-super-team-1774608553616",
+        "CCM_BRIDGE_PORT": "7401"
+      }
+    }
+  }
+}

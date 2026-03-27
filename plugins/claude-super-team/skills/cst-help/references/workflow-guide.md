@@ -73,9 +73,29 @@ Claude Super Team is a structured project planning and execution workflow for so
 ```
 /cst-help [question]  → Context-aware help, troubleshooting, and artifact explanation
                         Explain mode: /cst-help explain .planning/path/to/artifact.md
+                        Migrate mode: /cst-help migrate (regenerate JSON from MD sources)
                         Reads artifact + surrounding context (CONTEXT.md, RESEARCH.md, ROADMAP.md)
                         Produces concise narrative explaining purpose, constraints, and connections
 ```
+
+## JSON Data Layer
+
+Each core planning file (PROJECT.md, ROADMAP.md, STATE.md, IDEAS.md) has a JSON companion (PROJECT.json, ROADMAP.json, STATE.json, IDEAS.json). JSON files are **always derived from MD** -- the MD file is the source of truth.
+
+**How JSON files are created:**
+- Skills that write MD files also construct the JSON companion inline (dual-write)
+- Skills do NOT run json-sync.sh -- they build JSON directly
+- To regenerate all JSON from existing MD files: `/cst-help migrate`
+
+**JSON conventions:**
+- Kebab-case keys (e.g., `execution-model`, `core-value`, `success-criteria`)
+- Named: same base name with `.json` extension (PROJECT.md → PROJECT.json)
+- Located in `.planning/` alongside their MD counterpart
+
+**When to regenerate:**
+- After manually editing MD files
+- After upgrading from a version that didn't produce JSON
+- When JSON files are missing or out of sync
 
 ## Key Concepts
 
@@ -293,9 +313,13 @@ Phases define **observable, user-verifiable outcomes**, not task lists.
 ```
 .planning/
 ├── PROJECT.md                           # Project vision
+├── PROJECT.json                         # JSON companion (derived from PROJECT.md)
 ├── ROADMAP.md                           # All phases with goals
+├── ROADMAP.json                         # JSON companion (derived from ROADMAP.md)
 ├── STATE.md                             # Current position, decisions
+├── STATE.json                           # JSON companion (derived from STATE.md)
 ├── IDEAS.md                             # Brainstormed ideas (from /brainstorm)
+├── IDEAS.json                           # JSON companion (derived from IDEAS.md)
 ├── SECURITY-AUDIT.md                    # Security findings (optional)
 ├── BUILD-STATE.md                       # Build pipeline state and recovery (from /build)
 ├── BUILD-REPORT.md                      # Final build summary (from /build)
@@ -416,3 +440,4 @@ Use `/metrics` when:
 - Re-run `/discuss-phase` if research finds conflicts
 - Let `/progress` route to next actions
 - Follow zero-padded naming (01-foundation)
+- After manual MD edits, run `/cst-help migrate` to regenerate JSON companions

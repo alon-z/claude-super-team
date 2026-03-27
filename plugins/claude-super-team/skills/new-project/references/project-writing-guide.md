@@ -84,10 +84,12 @@ mkdir -p .planning
 
 Write the file to `.planning/PROJECT.md`.
 
+**Write PROJECT.json:** After writing PROJECT.md, construct `.planning/PROJECT.json` with the same data in JSON format (kebab-case keys). See Phase 4.5 in the skill for the schema. Do NOT run json-sync.sh -- build inline.
+
 **If git was initialized by this skill (new repo):** Commit automatically:
 
 ```bash
-git add .planning/PROJECT.md
+git add .planning/PROJECT.md .planning/PROJECT.json
 git commit -m "$(cat <<'EOF'
 docs: initialize project
 
@@ -99,8 +101,10 @@ EOF
 **If git already existed (existing repo):** Do NOT commit. Tell the user:
 
 ```
-Created .planning/PROJECT.md
+Created:
+- .planning/PROJECT.md
+- .planning/PROJECT.json
 
 To commit when ready:
-  git add .planning/PROJECT.md && git commit -m "docs: initialize project"
+  git add .planning/PROJECT.md .planning/PROJECT.json && git commit -m "docs: initialize project"
 ```

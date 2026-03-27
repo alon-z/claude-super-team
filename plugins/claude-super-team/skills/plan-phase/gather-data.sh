@@ -41,7 +41,11 @@ fi
 
 # Roadmap phase headings (for detecting unplanned ones)
 echo "=== ROADMAP_PHASES ==="
-grep -E "^#+.*Phase [0-9]+(\.[0-9]+)?" "$ROADMAP_FILE" 2>/dev/null
+if [ "$_JQ_AVAILABLE" = "true" ] && [ -f ".planning/ROADMAP.json" ]; then
+  jq -r '.phases[] | "### Phase \(.id): \(.name)"' ".planning/ROADMAP.json" 2>/dev/null
+else
+  grep -E "^#+.*Phase [0-9]+(\.[0-9]+)?" "$ROADMAP_FILE" 2>/dev/null
+fi
 
 # --- New pre-assembled context sections ---
 
@@ -54,11 +58,15 @@ elif [ ! -f "$ROADMAP_FILE" ]; then
 else
   # Extract ## Phases list (from "## Phases" to next "##" heading)
   echo "--- Phases Overview ---"
-  awk '
-    /^## Phases/ { found=1; next }
-    found && /^## / { exit }
-    found { print }
-  ' "$ROADMAP_FILE" 2>/dev/null
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f ".planning/ROADMAP.json" ]; then
+    jq -r '.phases[] | "- [\(if .complete then "x" else " " end)] **Phase \(.id): \(.name)**"' ".planning/ROADMAP.json" 2>/dev/null
+  else
+    awk '
+      /^## Phases/ { found=1; next }
+      found && /^## / { exit }
+      found { print }
+    ' "$ROADMAP_FILE" 2>/dev/null
+  fi
 
   # Extract ### Phase N detail block (from "### Phase {PHASE_NUM}:" to next "###" or EOF)
   echo ""

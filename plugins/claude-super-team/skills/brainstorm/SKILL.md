@@ -88,6 +88,42 @@ Create summary sections: approved table, deferred list, rejected list.
 
 Write the file. Do NOT commit.
 
+### Phase 10.5: Write IDEAS.json
+
+After writing IDEAS.md, construct a JSON companion file. **Do NOT run json-sync.sh** -- build the JSON inline.
+
+```json
+{
+  "sessions": [
+    {
+      "date": "YYYY-MM-DD",
+      "topic": "...",
+      "mode": "interactive|autonomous",
+      "ideas": [
+        {
+          "name": "...",
+          "description": "...",
+          "motivation": "...",
+          "tradeoffs": "...",
+          "implementation-notes": "...",
+          "decision": "approved|deferred|rejected"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "approved": ["..."],
+    "deferred": ["..."],
+    "rejected": ["..."]
+  },
+  "last-updated": "YYYY-MM-DD"
+}
+```
+
+Derive all values from the IDEAS.md just written. Use kebab-case keys. Write to `.planning/IDEAS.json`.
+
+**If IDEAS.json already exists:** Read it, prepend the new session to the `sessions` array, and update the `summary` section.
+
 ### Phase 11: Update Roadmap (Optional)
 
 If any ideas were approved:
@@ -125,6 +161,7 @@ Ideas explored: {TOTAL_COUNT}
 
 Created/updated:
 - .planning/IDEAS.md
+- .planning/IDEAS.json
 
 {If roadmap updated:}
 Updated:
@@ -134,7 +171,7 @@ Updated:
 - .planning/phases/{NN}-{slug}/{NN}-CONTEXT.md (for each new phase)
 
 To commit when ready:
-  git add .planning/IDEAS.md && git commit -m "docs: brainstorming session on {topic}"
+  git add .planning/IDEAS.md .planning/IDEAS.json && git commit -m "docs: brainstorming session on {topic}"
 
 ---
 
@@ -152,6 +189,7 @@ To commit when ready:
 - [ ] **Interactive:** Topic established, ideas explored collaboratively, decisions made per idea
 - [ ] **Autonomous:** 3 parallel analysis agents spawned, results synthesized, user reviewed output
 - [ ] IDEAS.md created or updated
+- [ ] IDEAS.json created or updated (derived from IDEAS.md)
 - [ ] If approved ideas exist, user offered roadmap update via /create-roadmap
 - [ ] If phases were added to roadmap, CONTEXT.md files created for each new phase using the standard context template
 - [ ] User told how to commit (never auto-commit)

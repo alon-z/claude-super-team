@@ -529,6 +529,52 @@
 - This is cosmetic -- other metrics (tool counts, agents, failures) are still accurate
 - Ensure sessions have both skill_start and skill_end events
 
+### JSON Layer
+
+#### "JSON files missing or out of sync"
+
+**Symptom:** JSON companion files (PROJECT.json, ROADMAP.json, etc.) are missing or stale after manual MD edits
+
+**Solution:**
+```
+/cst-help migrate
+```
+This runs json-sync.sh --all to regenerate all JSON files from MD sources.
+
+#### "json-sync.sh not found"
+
+**Symptom:** `/cst-help migrate` reports json-sync.sh not found
+
+**Cause:** Plugin not up to date or scripts directory missing
+
+**Solution:**
+- Ensure claude-super-team plugin is current
+- Check `plugins/claude-super-team/scripts/json-sync.sh` exists
+- If upgrading from older version, update the plugin
+
+#### "JSON parse error or corruption"
+
+**Symptom:** JSON files contain invalid JSON or `jq` reports parse errors
+
+**Cause:** Manual edit of JSON file or interrupted write
+
+**Solution:**
+- Delete the corrupt JSON file
+- Run `/cst-help migrate` to regenerate from MD source
+- Never edit JSON files directly -- edit the MD source and regenerate
+
+#### "JSON and MD out of sync after commit"
+
+**Symptom:** JSON data doesn't match MD content after committing
+
+**Cause:** MD was edited manually without regenerating JSON
+
+**Solution:**
+```
+/cst-help migrate
+git add .planning/*.json && git commit -m "docs: regenerate JSON companions"
+```
+
 ### Interactive Coding
 
 #### "When to use /code vs /phase-feedback"
@@ -595,6 +641,24 @@ grep "Current Phase:" .planning/STATE.md
 
 # Phase completion from ROADMAP.md
 grep -A 2 "^## Phase" .planning/ROADMAP.md
+```
+
+### Check JSON layer
+```bash
+# List JSON companions
+ls -la .planning/*.json 2>/dev/null || echo "No JSON files found"
+
+# Validate JSON syntax (requires jq)
+for f in .planning/*.json; do
+  [ -f "$f" ] && jq empty "$f" 2>&1 && echo "$f: valid" || echo "$f: INVALID"
+done
+
+# Compare MD vs JSON existence
+for name in PROJECT ROADMAP STATE IDEAS; do
+  MD=$( [ -f ".planning/${name}.md" ] && echo "✓" || echo "✗" )
+  JSON=$( [ -f ".planning/${name}.json" ] && echo "✓" || echo "✗" )
+  echo "${name}: MD=${MD} JSON=${JSON}"
+done
 ```
 
 ## When to Use Each Skill
@@ -696,6 +760,7 @@ grep -A 2 "^## Phase" .planning/ROADMAP.md
 - Want to know what to do next in your project
 - Troubleshooting an issue with a skill
 - Want to understand what a .planning/ artifact means: `/cst-help explain .planning/path`
+- Need to regenerate JSON companions from MD sources: `/cst-help migrate`
 
 ## Best Practices
 

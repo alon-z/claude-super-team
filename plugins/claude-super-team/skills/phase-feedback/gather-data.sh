@@ -29,7 +29,11 @@ fi
 
 # Current phase from STATE.md
 echo "=== CURRENT_PHASE ==="
-grep -E '^Phase:' .planning/STATE.md 2>/dev/null | head -1
+if [ "$_JQ_AVAILABLE" = "true" ] && [ -f .planning/STATE.json ]; then
+  jq -r '"Phase: \(.currentPosition.phase)"' .planning/STATE.json 2>/dev/null || grep -E '^Phase:' .planning/STATE.md 2>/dev/null | head -1
+else
+  grep -E '^Phase:' .planning/STATE.md 2>/dev/null | head -1
+fi
 
 # Existing subphases (for decimal numbering)
 echo "=== SUBPHASES ==="
