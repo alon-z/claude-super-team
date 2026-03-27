@@ -31,3 +31,5 @@ None yet.
 
 ---
 *Last updated: [date]*
+
+<!-- JSON companion: .planning/STATE.json is auto-generated alongside this file. Edit this MD file (source of truth), then regenerate JSON via /cst-help migrate or skill dual-write. -->

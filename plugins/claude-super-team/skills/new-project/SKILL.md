@@ -143,6 +143,32 @@ Store the answer as `$EXEC_MODEL` (`sonnet` or `opus`). This will be written to 
 
 Read `${CLAUDE_SKILL_DIR}/references/project-writing-guide.md` for PROJECT.md population details (greenfield/brownfield requirements, key decisions, save/commit flow).
 
+### Phase 4.5: Write PROJECT.json
+
+After writing PROJECT.md, construct a JSON companion file. **Do NOT run json-sync.sh** -- build the JSON inline.
+
+```json
+{
+  "what-this-is": "...",
+  "core-value": "...",
+  "requirements": {
+    "validated": ["..."],
+    "active": ["..."],
+    "out-of-scope": ["..."]
+  },
+  "constraints": ["..."],
+  "key-decisions": [
+    { "decision": "...", "rationale": "...", "outcome": "..." }
+  ],
+  "preferences": {
+    "execution-model": "opus"
+  },
+  "last-updated": "YYYY-MM-DD"
+}
+```
+
+Derive all values from the PROJECT.md just written. Use kebab-case keys. Write to `.planning/PROJECT.json`.
+
 ### Phase 5: Done
 
 Present completion with next steps:
@@ -150,7 +176,9 @@ Present completion with next steps:
 ```
 Project initialized.
 
-Created: .planning/PROJECT.md
+Created:
+- .planning/PROJECT.md
+- .planning/PROJECT.json
 
 ---
 
@@ -176,5 +204,6 @@ Created: .planning/PROJECT.md
 - [ ] At least one round of questions asked (even with thorough documents)
 - [ ] PROJECT.md captures full context
 - [ ] PROJECT.md written to .planning/
+- [ ] PROJECT.json written to .planning/ (derived from PROJECT.md)
 - [ ] If new repo: committed. If existing repo: user told how to commit
 - [ ] User knows next steps

@@ -10,6 +10,10 @@
 
 P="${P:-.planning}"
 
+# Cache jq availability to avoid repeated command -v calls
+_JQ_AVAILABLE=false
+command -v jq >/dev/null 2>&1 && _JQ_AVAILABLE=true
+
 # cat_project: Output PROJECT.md with validated requirements trimmed.
 # Strips "- [x]" items from ### Validated section, emits count instead.
 # Usage: cat_project [file]  (defaults to $P/PROJECT.md)
@@ -143,10 +147,12 @@ emit_phase_completion() {
 }
 
 # emit_sync_check: Emit === SYNC_CHECK === section.
-# Extracts phase numbers from directories, ROADMAP.md, STATE.md,
-# and CHECKED/UNCHECKED phase lists from ROADMAP.md checkboxes.
+# Extracts phase numbers from directories, ROADMAP.json/md, STATE.json/md,
+# and CHECKED/UNCHECKED phase lists from ROADMAP checkboxes.
 emit_sync_check() {
   echo "=== SYNC_CHECK ==="
+
+  # DIR_PHASES: always from filesystem (source of truth)
   echo -n "DIR_PHASES: "
   if [ -d "$P/phases" ]; then
     for dir in "$P"/phases/*/; do
@@ -156,23 +162,48 @@ emit_sync_check() {
   fi
   echo
 
+  # ROADMAP_PHASES: try JSON first
   echo -n "ROADMAP_PHASES: "
-  grep -oE 'Phase [0-9]+(\.[0-9]+)?' "$P/ROADMAP.md" 2>/dev/null | awk '{print $2}' | sort -V | uniq | tr '\n' ' '
-  echo
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
+    jq -r '[.phases[].id] | sort_by(tonumber? // .) | .[]' "$P/ROADMAP.json" 2>/dev/null | tr '\n' ' '
+    echo
+  else
+    grep -oE 'Phase [0-9]+(\.[0-9]+)?' "$P/ROADMAP.md" 2>/dev/null | awk '{print $2}' | sort -V | uniq | tr '\n' ' '
+    echo
+  fi
 
+  # STATE_PHASE: try JSON first
   echo -n "STATE_PHASE: "
-  grep -E '^Phase:' "$P/STATE.md" 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/STATE.json" ]; then
+    jq -r '.currentPosition.phase // empty' "$P/STATE.json" 2>/dev/null
+  else
+    grep -E '^Phase:' "$P/STATE.md" 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1
+  fi
   echo
 
-  grep -E '^\s*- \[x\] Phase' "$P/ROADMAP.md" 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "CHECKED: %s\n", $2}'
-  grep -E '^\s*- \[ \] Phase' "$P/ROADMAP.md" 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "UNCHECKED: %s\n", $2}'
+  # CHECKED/UNCHECKED: try JSON first
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
+    jq -r '.phases[] | select(.complete == true) | "CHECKED: \(.id)"' "$P/ROADMAP.json" 2>/dev/null
+    jq -r '.phases[] | select(.complete == false) | "UNCHECKED: \(.id)"' "$P/ROADMAP.json" 2>/dev/null
+  else
+    grep -E '^\s*- \[x\] Phase' "$P/ROADMAP.md" 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "CHECKED: %s\n", $2}'
+    grep -E '^\s*- \[ \] Phase' "$P/ROADMAP.md" 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "UNCHECKED: %s\n", $2}'
+  fi
 }
 
 # emit_preferences: Emit === PREFERENCES === section.
 # Extracts execution-model, simplifier, verification, and teams-available
-# from STATE.md and environment, with fallback defaults.
+# from STATE.json (JSON-first) or STATE.md (fallback), with defaults.
 emit_preferences() {
   echo "=== PREFERENCES ==="
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/STATE.json" ]; then
+    # JSON path: extract preferences with kebab-case keys
+    jq -r '.preferences // {} | to_entries[] | "\(.key): \(.value)"' "$P/STATE.json" 2>/dev/null && {
+      [ "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-}" = "1" ] && echo "teams-available: true" || echo "teams-available: false"
+      return 0
+    }
+  fi
+  # MD fallback (existing logic)
   grep -E '^execution-model:' "$P/STATE.md" 2>/dev/null || echo "execution-model: unset"
   grep -E '^simplifier:' "$P/STATE.md" 2>/dev/null || echo "simplifier: unset"
   grep -E '^verification:' "$P/STATE.md" 2>/dev/null || echo "verification: unset"
@@ -189,4 +220,9 @@ emit_structure() {
   [ -f "$P/STATE.md" ] && echo "HAS_STATE=true" || echo "HAS_STATE=false"
   [ -f "$P/SECURITY-AUDIT.md" ] && echo "HAS_SECURITY=true" || echo "HAS_SECURITY=false"
   [ -d "$P/codebase" ] && echo "HAS_CODEBASE=true" || echo "HAS_CODEBASE=false"
+  # JSON layer indicators
+  [ -f "$P/PROJECT.json" ] && echo "HAS_PROJECT_JSON=true" || echo "HAS_PROJECT_JSON=false"
+  [ -f "$P/ROADMAP.json" ] && echo "HAS_ROADMAP_JSON=true" || echo "HAS_ROADMAP_JSON=false"
+  [ -f "$P/STATE.json" ] && echo "HAS_STATE_JSON=true" || echo "HAS_STATE_JSON=false"
+  [ -f "$P/IDEAS.json" ] && echo "HAS_IDEAS_JSON=true" || echo "HAS_IDEAS_JSON=false"
 }

@@ -1,0 +1,100 @@
+{
+  "projectName": "Claude Super Team",
+  "description": "A Claude Code plugin marketplace containing three plugins that provide a structured project planning and execution workflow through slash commands (skills) and custom agents. Built primarily for personal use, it covers the full software delivery lifecycle -- from project initialization through phased execution and verification.",
+  "coreValue": "",
+  "requirements": {
+    "validated": [
+      {
+        "text": "Completed sequential planning pipeline: `/new-project` -> `/create-roadmap` -> `/discuss-phase` -> `/research-phase` -> `/plan-phase` -> `/execute-phase` -> `/progress` -- existing",
+        "complete": true
+      },
+      {
+        "text": "Multi-agent orchestration via Task tool with wave-based parallel execution -- existing",
+        "complete": true
+      },
+      {
+        "text": "Codebase mapping with 4 parallel mapper agents (`/map-codebase`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Marketplace management utilities (`/marketplace-manager`, `/skill-creator`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Task management integrations: Linear sync (`/linear-sync`) and GitHub issues (`/github-issue-manager`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Interactive and autonomous brainstorming (`/brainstorm`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Phase feedback loop for iterating on delivered work (`/phase-feedback`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Quick-plan for inserting urgent phases with decimal numbering (`/quick-plan`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Context-aware help system (`/cst-help`) -- existing",
+        "complete": true
+      },
+      {
+        "text": "Research phase with custom `phase-researcher` agent and Firecrawl integration -- existing",
+        "complete": true
+      },
+      {
+        "text": "Systematic audit of all skills against Claude Code ecosystem capabilities (skills vs agents vs hooks, frontmatter features, context behavior, `disable-model-invocation`, etc.)",
+        "complete": true
+      },
+      {
+        "text": "Evaluate and convert skills that would work better as agents or hybrid skill+agent patterns",
+        "complete": true
+      },
+      {
+        "text": "Ensure all skills properly use available Claude Code features (tool restrictions, model selection, context forking, argument hints)",
+        "complete": true
+      }
+    ],
+    "active": [
+      {
+        "text": "Add missing capabilities as discovered through ongoing usage of the planning workflow",
+        "complete": false
+      }
+    ],
+    "outOfScope": [
+      "Community contribution workflows -- this is a personal tool, not optimizing for external contributors",
+      "Automated test suites -- skills are Markdown-based and validated through execution, not unit tests",
+      "Web UI or dashboard -- this is a CLI-only toolset, no visual interfaces",
+      "Backward compatibility guarantees -- as the sole user, breaking changes are acceptable when they improve the tool"
+    ]
+  },
+  "constraints": [
+    "Platform: Claude Code CLI only -- all skills execute within the Claude Code runtime environment",
+    "No runtime code: Entirely Markdown-driven with JSON manifests; no build system, no compiled code, no package dependencies",
+    "Ecosystem dependency: All capabilities constrained by what Claude Code's plugin API, Task tool, and frontmatter system support",
+    "Context windows: Skills that spawn subagents must embed all necessary context inline (no `@` file references across Task boundaries)"
+  ],
+  "decisions": [
+    {
+      "decision": "Systematic skill audit before new features",
+      "rationale": "Existing skills may not use available Claude Code capabilities; fixing foundations first prevents compounding issues",
+      "outcome": "Done (Phases 1-3, validated Phase 5)"
+    },
+    {
+      "decision": "Execution model: opus",
+      "rationale": "Higher reasoning quality preferred for all execution tasks; cost/speed tradeoff acceptable for personal use",
+      "outcome": "Done"
+    },
+    {
+      "decision": "Evaluate skills vs agents for each capability",
+      "rationale": "Claude Code agents offer different primitives than skills; some orchestration-heavy skills may be better as agents",
+      "outcome": "Done (Phase 2: 0 conversions, all remain as skills)"
+    }
+  ],
+  "preferences": {
+    "executionModel": "opus"
+  },
+  "lastUpdated": "2026-03-13 after Phase 5 execution"
+}

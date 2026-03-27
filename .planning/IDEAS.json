@@ -1,0 +1,319 @@
+{
+  "sessions": [
+    {
+      "title": "Usability and Day-to-Day Operations",
+      "date": "2026-03-16",
+      "mode": "Autonomous",
+      "ideas": [
+        {
+          "id": 1,
+          "name": "Centralize Gather Scripts",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 2,
+          "name": "Unified Phase Resolution",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 3,
+          "name": "Compact STATE.md Decisions",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 4,
+          "name": "Drift Detector",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 5,
+          "name": "Enhance /cst-help with Artifact Explanation",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 6,
+          "name": "Enhance /build Dynamic Awareness",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 7,
+          "name": "Smart Defaults for AskUserQuestion",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 8,
+          "name": "Quiet Mode",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 9,
+          "name": "Compact Progress (--compact flag)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 10,
+          "name": "Skip Discussion for Known Phases (--fast flag on plan-phase)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 11,
+          "name": "Clean Dead Code",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 12,
+          "name": "Warmup (Context Preloader)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 13,
+          "name": "Rewind (Phase Rollback)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 14,
+          "name": "Fast Restart (Session Resume)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 15,
+          "name": "Postmortem (Automated Retrospective)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 16,
+          "name": "Checkpoint (Save/Restore Planning Snapshots)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 17,
+          "name": "Fix Progress Model/Data Mismatch",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 18,
+          "name": "Error Recovery (Try-Catch for Task Failures)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 19,
+          "name": "Validate Planner Output",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 20,
+          "name": "Preserve Branches on Merge Failure",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 21,
+          "name": "Template Extraction",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 22,
+          "name": "Parallel Sprint Execution",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 23,
+          "name": "Bidirectional Plan-Code Sync",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        }
+      ],
+      "approved": [
+        {
+          "name": "Centralize Gather Scripts",
+          "priority": "High",
+          "nextStep": "Add as roadmap phase; extract shared functions into gather-common.sh"
+        },
+        {
+          "name": "Unified Phase Resolution",
+          "priority": "High",
+          "nextStep": "Add create_phase_dir to phase-utils.sh; update 4 skills"
+        },
+        {
+          "name": "Compact STATE.md Decisions",
+          "priority": "Medium",
+          "nextStep": "Extend execute-phase compaction step"
+        },
+        {
+          "name": "Drift Detector",
+          "priority": "Medium",
+          "nextStep": "Add as roadmap phase; design drift comparison methodology"
+        },
+        {
+          "name": "Enhance /cst-help with Artifact Explanation",
+          "priority": "Medium",
+          "nextStep": "Add explain routing case to cst-help"
+        },
+        {
+          "name": "Enhance /build Dynamic Awareness",
+          "priority": "Medium",
+          "nextStep": "Add completion audit step to /build pipeline"
+        }
+      ],
+      "deferred": [
+        {
+          "name": "Compact Progress:",
+          "reason": "** Single-line output flag for /progress. Low priority, revisit when shell prompt integration becomes useful."
+        },
+        {
+          "name": "Postmortem:",
+          "reason": "** Automated retrospective from planning data. Depends on Phase 7 (metrics/telemetry consumption) being complete."
+        },
+        {
+          "name": "Bidirectional Plan-Code Sync:",
+          "reason": "** Reactive planning layer. Depends on Drift Detector being built first as foundation."
+        }
+      ],
+      "rejected": [
+        "Smart Defaults:",
+        "Quiet Mode:",
+        "Skip Discussion:",
+        "Clean Dead Code:",
+        "Warmup:",
+        "Rewind:",
+        "Fast Restart:",
+        "Checkpoint:",
+        "Fix Progress Model:",
+        "Error Recovery:",
+        "Validate Planner Output:",
+        "Preserve Branches:",
+        "Template Extraction:",
+        "Parallel Sprint Execution:"
+      ]
+    },
+    {
+      "title": "Monitoring Efficiency of the Claude Super Team Flow",
+      "date": "2026-02-17",
+      "mode": "",
+      "ideas": [
+        {
+          "id": 1,
+          "name": "Hook-Based Telemetry Capture",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 2,
+          "name": "Efficiency Regression Detection (via /metrics)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 3,
+          "name": "Cross-Project Telemetry Store",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 4,
+          "name": "SUMMARY.md Metrics Extension (not deep-dived)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 5,
+          "name": "/metrics Reporting Skill (merged into Idea 2)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 6,
+          "name": "Per-Skill Timing Instrumentation (not deep-dived)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 7,
+          "name": "Budget Guardrails via Hooks (not deep-dived)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        },
+        {
+          "id": 8,
+          "name": "A/B Configuration Profiles (not deep-dived)",
+          "decision": "",
+          "priority": "",
+          "description": ""
+        }
+      ],
+      "approved": [
+        {
+          "name": "Hook-Based Telemetry Capture",
+          "priority": "High",
+          "nextStep": "Research hook events, storage format; add as roadmap phase"
+        },
+        {
+          "name": "Efficiency Regression Detection (/metrics)",
+          "priority": "Medium",
+          "nextStep": "Implement after telemetry infrastructure; add as roadmap phase"
+        }
+      ],
+      "deferred": [
+        {
+          "name": "Cross-Phase Parallel DAG Execution:",
+          "reason": "** /build analyzes \"Depends on\" fields in ROADMAP.md phase details to build a dependency DAG. Independent phases (no dependency relationship) execute in parallel using teams mode -- each phase gets its own branch from main, parallel agents work simultaneously, then merge sequentially when all complete. Failed phases mark dependents as skipped. Requires teams mode. Would significantly speed up builds where phases like \"Auth\" and \"Frontend scaffold\" are independent after a shared foundation phase."
+        }
+      ],
+      "rejected": [
+        "Cross-Project Telemetry Store:"
+      ]
+    }
+  ],
+  "lastUpdated": "2026-02-17"
+}

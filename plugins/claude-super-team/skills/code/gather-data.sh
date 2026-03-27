@@ -33,7 +33,11 @@ fi
 
 # === CURRENT_PHASE ===
 echo "=== CURRENT_PHASE ==="
-grep -E '^Phase:' "$P/STATE.md" 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1
+if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/STATE.json" ]; then
+  jq -r '.currentPosition.phase // empty' "$P/STATE.json" 2>/dev/null
+else
+  grep -E '^Phase:' "$P/STATE.md" 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1
+fi
 
 # === RECENT_SESSIONS ===
 echo "=== RECENT_SESSIONS ==="

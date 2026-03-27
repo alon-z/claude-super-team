@@ -1,0 +1,20 @@
+{
+  "currentPosition": {
+    "phase": 13,
+    "status": "Not started",
+    "lastActivity": "2026-03-27 -- Phase 13 added: JSON schema infrastructure for planning files",
+    "focus": "Phase 13 -- JSON schema infrastructure for planning files"
+  },
+  "preferences": {
+    "execution-model": "opus",
+    "simplifier": "disabled",
+    "verification": "unset"
+  },
+  "decisions": [
+    {
+      "text": "Execution model: opus (set during /execute-phase 1)"
+    }
+  ],
+  "blockers": [],
+  "lastUpdated": "2026-03-20 -- Phase 7 executed (all roadmap phases complete)"
+}

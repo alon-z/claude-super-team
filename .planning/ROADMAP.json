@@ -1,0 +1,410 @@
+{
+  "overview": "Phases 1-12 (plus 7 quick phases) are complete. Phase 13 adds JSON schema infrastructure for planning files.",
+  "phases": [
+    {
+      "id": "1",
+      "complete": true,
+      "name": "Claude Code Capability Mapping - Research and document all available plugin primitives as an audit reference",
+      "goal": "Create a complete reference of Claude Code's plugin primitives -- skills, agents, hooks, frontmatter options, context behavior -- as the standard to audit against",
+      "dependsOn": [],
+      "successCriteria": [
+        "A capability reference document exists covering all skill frontmatter fields, agent definition syntax, hooks, and context behavior options",
+        "Each capability is documented with when to use it, examples, and tradeoffs (skill vs agent vs hook)",
+        "The reference is accurate against the current Claude Code version (verified by testing at least 3 capabilities)"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "1.1",
+      "complete": true,
+      "name": "Add phase steps tracking to progress skill",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "1.2",
+      "complete": true,
+      "name": "Add branch guard and team log to execute-phase",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "1.3",
+      "complete": true,
+      "name": "Make brainstorm create context for roadmap phases",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "1.4",
+      "complete": true,
+      "name": "Add compaction resilience to execute-phase",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [
+        "Execute-phase skill has PreCompact and SessionStart(compact) hooks in frontmatter that re-inject critical state after compaction",
+        "Execute-phase writes EXEC-PROGRESS.md during execution tracking wave/plan completion, team name, and teammate state",
+        "cst-help is updated with guidance on compaction resilience and CLAUDE_AUTOCOMPACT_PCT_OVERRIDE configuration"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": "Quick phase -- lightweight planning, no research/verification"
+    },
+    {
+      "id": "1.5",
+      "complete": true,
+      "name": "Add research detection to phase-feedback skill",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [
+        "Phase-feedback skill includes an LLM analysis step between feedback collection and planner spawning that determines if research is needed",
+        "When research is needed, the skill spawns the phase-researcher agent inline and passes RESEARCH.md to the planner"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": "Quick phase -- lightweight planning, no research/verification"
+    },
+    {
+      "id": "1.6",
+      "complete": true,
+      "name": "Add planning file sync detection to progress skill",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [
+        "`/progress` includes a \"Sync Issues\" section that detects phase directories not listed in ROADMAP.md and ROADMAP.md phases without matching directories",
+        "`/progress` reports when STATE.md references a phase that doesn't exist in ROADMAP.md or has no directory"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": "Quick phase -- lightweight planning, no research/verification"
+    },
+    {
+      "id": "1.7",
+      "complete": true,
+      "name": "Add per-project toggle to disable simplifier agent in execute-phase",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [
+        "A `simplifier` preference in STATE.md (or equivalent per-project config) controls whether the code-simplifier step runs during execution",
+        "Execute-phase respects the setting in both task mode and teams mode, skipping simplification when disabled"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": "Quick phase -- lightweight planning, no research/verification"
+    },
+    {
+      "id": "2",
+      "complete": true,
+      "name": "Skill Audit & Reclassification - Systematically review every skill and classify as skill, agent, or hybrid",
+      "goal": "Systematically review every skill in the marketplace against the capability reference, producing per-skill recommendations",
+      "dependsOn": [
+        "Phase 1"
+      ],
+      "successCriteria": [
+        "Every skill across all 3 plugins has been audited with findings documented",
+        "Each skill has a classification: remain as skill, convert to agent, hybrid, or needs feature additions",
+        "Specific frontmatter/feature gaps are identified per skill (missing tool restrictions, wrong model, missing context fork, etc.)"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "3",
+      "complete": true,
+      "name": "Apply Audit Recommendations - Implement reclassifications, add missing features, fix frontmatter gaps",
+      "goal": "Implement all reclassification decisions and feature fixes from the audit",
+      "dependsOn": [
+        "Phase 2"
+      ],
+      "successCriteria": [
+        "Skills classified for conversion are converted to agents (or hybrid) with working implementations",
+        "All frontmatter gaps are fixed -- every skill uses correct tool restrictions, model selection, context behavior, and argument hints",
+        "No regression -- every skill/agent functions correctly after changes (verified by manual execution of key workflows)"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "4",
+      "complete": true,
+      "name": "Harden Fragile Areas - Address tech debt, phase numbering, state coordination, and large file decomposition",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "5",
+      "complete": true,
+      "name": "Workflow Validation & Gap Closure - Dogfood updated marketplace on a real project, discover and fix remaining gaps",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "6",
+      "complete": true,
+      "name": "Hook-Based Telemetry Capture - Add passive telemetry to orchestrator skills via shared shell script and skill-scoped hooks",
+      "goal": "Add passive, zero-token-cost telemetry to orchestrator skills via a shared shell script called by skill-scoped hooks",
+      "dependsOn": [
+        "Phase 5"
+      ],
+      "successCriteria": [
+        "A `telemetry.sh` script exists in `plugins/claude-super-team/scripts/` that captures timing, agent spawns, tool usage, outcomes, and token usage",
+        "Orchestrator skills (plan-phase, execute-phase, research-phase, brainstorm) declare hooks in YAML frontmatter that call `telemetry.sh` at skill start/end and key lifecycle points",
+        "Telemetry data accumulates in `.planning/.telemetry/` in a format validated by research (JSONL, SQLite, or CSV)",
+        "Hook script gracefully no-ops when `.planning/` or `.planning/.telemetry/` directories don't exist"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "7",
+      "complete": true,
+      "name": "Efficiency Regression Detection - Create /metrics skill for resource reporting and threshold-based violation detection",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "7.1",
+      "complete": true,
+      "name": "Build Skill Efficiency",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [
+        "Execute-phase reads teams-available from gather script PREFERENCES section instead of checking inaccessible env var (bug fix)",
+        "/build's adaptive pipeline depth heuristic accounts for project complexity class and tech stack coverage, not just keyword matching",
+        "Verification is skippable via a `verification` preference in STATE.md (always",
+        "Plan-phase planner instructions produce more aggressive wave batching -- plans that can safely run in parallel are assigned to the same wave"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": "Quick phase -- lightweight planning, no research/verification"
+    },
+    {
+      "id": "8",
+      "complete": true,
+      "name": "Full Auto Mode - Create /build skill that autonomously chains all pipeline skills to go from idea to fully built and validated application",
+      "goal": "Create a `/build` skill that autonomously chains the entire planning pipeline -- from idea to fully built and validated application -- using all claude-super-team skills with no user intervention, surviving many context compactions and self-validating its output at each stage",
+      "dependsOn": [
+        "Phase 7"
+      ],
+      "successCriteria": [
+        "A `/build` skill exists that accepts a project idea as input and autonomously orchestrates: `/new-project` -> `/brainstorm` (autonomous mode) -> `/create-roadmap` -> and for each phase: `/discuss-phase` -> `/research-phase` -> `/plan-phase` -> `/execute-phase`",
+        "The skill makes autonomous decisions at every AskUserQuestion checkpoint, using LLM reasoning to select the best option without user intervention",
+        "The skill maintains a durable `BUILD-STATE.md` file that tracks the exact pipeline position (which skill, which phase, which step), all decisions made, and all validation results -- enabling full recovery after any context compaction",
+        "After each phase execution, the skill runs self-validation: builds the project, runs tests (if any exist), checks for errors, and uses `/phase-feedback` autonomously to fix issues before proceeding to the next phase",
+        "At completion, the user has a working application that builds and passes its own tests, with all `.planning/` artifacts documenting the full journey from idea to delivery"
+      ],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "9",
+      "complete": true,
+      "name": "Script Consolidation & State Compaction - Centralize duplicated gather scripts and add state compaction",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "10",
+      "complete": true,
+      "name": "Skill Capability Enhancements - Enhance /cst-help with artifact explanation and /build with dynamic completion awareness",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "11",
+      "complete": true,
+      "name": "Drift Detection - Create /drift skill comparing codebase against planning artifacts",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "12",
+      "complete": true,
+      "name": "New-Project Discussion Mode & Build Auto-Extend - Add interactive app definition to /new-project and make /build work from any project state",
+      "goal": null,
+      "dependsOn": [],
+      "successCriteria": [],
+      "sprint": null,
+      "size": null,
+      "type": null
+    },
+    {
+      "id": "13",
+      "complete": false,
+      "name": "JSON Schema Infrastructure for Planning Files",
+      "goal": "Add structured JSON representations alongside top-level `.planning/` MD files (PROJECT, ROADMAP, STATE, IDEAS) so gather scripts can use `jq` for reliable data extraction, while preserving MD files as human-readable versions. Give `/cst-help` the ability to migrate existing MD-only projects to dual MD+JSON format.",
+      "dependsOn": [
+        "Phase 12 (all prior phases complete)"
+      ],
+      "successCriteria": [
+        "JSON schema definitions exist for PROJECT, ROADMAP, STATE, and IDEAS -- each `.planning/*.md` file has a corresponding `.planning/*.json` with structured, queryable data",
+        "A shared script (`json-sync.sh` or similar in `plugins/claude-super-team/scripts/`) can generate JSON from existing MD content and validate JSON structure",
+        "All `gather-data.sh` scripts that read top-level planning files use `jq` on JSON files for data extraction, with fallback to MD parsing when JSON files don't exist (backward compatibility)",
+        "All skills that create or modify top-level planning files (`/new-project`, `/create-roadmap`, `/brainstorm`) produce both MD and JSON output on every write",
+        "`/cst-help` includes a \"migrate\" action that generates JSON files from existing MD-only `.planning/` projects, making them queryable without re-running the full pipeline"
+      ],
+      "sprint": 13,
+      "size": "L",
+      "type": null
+    }
+  ],
+  "sprints": [
+    {
+      "id": 13,
+      "phases": [
+        "Phase 13"
+      ],
+      "description": "Planning files have dual MD+JSON format; gather scripts use jq; existing projects can migrate via /cst-help"
+    }
+  ],
+  "progress": [
+    {
+      "phase": "1. Claude Code Capability Mapping",
+      "status": "Complete",
+      "completed": "2026-02-11"
+    },
+    {
+      "phase": "1.1 Progress Phase Steps (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-11"
+    },
+    {
+      "phase": "1.2 Execute Branch Guard Team Log (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-12"
+    },
+    {
+      "phase": "1.3 Brainstorm Creates Context (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-12"
+    },
+    {
+      "phase": "1.4 Execute Compaction Resilience (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-11"
+    },
+    {
+      "phase": "1.5 Feedback Research Detection (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-25"
+    },
+    {
+      "phase": "1.6 Progress Sync Detection (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-25"
+    },
+    {
+      "phase": "1.7 Simplifier Toggle (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-25"
+    },
+    {
+      "phase": "2. Skill Audit & Reclassification",
+      "status": "Complete",
+      "completed": "2026-02-25"
+    },
+    {
+      "phase": "3. Apply Audit Recommendations",
+      "status": "Complete",
+      "completed": "2026-02-25"
+    },
+    {
+      "phase": "4. Harden Fragile Areas",
+      "status": "Complete",
+      "completed": "2026-03-12"
+    },
+    {
+      "phase": "5. Workflow Validation & Gap Closure",
+      "status": "Complete",
+      "completed": "2026-03-13"
+    },
+    {
+      "phase": "6. Hook-Based Telemetry Capture",
+      "status": "Complete",
+      "completed": "2026-02-17"
+    },
+    {
+      "phase": "7. Efficiency Regression Detection",
+      "status": "Complete",
+      "completed": "2026-03-20"
+    },
+    {
+      "phase": "7.1 Build Skill Efficiency (QUICK)",
+      "status": "Complete",
+      "completed": "2026-02-25"
+    },
+    {
+      "phase": "8. Full Auto Mode",
+      "status": "Complete",
+      "completed": "2026-02-18"
+    },
+    {
+      "phase": "9. Script Consolidation & State Compaction",
+      "status": "Complete",
+      "completed": "2026-03-16"
+    },
+    {
+      "phase": "10. Skill Capability Enhancements",
+      "status": "Complete",
+      "completed": "2026-03-16"
+    },
+    {
+      "phase": "11. Drift Detection",
+      "status": "Complete",
+      "completed": "2026-03-16"
+    },
+    {
+      "phase": "12. New-Project Discuss + Build Auto-Extend",
+      "status": "Complete",
+      "completed": "2026-03-17"
+    },
+    {
+      "phase": "13. JSON Schema Infrastructure",
+      "status": "Not started",
+      "completed": "-"
+    }
+  ],
+  "lastUpdated": "2026-02-11"
+}

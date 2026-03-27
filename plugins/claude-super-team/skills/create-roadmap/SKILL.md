@@ -118,15 +118,69 @@ Write `.planning/STATE.md` using the template from `${CLAUDE_SKILL_DIR}/assets/s
 
 **Carry preferences:** If `.planning/PROJECT.md` has a `## Preferences` section with `execution-model`, copy that value into STATE.md's `## Preferences` section. If PROJECT.md has no preference set, default to `opus`.
 
+### Phase 6.5: Write ROADMAP.json and STATE.json
+
+After writing the MD files, construct JSON companions. **Do NOT run json-sync.sh** -- build the JSON inline.
+
+**ROADMAP.json:**
+
+```json
+{
+  "project-name": "...",
+  "overview": "...",
+  "phases": [
+    {
+      "number": 1,
+      "name": "...",
+      "goal": "...",
+      "sprint": 1,
+      "size": "S",
+      "depends-on": [],
+      "requirements": ["..."],
+      "success-criteria": ["..."],
+      "status": "not-started",
+      "completed": null
+    }
+  ],
+  "sprints": [
+    { "number": 1, "phases": [1, 2, 3], "demoable": "..." }
+  ],
+  "created": "YYYY-MM-DD"
+}
+```
+
+**STATE.json:**
+
+```json
+{
+  "current-phase": 1,
+  "total-phases": 0,
+  "phase-name": "...",
+  "status": "ready-to-plan",
+  "last-activity": "YYYY-MM-DD",
+  "last-activity-description": "Roadmap created",
+  "preferences": {
+    "execution-model": "opus"
+  },
+  "decisions": [],
+  "blockers": [],
+  "last-updated": "YYYY-MM-DD"
+}
+```
+
+Derive all values from the ROADMAP.md and STATE.md just written. Use kebab-case keys. Write to `.planning/ROADMAP.json` and `.planning/STATE.json`.
+
 **Do NOT commit.** Tell the user:
 
 ```
 Created:
 - .planning/ROADMAP.md
+- .planning/ROADMAP.json
 - .planning/STATE.md
+- .planning/STATE.json
 
 To commit when ready:
-  git add .planning/ROADMAP.md .planning/STATE.md && git commit -m "docs: create project roadmap"
+  git add .planning/ROADMAP.md .planning/ROADMAP.json .planning/STATE.md .planning/STATE.json && git commit -m "docs: create project roadmap"
 ```
 
 ### Phase 7: Done
@@ -136,7 +190,9 @@ Roadmap created.
 
 Created:
 - .planning/ROADMAP.md ([N] phases)
+- .planning/ROADMAP.json
 - .planning/STATE.md
+- .planning/STATE.json
 
 ---
 
@@ -144,12 +200,13 @@ Created:
 
 **Review the roadmap:**
 - Read .planning/ROADMAP.md for full phase details
+- Read .planning/ROADMAP.json for machine-readable data
 
 **Start building:**
 - Begin with Phase 1 using /plan-phase or /discuss-phase
 
 **Edit before continuing:**
-- Update ROADMAP.md if anything needs refinement
+- Update ROADMAP.md if anything needs refinement (re-run /cst-help migrate to regenerate JSON)
 
 ---
 ```
@@ -163,6 +220,8 @@ Created:
 - [ ] All Active requirements from PROJECT.md mapped to a phase
 - [ ] User approved the roadmap via AskUserQuestion
 - [ ] ROADMAP.md written to .planning/
+- [ ] ROADMAP.json written to .planning/ (derived from ROADMAP.md)
 - [ ] STATE.md written to .planning/
+- [ ] STATE.json written to .planning/ (derived from STATE.md)
 - [ ] User told how to commit (never auto-commit)
 - [ ] User knows next steps

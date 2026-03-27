@@ -24,7 +24,9 @@ cat "$P/BUILD-STATE.md" 2>/dev/null || echo "(missing)"
 
 # === DEPENDENCIES ===
 echo "=== DEPENDENCIES ==="
-if [ -f "$P/ROADMAP.md" ]; then
+if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
+  jq -r '.phases[] | "\(.id)|\(.dependsOn | if length == 0 then "none" else join(",") end)"' "$P/ROADMAP.json" 2>/dev/null
+elif [ -f "$P/ROADMAP.md" ]; then
   # Extract phase number and "Depends on" value for each phase
   awk '
     /^### Phase [0-9]/ {
@@ -63,6 +65,9 @@ echo "=== STRUCTURE ==="
 [ -f "$P/ROADMAP.md" ] && echo "HAS_ROADMAP=true" || echo "HAS_ROADMAP=false"
 [ -f "$P/STATE.md" ] && echo "HAS_STATE=true" || echo "HAS_STATE=false"
 [ -f "$P/SECURITY-AUDIT.md" ] && echo "HAS_SECURITY=true" || echo "HAS_SECURITY=false"
+[ -f "$P/PROJECT.json" ] && echo "HAS_PROJECT_JSON=true" || echo "HAS_PROJECT_JSON=false"
+[ -f "$P/ROADMAP.json" ] && echo "HAS_ROADMAP_JSON=true" || echo "HAS_ROADMAP_JSON=false"
+[ -f "$P/STATE.json" ] && echo "HAS_STATE_JSON=true" || echo "HAS_STATE_JSON=false"
 
 # === PHASE_MAP ===
 echo "=== PHASE_MAP ==="
