@@ -14,7 +14,7 @@ Run the gather script to load planning files and structured data:
 bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"
 ```
 
-Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, BUILD_STATE_FILE, STRUCTURE, DEPENDENCIES, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD, GIT) before proceeding.
+Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, STRUCTURE, DEPENDENCIES, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD, GIT) before proceeding. PROJECT, ROADMAP, and STATE are emitted as compact key=value fields (not full prose). Use Read to access full files only if needed.
 
 **Context-aware skip:** If PROJECT.md, ROADMAP.md, or STATE.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"`. Only set flags for files genuinely already in context.
 
@@ -110,12 +110,12 @@ UNCHECKED: 3                      (phases with [ ] in ROADMAP.md)
 
 ### Phase 3: Extract Context
 
-From the pre-loaded file contents, extract:
+From the pre-loaded structured sections, extract:
 
-**From PROJECT.md:** project name (from "What This Is" section)
-**From ROADMAP.md:** all phases with goals, Phases checklist, Progress table
-**From STATE.md:** current phase number, position, blockers, decisions
-**From SECURITY-AUDIT.md (if present):** count findings by severity
+**From PROJECT section:** NAME field (project name)
+**From ROADMAP section:** PHASES list (id|name|complete per line)
+**From STATE section:** PHASE, STATUS, LAST_ACTIVITY, FOCUS, DECISIONS, BLOCKERS fields
+**From SECURITY_AUDIT section:** HAS_SECURITY flag and severity counts (CRITICAL, HIGH, MEDIUM, LOW)
 
 ### Phase 4: Build Phase Map
 

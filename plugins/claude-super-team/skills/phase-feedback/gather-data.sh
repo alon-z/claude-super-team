@@ -1,20 +1,14 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute executed phases and subphase numbers for /phase-feedback
+#
+# Optimized: slim project/roadmap/state. This skill needs phase lists and
+# current position, not full prose.
 
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
-echo "=== PROJECT ==="
-if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat_project .planning/PROJECT.md
-fi
-echo "=== ROADMAP ==="
-if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
-  cat_roadmap .planning/ROADMAP.md
-fi
-echo "=== STATE ==="
-if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
-  cat .planning/STATE.md 2>/dev/null || echo "(missing)"
-fi
+emit_project_slim
+emit_roadmap_slim
+emit_state_slim
 
 # Executed phases (those with SUMMARY.md files)
 echo "=== EXECUTED_PHASES ==="
@@ -27,7 +21,7 @@ if [ -d .planning/phases ]; then
   done
 fi
 
-# Current phase from STATE.md
+# Current phase from STATE
 echo "=== CURRENT_PHASE ==="
 if [ "$_JQ_AVAILABLE" = "true" ] && [ -f .planning/STATE.json ]; then
   jq -r '"Phase: \(.currentPosition.phase)"' .planning/STATE.json 2>/dev/null || grep -E '^Phase:' .planning/STATE.md 2>/dev/null | head -1

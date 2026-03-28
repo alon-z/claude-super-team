@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-load BUILD-STATE.md, preferences, and git status for /build skill
 # Called via dynamic context injection in SKILL.md
+#
+# Optimized: slim project/roadmap/state (build chains skills that read full files).
+# Keeps BUILD-STATE full (needed for resume logic), phase completion, extend/brownfield.
 
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
@@ -48,31 +51,19 @@ else
   echo "BRANCH=none"
 fi
 
-# === PROJECT ===
-echo "=== PROJECT ==="
-[ -f .planning/PROJECT.md ] && HAS_PROJECT=true || HAS_PROJECT=false
-[ -f .planning/ROADMAP.md ] && HAS_ROADMAP=true || HAS_ROADMAP=false
-echo "HAS_PROJECT=$HAS_PROJECT"
-if [ "$HAS_PROJECT" = "true" ]; then
-  if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else cat_project .planning/PROJECT.md; fi
-fi
-echo "HAS_ROADMAP=$HAS_ROADMAP"
-if [ "$HAS_ROADMAP" = "true" ]; then
-  if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else cat_roadmap_compact .planning/ROADMAP.md; fi
-fi
-if [ -f .planning/STATE.md ]; then
-  echo "HAS_STATE=true"
-  if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else cat .planning/STATE.md; fi
-else
-  echo "HAS_STATE=false"
-fi
-[ -d .planning/codebase ] && echo "HAS_CODEBASE=true" || echo "HAS_CODEBASE=false"
+# === PROJECT === (slim -- build chains skills that read full files)
+emit_project_slim
+emit_roadmap_slim
+emit_state_slim
 
 # === PHASE_COMPLETION === (filesystem source of truth for phase status)
 emit_phase_completion
 
 # === EXTEND ===
 echo "=== EXTEND ==="
+HAS_PROJECT=false; [ -f .planning/PROJECT.md ] && HAS_PROJECT=true
+HAS_ROADMAP=false; [ -f .planning/ROADMAP.md ] && HAS_ROADMAP=true
+
 if [ -f .planning/BUILD-STATE.md ]; then
   STATUS=$(grep -m1 "^\- \*\*Status:\*\*" .planning/BUILD-STATE.md | sed 's/.*\*\* //')
   if [ "$STATUS" = "complete" ] && [ "$HAS_PROJECT" = "true" ] && [ "$HAS_ROADMAP" = "true" ]; then

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute phase and context data for /research-phase
+#
+# Optimized: slim state. Keeps PROJECT (full, needed for research context)
+# and ROADMAP compact (phase names + goals for identifying research scope).
 
 P=.planning
 source "$(dirname "$0")/../../scripts/gather-common.sh"
@@ -12,10 +15,7 @@ echo "=== ROADMAP ==="
 if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
   cat_roadmap_compact "$P/ROADMAP.md"
 fi
-echo "=== STATE ==="
-if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
-  cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
-fi
+emit_state_slim
 
 # === PREREQUISITES ===
 echo "=== PREREQUISITES ==="
