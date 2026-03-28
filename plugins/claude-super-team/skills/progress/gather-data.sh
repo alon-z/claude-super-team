@@ -1,36 +1,37 @@
 #!/usr/bin/env bash
 # gather-data.sh - Gather planning structure data for /progress skill
 # Called via dynamic context injection in SKILL.md
+#
+# Optimized for token efficiency: emits compact structured data, not full prose.
+# Uses JSON companions when available, MD fallback otherwise.
 
 P=.planning
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
-echo "=== PROJECT ==="
-if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat_project "$P/PROJECT.md"
-fi
-echo "=== ROADMAP ==="
-if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
-  cat_roadmap_compact "$P/ROADMAP.md"
-fi
-echo "=== STATE ==="
-if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
-  cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
-fi
+# Slim versions -- only key fields, not full prose
+emit_project_slim
+emit_roadmap_slim
+emit_state_slim
+
 echo "=== SECURITY_AUDIT ==="
-head -20 "$P/SECURITY-AUDIT.md" 2>/dev/null || echo "(missing)"
-echo "=== BUILD_STATE_FILE ==="
-cat "$P/BUILD-STATE.md" 2>/dev/null || echo "(missing)"
+if [ -f "$P/SECURITY-AUDIT.md" ]; then
+  echo "HAS_SECURITY=true"
+  # Only severity counts, not full content
+  echo "CRITICAL=$(grep -ci 'critical' "$P/SECURITY-AUDIT.md" 2>/dev/null || echo 0)"
+  echo "HIGH=$(grep -ci 'high' "$P/SECURITY-AUDIT.md" 2>/dev/null || echo 0)"
+  echo "MEDIUM=$(grep -ci 'medium' "$P/SECURITY-AUDIT.md" 2>/dev/null || echo 0)"
+  echo "LOW=$(grep -ci 'low' "$P/SECURITY-AUDIT.md" 2>/dev/null || echo 0)"
+else
+  echo "HAS_SECURITY=false"
+fi
 
 # === DEPENDENCIES ===
 echo "=== DEPENDENCIES ==="
 if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
   jq -r '.phases[] | "\(.id)|\(.dependsOn | if length == 0 then "none" else join(",") end)"' "$P/ROADMAP.json" 2>/dev/null
 elif [ -f "$P/ROADMAP.md" ]; then
-  # Extract phase number and "Depends on" value for each phase
   awk '
     /^### Phase [0-9]/ {
-      # Extract phase number: strip everything before "Phase " and after the number
       phase = $0
       sub(/.*Phase /, "", phase)
       sub(/[^0-9.].*/, "", phase)
@@ -38,11 +39,9 @@ elif [ -f "$P/ROADMAP.md" ]; then
     /^\*\*Depends on\*\*:/ {
       dep = $0
       sub(/.*\*\*Depends on\*\*: */, "", dep)
-      # Extract phase numbers from dependency string
       if (dep ~ /[Nn]othing/ || dep ~ /^-$/ || dep == "") {
         print phase "|none"
       } else {
-        # Pull all phase numbers from the dependency string
         result = ""
         n = split(dep, parts, /[,;]/)
         for (i = 1; i <= n; i++) {
@@ -59,15 +58,7 @@ elif [ -f "$P/ROADMAP.md" ]; then
 fi
 
 # === STRUCTURE ===
-echo "=== STRUCTURE ==="
-[ -d "$P" ] && echo "PLANNING_DIR=exists" || echo "PLANNING_DIR=missing"
-[ -f "$P/PROJECT.md" ] && echo "HAS_PROJECT=true" || echo "HAS_PROJECT=false"
-[ -f "$P/ROADMAP.md" ] && echo "HAS_ROADMAP=true" || echo "HAS_ROADMAP=false"
-[ -f "$P/STATE.md" ] && echo "HAS_STATE=true" || echo "HAS_STATE=false"
-[ -f "$P/SECURITY-AUDIT.md" ] && echo "HAS_SECURITY=true" || echo "HAS_SECURITY=false"
-[ -f "$P/PROJECT.json" ] && echo "HAS_PROJECT_JSON=true" || echo "HAS_PROJECT_JSON=false"
-[ -f "$P/ROADMAP.json" ] && echo "HAS_ROADMAP_JSON=true" || echo "HAS_ROADMAP_JSON=false"
-[ -f "$P/STATE.json" ] && echo "HAS_STATE_JSON=true" || echo "HAS_STATE_JSON=false"
+emit_structure
 
 # === PHASE_MAP ===
 echo "=== PHASE_MAP ==="
@@ -113,10 +104,8 @@ if [ -f "$P/BUILD-STATE.md" ]; then
   echo "BUILD_STARTED=$started"
   input=$(grep -E '^- \*\*Input:\*\*' "$P/BUILD-STATE.md" 2>/dev/null | head -1 | sed 's/.*\*\* //' | head -c 100)
   echo "BUILD_INPUT=$input"
-  # Extract pipeline progress rows (stage|status format)
   echo "BUILD_PIPELINE:"
   awk '/## Pipeline Progress/,/^## [^P]/' "$P/BUILD-STATE.md" 2>/dev/null | grep '^|' | grep -v '^\| Stage' | grep -v '^|---' | sed 's/| */|/g; s/ *|/|/g'
-  # Count incomplete phases
   echo "BUILD_INCOMPLETE:"
   awk '/## Incomplete Phases/,/^## /' "$P/BUILD-STATE.md" 2>/dev/null | grep -v '^#' | grep -v '^$' | head -5
 else

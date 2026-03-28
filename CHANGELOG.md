@@ -2,6 +2,20 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.55] - 2026-03-28
+
+### claude-super-team
+- Add slim emission functions to gather-common.sh: `emit_project_slim`, `emit_roadmap_slim`, `emit_state_slim` -- emit compact key=value structured data instead of full prose, JSON-first with MD fallback
+- Optimize progress gather script: replace full PROJECT/ROADMAP/STATE/BUILD_STATE_FILE dumps with slim functions; extract only severity counts from SECURITY-AUDIT (~80% token reduction for mature projects)
+- Optimize execute-phase gather script: slim project/state (agents read full files themselves)
+- Optimize build gather script: slim project/roadmap/state (build chains skills that read full files)
+- Optimize phase-feedback gather script: slim project/roadmap/state (only needs phase lists and current position)
+- Optimize code gather script: slim project/roadmap, keep full state (accumulated context valuable for coding)
+- Optimize research-phase gather script: slim state, keep full project (needed for research context)
+- Optimize metrics gather script: slim project/state (telemetry is the real payload)
+- Update progress SKILL.md to reference new compact section format
+- Unchanged: create-roadmap, discuss-phase, drift, plan-phase gather scripts (genuinely need full prose)
+
 ## [1.0.54] - 2026-03-27
 
 ### claude-super-team

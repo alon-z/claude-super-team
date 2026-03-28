@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
 # gather-data.sh - Gather planning data for /code skill
 # Called via dynamic context injection in SKILL.md
+#
+# Optimized: slim project/roadmap. Keeps full STATE (accumulated context
+# is valuable for interactive coding sessions).
 
 P=.planning
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
-# === PLANNING_FILES ===
-echo "=== PROJECT ==="
-if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat_project "$P/PROJECT.md"
-fi
-echo "=== ROADMAP ==="
-if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
-  cat_roadmap "$P/ROADMAP.md"
-fi
+emit_project_slim
+emit_roadmap_slim
+
 echo "=== STATE ==="
 if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
-  cat "$P/STATE.md" 2>/dev/null || echo "(missing)"
+  if [ -f "$P/STATE.md" ]; then
+    # Full state but stop at Decision Archive
+    awk '/^### Decision Archive/ { exit } { print }' "$P/STATE.md"
+  else
+    echo "(missing)"
+  fi
 fi
 
 # === EXECUTED_PHASES ===

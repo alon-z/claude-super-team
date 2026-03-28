@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 # gather-data.sh - Gather telemetry data for /metrics skill
 # Called via dynamic context injection in SKILL.md
+#
+# Optimized: slim project/state. Telemetry data is the real payload.
 
 P=.planning
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
-# === Standard sections ===
+# === Standard sections (slim -- metrics only needs project name and state position) ===
 
-emit_project_section
+emit_project_slim
 
-emit_state_section
+emit_state_slim
 
 # === TELEMETRY_FILES ===
 echo "=== TELEMETRY_FILES ==="
@@ -173,8 +175,6 @@ if [ -d "$TDIR" ] && [ ${#FILES[@]-0} -gt 0 ]; then
   done
 
   # Sum durations from SESSION_METRICS (re-read is simpler than caching)
-  # Use grep counts for totals; duration needs timestamp parsing which was done above
-  # For total_duration, parse first/last timestamps across ALL sessions
   all_first=""
   all_last=""
   for f in "${FILES[@]}"; do

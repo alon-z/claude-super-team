@@ -226,3 +226,106 @@ emit_structure() {
   [ -f "$P/STATE.json" ] && echo "HAS_STATE_JSON=true" || echo "HAS_STATE_JSON=false"
   [ -f "$P/IDEAS.json" ] && echo "HAS_IDEAS_JSON=true" || echo "HAS_IDEAS_JSON=false"
 }
+
+# ── Slim emission functions ──────────────────────────────────────────────────
+# These emit compact key=value structured data instead of full prose.
+# JSON-first with MD fallback. Use for skills that need metrics/flags, not prose.
+
+# emit_project_slim: Emit === PROJECT === with only essential fields.
+# Output: NAME, DESCRIPTION (truncated), CORE_VALUE, CONSTRAINTS (one per line)
+emit_project_slim() {
+  echo "=== PROJECT ==="
+  if [ ! -f "$P/PROJECT.md" ]; then echo "HAS_PROJECT=false"; echo "(missing)"; return; fi
+  echo "HAS_PROJECT=true"
+  if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; return; fi
+
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/PROJECT.json" ]; then
+    jq -r '
+      "NAME=" + .projectName,
+      "DESCRIPTION=" + (.description | .[0:200]),
+      "CORE_VALUE=" + (.coreValue // ""),
+      "CONSTRAINTS:",
+      (.constraints // [] | .[] | "- " + .)
+    ' "$P/PROJECT.json" 2>/dev/null && return
+  fi
+  # MD fallback: extract key fields only
+  echo "NAME=$(awk '/^# / { sub(/^# */, ""); print; exit }' "$P/PROJECT.md")"
+  echo "DESCRIPTION=$(awk '/^## What This Is/{f=1;next} f&&/^##/{exit} f&&/[^ ]/{print}' "$P/PROJECT.md" | head -3 | tr '\n' ' ' | cut -c1-200)"
+  echo "CORE_VALUE=$(grep -m1 'Core value:' "$P/PROJECT.md" 2>/dev/null | sed 's/.*Core value:\*\* *//' | sed 's/^Core value: *//')"
+  echo "CONSTRAINTS:"
+  awk '/^## Constraints/{f=1;next} f&&/^##/{exit} f&&/^- /{print}' "$P/PROJECT.md" 2>/dev/null
+}
+
+# emit_roadmap_slim: Emit === ROADMAP === with overview + compact phase list.
+# Output: OVERVIEW line, then PHASES: header followed by id|name|complete per line
+emit_roadmap_slim() {
+  echo "=== ROADMAP ==="
+  if [ ! -f "$P/ROADMAP.md" ]; then echo "HAS_ROADMAP=false"; echo "(missing)"; return; fi
+  echo "HAS_ROADMAP=true"
+  if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; return; fi
+
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
+    jq -r '
+      "OVERVIEW=" + .overview,
+      "PHASES:",
+      (.phases[] | "\(.id)|\(.name)|\(if .complete then "complete" else "incomplete" end)")
+    ' "$P/ROADMAP.json" 2>/dev/null && return
+  fi
+  # MD fallback: extract overview + checkbox list
+  echo "OVERVIEW=$(awk '/^## Overview/{f=1;next} f&&/^##/{exit} f&&/[^ ]/{print}' "$P/ROADMAP.md" | tr '\n' ' ' | sed 's/  */ /g')"
+  echo "PHASES:"
+  awk '
+    /^## Phases/ { f=1; next }
+    f && /^## / { exit }
+    f && /^\s*- \[.\]/ {
+      complete = (index($0, "[x]") > 0) ? "complete" : "incomplete"
+      line = $0
+      if (match(line, /Phase [0-9]+(\.[0-9]+)?/)) {
+        id = substr(line, RSTART+6, RLENGTH-6)
+      } else { next }
+      name = line
+      sub(/.*Phase [0-9]+(\.[0-9]+)?: */, "", name)
+      gsub(/\*\*/, "", name)
+      sub(/ *-- .*$/, "", name)
+      sub(/ *\[COMPLETE\].*$/, "", name)
+      sub(/ *\[DEFERRED\].*$/, "", name)
+      sub(/ *\(QUICK\).*$/, "", name)
+      sub(/ *\(FEEDBACK.*$/, "", name)
+      gsub(/^ +| +$/, "", name)
+      printf "%s|%s|%s\n", id, name, complete
+    }
+  ' "$P/ROADMAP.md"
+}
+
+# emit_state_slim: Emit === STATE === with only position, preferences, and blockers.
+# Output: PHASE, STATUS, LAST_ACTIVITY, FOCUS, plus preferences and blockers
+emit_state_slim() {
+  echo "=== STATE ==="
+  if [ ! -f "$P/STATE.md" ]; then echo "HAS_STATE=false"; echo "(missing)"; return; fi
+  echo "HAS_STATE=true"
+  if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; return; fi
+
+  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/STATE.json" ]; then
+    jq -r '
+      "PHASE=" + (.currentPosition.phase // "unset" | tostring),
+      "STATUS=" + (.currentPosition.status // ""),
+      "LAST_ACTIVITY=" + (.currentPosition.lastActivity // ""),
+      "FOCUS=" + (.currentPosition.focus // ""),
+      "EXEC_MODEL=" + (.preferences["execution-model"] // "unset"),
+      "DECISIONS:",
+      (.decisions // [] | .[] | "- " + .text),
+      "BLOCKERS:",
+      (if (.blockers // [] | length) > 0 then (.blockers[] | "- " + .) else "none" end)
+    ' "$P/STATE.json" 2>/dev/null && return
+  fi
+  # MD fallback: extract key fields
+  echo "PHASE=$(grep -m1 '^Phase:' "$P/STATE.md" 2>/dev/null | sed 's/^Phase: *//')"
+  echo "STATUS=$(grep -m1 '^Status:' "$P/STATE.md" 2>/dev/null | sed 's/^Status: *//')"
+  echo "LAST_ACTIVITY=$(grep -m1 '^Last activity:' "$P/STATE.md" 2>/dev/null | sed 's/^Last activity: *//')"
+  echo "FOCUS=$(grep -m1 'Current focus:' "$P/STATE.md" 2>/dev/null | sed 's/.*Current focus:\*\* *//')"
+  echo "EXEC_MODEL=$(grep -m1 '^execution-model:' "$P/STATE.md" 2>/dev/null | sed 's/^execution-model: *//' || echo "unset")"
+  echo "DECISIONS:"
+  awk '/^### Decisions/{f=1;next} /^### Decision Archive/{exit} f&&/^###/{exit} f&&/^- /{print}' "$P/STATE.md" 2>/dev/null
+  echo "BLOCKERS:"
+  awk '/^### Blockers/{f=1;next} f&&/^###/{exit} f&&/^---/{exit} f&&/^- /{print}' "$P/STATE.md" 2>/dev/null || echo "none"
+}

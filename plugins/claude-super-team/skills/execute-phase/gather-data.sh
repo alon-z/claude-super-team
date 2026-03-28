@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
 # gather-data.sh - Pre-compute plan index and preferences for /execute-phase
+#
+# Optimized: slim project/state (agents read full files themselves).
+# Keeps roadmap compact for phase context and full plan discovery.
 
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
-echo "=== PROJECT ==="
-if [ "${SKIP_PROJECT:-}" = "1" ]; then echo "(in context)"; else
-  cat_project .planning/PROJECT.md
-fi
+# Slim versions -- agents read full files themselves
+emit_project_slim
 echo "=== ROADMAP ==="
 if [ "${SKIP_ROADMAP:-}" = "1" ]; then echo "(in context)"; else
   cat_roadmap_compact .planning/ROADMAP.md
 fi
-echo "=== STATE ==="
-if [ "${SKIP_STATE:-}" = "1" ]; then echo "(in context)"; else
-  cat .planning/STATE.md 2>/dev/null || echo "(missing)"
-fi
+emit_state_slim
 
 # Preferences from STATE.md and environment
 emit_preferences
