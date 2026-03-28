@@ -2,6 +2,13 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.56] - 2026-03-28
+
+### claude-super-team
+- Add granular sub-section skip flags to slim emit functions: `SLIM_NAME_ONLY` (project), `SLIM_SKIP_OVERVIEW` (roadmap), `SLIM_SKIP_DECISIONS` / `SLIM_SKIP_BLOCKERS` (state)
+- Optimize progress gather script to set all skip flags, reducing noise by ~40% (project name only, no overview prose, no decisions/blockers)
+- Filter DEPENDENCIES output to only emit phases with real dependencies, cutting ~55 lines of `{phase}|none` noise
+
 ## [1.0.55] - 2026-03-28
 
 ### claude-super-team
