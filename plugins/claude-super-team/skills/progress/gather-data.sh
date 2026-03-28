@@ -8,10 +8,13 @@
 P=.planning
 source "$(dirname "$0")/../../scripts/gather-common.sh"
 
-# Slim versions -- only key fields, not full prose
-emit_project_slim
-emit_roadmap_slim
-emit_state_slim
+# Progress-optimized: only emit what this skill actually uses
+# - Project: only need the name for the header
+# - Roadmap: phases list is sufficient, overview prose goes stale
+# - State: position + preferences, not dev-note blockers/decisions
+SLIM_NAME_ONLY=1 emit_project_slim
+SLIM_SKIP_OVERVIEW=1 emit_roadmap_slim
+SLIM_SKIP_DECISIONS=1 SLIM_SKIP_BLOCKERS=1 emit_state_slim
 
 echo "=== SECURITY_AUDIT ==="
 if [ -f "$P/SECURITY-AUDIT.md" ]; then
@@ -26,9 +29,10 @@ else
 fi
 
 # === DEPENDENCIES ===
+# Only emit phases that have real dependencies (skip {phase}|none noise)
 echo "=== DEPENDENCIES ==="
 if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
-  jq -r '.phases[] | "\(.id)|\(.dependsOn | if length == 0 then "none" else join(",") end)"' "$P/ROADMAP.json" 2>/dev/null
+  jq -r '.phases[] | select(.dependsOn | length > 0) | "\(.id)|\(.dependsOn | join(","))"' "$P/ROADMAP.json" 2>/dev/null
 elif [ -f "$P/ROADMAP.md" ]; then
   awk '
     /^### Phase [0-9]/ {
@@ -39,20 +43,16 @@ elif [ -f "$P/ROADMAP.md" ]; then
     /^\*\*Depends on\*\*:/ {
       dep = $0
       sub(/.*\*\*Depends on\*\*: */, "", dep)
-      if (dep ~ /[Nn]othing/ || dep ~ /^-$/ || dep == "") {
-        print phase "|none"
-      } else {
-        result = ""
-        n = split(dep, parts, /[,;]/)
-        for (i = 1; i <= n; i++) {
-          if (match(parts[i], /[0-9]+(\.[0-9]+)?/)) {
-            num = substr(parts[i], RSTART, RLENGTH)
-            result = (result == "" ? num : result "," num)
-          }
+      if (dep ~ /[Nn]othing/ || dep ~ /^-$/ || dep == "") { next }
+      result = ""
+      n = split(dep, parts, /[,;]/)
+      for (i = 1; i <= n; i++) {
+        if (match(parts[i], /[0-9]+(\.[0-9]+)?/)) {
+          num = substr(parts[i], RSTART, RLENGTH)
+          result = (result == "" ? num : result "," num)
         }
-        if (result == "") result = "none"
-        print phase "|" result
       }
+      if (result != "" && result != "none") print phase "|" result
     }
   ' "$P/ROADMAP.md"
 fi
