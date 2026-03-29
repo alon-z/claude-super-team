@@ -4,10 +4,6 @@ description: Automate the full release ceremony -- detect changes, bump versions
 argument-hint: "[description of changes]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Skill, Bash(git *), Bash(test *), Bash(ls *), Bash(gh *), AskUserQuestion
 disable-model-invocation: true
-context:
-  - "!`cat README.md`"
-  - "!`cat CHANGELOG.md`"
-  - "!`git log --oneline -20`"
   - "!`cat .claude-plugin/marketplace.json`"
 ---
 

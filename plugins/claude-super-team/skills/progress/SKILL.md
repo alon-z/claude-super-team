@@ -2,8 +2,8 @@
 name: progress
 description: Check project progress and route to next action. Analyzes .planning/ files to show current position, recent work, key decisions, and intelligently routes to the appropriate next step (/new-project, /create-roadmap, /plan-phase, /execute-phase, etc.). Use when user asks "where am I?", "what's next?", returns to project after time away, or completes a phase and needs direction.
 allowed-tools: Read, Grep, Glob, Bash(bash *gather-data.sh)
-context: fork
 agent: progress
+context: fork
 ---
 
 ## Step 0: Load Context

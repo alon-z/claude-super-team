@@ -2,6 +2,19 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.58] - 2026-03-29
+
+### claude-super-team
+- Remove `model:` and `context:` frontmatter fields from drift, map-codebase, metrics, progress skills to fix API errors after Opus 1M context window change
+- Keep `context: fork` on skills that use `agent:` (progress, cst-help)
+
+### marketplace-utils
+- Remove `model:` frontmatter from marketplace-manager and skill-studio skills
+- Remove `context:` file injection from release skill
+
+### task-management
+- Remove `model:` frontmatter from github-issue-manager skill
+
 ## [1.0.57] - 2026-03-29
 
 ### claude-super-team
