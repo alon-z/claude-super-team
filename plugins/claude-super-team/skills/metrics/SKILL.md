@@ -2,8 +2,6 @@
 name: metrics
 description: "Analyze telemetry data to report resource usage per session, tool/agent breakdowns, and threshold violations. Reads .planning/.telemetry/ session files and config.json thresholds."
 allowed-tools: Read, Glob, Bash(bash *gather-data.sh)
-model: sonnet
-context: fork
 ---
 
 ## Step 0: Gather Telemetry Data
