@@ -146,7 +146,12 @@ Read file: ${CLAUDE_SKILL_DIR}/references/drift-analysis-guide.md
 
 Store its full content as `$DRIFT_GUIDE`.
 
-Read the codebase docs from the gather script CODEBASE_DOCS section (already loaded in Step 0). Store as `$CODEBASE_CONTEXT`.
+Build `$CODEBASE_CONTEXT` from the gather script CODEBASE_DOCS section (file list with line counts). Read the two most relevant docs inline for agent prompts:
+
+- Read `.planning/codebase/ARCHITECTURE.md` (if listed) -- store content
+- Read `.planning/codebase/STRUCTURE.md` (if listed) -- store content
+
+Combine these as `$CODEBASE_CONTEXT`. List remaining filenames from CODEBASE_DOCS so agents know they can Read them if needed.
 
 **For each target phase, spawn one Agent:**
 
@@ -165,7 +170,10 @@ Agent(
 
   ## Codebase Architecture Context
 
-  {$CODEBASE_CONTEXT -- content from CODEBASE_DOCS section, or "(no codebase map available)" if empty}
+  {$CODEBASE_CONTEXT -- content of ARCHITECTURE.md and STRUCTURE.md, or "(no codebase map available)" if empty}
+
+  Additional codebase docs available (Read if needed for claim verification):
+  {list remaining filenames from CODEBASE_DOCS, e.g., CONVENTIONS.md, TESTING.md, etc.}
 
   ## Phase Being Analyzed
 
