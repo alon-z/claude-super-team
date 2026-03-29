@@ -14,7 +14,7 @@ Run the gather script to load planning files and structured data:
 bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"
 ```
 
-Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, STRUCTURE, DEPENDENCIES, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD, GIT) before proceeding. PROJECT, ROADMAP, and STATE are emitted as compact key=value fields (not full prose). Use Read to access full files only if needed.
+Parse the output sections (PROJECT, ROADMAP, STATE, SECURITY_AUDIT, STRUCTURE, DEPENDENCIES, PHASE_MAP, RECENT_SUMMARIES, SYNC_CHECK, BUILD) before proceeding. PROJECT, ROADMAP, and STATE are emitted as compact key=value fields (not full prose). Use Read to access full files only if needed.
 
 **Context-aware skip:** If PROJECT.md, ROADMAP.md, or STATE.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/progress/gather-data.sh"`. Only set flags for files genuinely already in context.
 
@@ -24,7 +24,7 @@ Present a comprehensive status report of project progress and intelligently rout
 
 **This is a navigation and context skill** -- helps users understand where they are in the project flow and what to do next.
 
-All data is pre-loaded via dynamic context injection above. Use the injected file contents and structured sections (STRUCTURE, PHASE_MAP, RECENT_SUMMARIES, GIT) to build the report. No Bash calls needed.
+All data is pre-loaded via dynamic context injection above. Use the injected file contents and structured sections (STRUCTURE, PHASE_MAP, RECENT_SUMMARIES) to build the report. No Bash calls needed.
 
 ## Process
 
@@ -88,10 +88,9 @@ Continue to Phase 2.
 DIR_PHASES: 1 1.1 1.2 2 3        (phase numbers from directories)
 ROADMAP_PHASES: 1 1.1 1.2 2 3    (phase numbers from ROADMAP.md)
 STATE_PHASE: 3                    (current phase from STATE.md)
-CHECKED: 1                        (phases with [x] in ROADMAP.md)
-CHECKED: 1.1
-UNCHECKED: 3                      (phases with [ ] in ROADMAP.md)
 ```
+
+**Derive checked/unchecked from PHASES list:** The ROADMAP section's PHASES list already provides `id|name|complete` or `id|name|incomplete` per phase. Use this to determine which phases are checked vs unchecked -- no separate CHECKED/UNCHECKED block needed.
 
 **Check 1: Directory vs Roadmap** -- Compare `DIR_PHASES` and `ROADMAP_PHASES` lists:
 - **Orphan directories**: numbers in DIR_PHASES but not in ROADMAP_PHASES
@@ -101,9 +100,9 @@ UNCHECKED: 3                      (phases with [ ] in ROADMAP.md)
 
 **Check 3: Progress Table Inconsistencies** -- Parse the ROADMAP.md "## Progress" table from the injected content. Compare phase numbers there against ROADMAP_PHASES (from the Phases checklist). Report mismatches.
 
-**Check 4: Stale Completion Status** -- Cross-reference CHECKED/UNCHECKED lines against PHASE_MAP metrics:
-- CHECKED phase but PHASE_MAP shows summaries=0 (marked complete without evidence)
-- UNCHECKED phase but PHASE_MAP shows summaries==plans>0 (executed but not marked)
+**Check 4: Stale Completion Status** -- Cross-reference PHASES list completion status against PHASE_MAP metrics:
+- Phase marked `complete` in PHASES list but PHASE_MAP shows summaries=0 (marked complete without evidence)
+- Phase marked `incomplete` in PHASES list but PHASE_MAP shows summaries==plans>0 (executed but not marked)
 - PHASE_MAP shows summaries>0 but Progress table shows "Not started" or "Planned"
 
 **Collect all issues found.** Store for output in Phase 5 if any exist, otherwise omit entirely.

@@ -112,9 +112,3 @@ else
   echo "HAS_BUILD_STATE=false"
 fi
 
-# === GIT ===
-echo "=== GIT ==="
-git log --oneline -5 2>/dev/null || echo "(no git)"
-echo "---"
-echo "BRANCH=$(git branch --show-current 2>/dev/null || echo detached)"
-echo "DIRTY=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')"

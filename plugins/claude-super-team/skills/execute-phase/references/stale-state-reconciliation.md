@@ -1,6 +1,6 @@
 # Stale State Reconciliation
 
-Use the **PHASE_COMPLETION** and **ROADMAP_CHECKED** sections from the gather script to detect and fix desync between filesystem reality and planning files.
+Use the **PHASE_COMPLETION** and **ROADMAP** sections from the gather script to detect and fix desync between filesystem reality and planning files.
 
 **PHASE_COMPLETION** shows the actual status of each phase directory based on SUMMARY.md file counts:
 - `complete` = all plans have summaries (phase was fully executed)
@@ -8,12 +8,12 @@ Use the **PHASE_COMPLETION** and **ROADMAP_CHECKED** sections from the gather sc
 - `planned` = plans exist but no summaries (not yet executed)
 - `empty` = directory exists but no plans
 
-**ROADMAP_CHECKED** shows which phases ROADMAP.md marks as `[x]` vs `[ ]`.
+**ROADMAP checklist** (from the ROADMAP section) shows which phases are marked `[x]` vs `[ ]` in the Phases list.
 
 **Compare and fix:**
 
 For each phase in PHASE_COMPLETION with status `complete`:
-1. Check if ROADMAP.md has it marked as `[x]`. If not (still `[ ]`), fix it:
+1. Check if the ROADMAP checklist has it marked as `[x]`. If not (still `[ ]`), fix it:
    - In the **Phases** checklist: change `- [ ]` to `- [x]` for that phase's entry
    - In the **Progress** table: set Status to "Complete" and Completed to today's date (run `date "+%Y-%m-%d"` to get it -- never guess)
 

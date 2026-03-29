@@ -147,8 +147,10 @@ emit_phase_completion() {
 }
 
 # emit_sync_check: Emit === SYNC_CHECK === section.
-# Extracts phase numbers from directories, ROADMAP.json/md, STATE.json/md,
-# and CHECKED/UNCHECKED phase lists from ROADMAP checkboxes.
+# Extracts phase numbers from directories, ROADMAP.json/md, STATE.json/md.
+# NOTE: CHECKED/UNCHECKED removed -- derive from PHASES list (complete/incomplete)
+# in emit_roadmap_slim output. Skills that need checkbox state should cross-reference
+# the PHASES list instead.
 emit_sync_check() {
   echo "=== SYNC_CHECK ==="
 
@@ -180,15 +182,6 @@ emit_sync_check() {
     grep -E '^Phase:' "$P/STATE.md" 2>/dev/null | head -1 | grep -oE '[0-9]+(\.[0-9]+)?' | head -1
   fi
   echo
-
-  # CHECKED/UNCHECKED: try JSON first
-  if [ "$_JQ_AVAILABLE" = "true" ] && [ -f "$P/ROADMAP.json" ]; then
-    jq -r '.phases[] | select(.complete == true) | "CHECKED: \(.id)"' "$P/ROADMAP.json" 2>/dev/null
-    jq -r '.phases[] | select(.complete == false) | "UNCHECKED: \(.id)"' "$P/ROADMAP.json" 2>/dev/null
-  else
-    grep -E '^\s*- \[x\] Phase' "$P/ROADMAP.md" 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "CHECKED: %s\n", $2}'
-    grep -E '^\s*- \[ \] Phase' "$P/ROADMAP.md" 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{printf "UNCHECKED: %s\n", $2}'
-  fi
 }
 
 # emit_preferences: Emit === PREFERENCES === section.

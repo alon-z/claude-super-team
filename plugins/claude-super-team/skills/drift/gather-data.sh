@@ -33,14 +33,16 @@ else
 fi
 
 # === CODEBASE_DOCS ===
+# Emit filenames + line counts only. Drift agents have Read access and can
+# load specific files on demand. The orchestrator reads ARCHITECTURE.md and
+# STRUCTURE.md inline for agent prompts (most relevant for claim verification).
 echo "=== CODEBASE_DOCS ==="
 if [ -d "$P/codebase" ]; then
   for doc in "$P"/codebase/*.md; do
     [ -f "$doc" ] || continue
     docname=$(basename "$doc")
-    echo "--- ${docname} ---"
-    cat "$doc"
-    echo ""
+    lines=$(wc -l < "$doc" | tr -d " ")
+    echo "${docname}|lines=${lines}"
   done
 else
   echo "(no codebase map)"

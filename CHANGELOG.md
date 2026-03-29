@@ -2,6 +2,17 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.57] - 2026-03-29
+
+### claude-super-team
+- Remove CHECKED/UNCHECKED block from `emit_sync_check` in gather-common.sh -- derive from PHASES list's complete/incomplete field instead (~23 lines saved per project)
+- Remove dead GIT section from progress gather script (git log, branch, dirty status never consumed by report)
+- Slim drift CODEBASE_DOCS from full file content to filenames + line counts; orchestrator inlines ARCHITECTURE.md and STRUCTURE.md, agents Read others on demand (~200-400 lines saved)
+- Remove redundant ROADMAP_CHECKED from execute-phase gather script; update stale-state-reconciliation to use ROADMAP checklist from compact output
+- Remove redundant EXISTING_PHASES, HIGHEST_PHASE, DECIMAL_PHASES from create-roadmap gather script (all derivable from full ROADMAP content)
+- Remove dead CODEBASE_DOCS from discuss-phase gather script (codebase-exploration reference checks filesystem directly)
+- Update all affected SKILL.md parse instructions to match slimmed gather output
+
 ## [1.0.56] - 2026-03-28
 
 ### claude-super-team

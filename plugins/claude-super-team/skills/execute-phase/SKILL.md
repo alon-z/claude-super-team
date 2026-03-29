@@ -24,7 +24,7 @@ Run the gather script to load planning files and structured data:
 bash "${CLAUDE_PLUGIN_ROOT}/skills/execute-phase/gather-data.sh"
 ```
 
-Parse the output sections (PROJECT, ROADMAP, STATE, PREFERENCES, PHASE_PLANS, PHASE_COMPLETION, ROADMAP_CHECKED, GIT) before proceeding.
+Parse the output sections (PROJECT, ROADMAP, STATE, PREFERENCES, PHASE_PLANS, PHASE_COMPLETION, GIT) before proceeding.
 
 **Context-aware skip:** If PROJECT.md, ROADMAP.md, or STATE.md are already in conversation context (e.g., loaded by a parent `/build` invocation or re-injected after compaction), skip re-loading them by prefixing: `SKIP_PROJECT=1 SKIP_ROADMAP=1 SKIP_STATE=1 bash "${CLAUDE_PLUGIN_ROOT}/skills/execute-phase/gather-data.sh"`. Only set flags for files genuinely already in context.
 

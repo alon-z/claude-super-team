@@ -40,14 +40,9 @@ fi
 # Computed phase completion from filesystem (source of truth)
 emit_phase_completion
 
-# Roadmap checkbox status (may be stale -- compare with PHASE_COMPLETION)
-echo "=== ROADMAP_CHECKED ==="
-echo -n "CHECKED: "
-grep -E '^\s*- \[x\]' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{print $2}' | tr '\n' ' '
-echo
-echo -n "UNCHECKED: "
-grep -E '^\s*- \[ \]' .planning/ROADMAP.md 2>/dev/null | grep -oE 'Phase [0-9]+(\.[0-9]+)?' | awk '{print $2}' | tr '\n' ' '
-echo
+# ROADMAP_CHECKED removed: derive checkbox state from ROADMAP section
+# (cat_roadmap_compact includes the [x]/[ ] checklist lines).
+# Stale-state reconciliation compares PHASE_COMPLETION against ROADMAP checklist.
 
 # Git branch for branch guard
 echo "=== GIT ==="

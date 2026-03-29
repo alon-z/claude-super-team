@@ -36,6 +36,5 @@ if [ -d .planning/phases ]; then
   done
 fi
 
-# Codebase docs availability
-echo "=== CODEBASE_DOCS ==="
-[ -d .planning/codebase ] && ls .planning/codebase/ 2>/dev/null || echo "none"
+# CODEBASE_DOCS removed: codebase-exploration.md reference checks
+# filesystem directly and reads relevant docs based on phase domain.
