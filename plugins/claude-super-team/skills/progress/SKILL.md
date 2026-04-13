@@ -24,6 +24,8 @@ Present a comprehensive status report of project progress and intelligently rout
 
 **This is a navigation and context skill** -- helps users understand where they are in the project flow and what to do next.
 
+**Orchestrator contract:** When this skill runs in a forked subagent, the parent orchestrator MUST relay the agent's full report verbatim to the user. Do not summarize, compress, or replace the `### Phases` table with prose. The table is the primary artifact users rely on.
+
 All data is pre-loaded via dynamic context injection above. Use the injected file contents and structured sections (STRUCTURE, PHASE_MAP, RECENT_SUMMARIES) to build the report. No Bash calls needed.
 
 ## Process
@@ -156,7 +158,9 @@ From the **RECENT_SUMMARIES** section, parse each line:
 
 ### Phase 5: Present Status Report
 
-**Output the report in this format.** Build a progress bar: for each 10% of completion, use `█`. For remaining, use `░`. Always 10 characters wide.
+**Output the report in this format.** The `### Phases` table is mandatory -- always emit one row per phase in ROADMAP_PHASES / PHASE_MAP, even when sync issues exist or data is partial (use `--` placeholders for missing fields). Never replace the table with prose summaries.
+
+Build a progress bar: for each 10% of completion, use `█`. For remaining, use `░`. Always 10 characters wide.
 
 Example: 7 of 10 plans done = `███████░░░` 70%
 

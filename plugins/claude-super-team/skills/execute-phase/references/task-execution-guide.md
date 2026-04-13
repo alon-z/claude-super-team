@@ -6,13 +6,26 @@ You are executing a single task from a phase plan. Follow these instructions exa
 
 You receive:
 - **Task details:** `<name>`, `<files>`, `<action>`, `<verify>`, `<done>`
-- **Plan context:** Objective, must_haves, prior task summaries (if sequential)
+- **Plan context:** Objective, must_haves, prior task summaries (if sequential), and the plan's `skills:` list
 - **Project context:** PROJECT.md, relevant codebase docs
+
+## Step 0: Pre-Load Plan Skills
+
+Before reading any task files, check the "Plan skills to pre-load" section of your prompt. The planner curated these skills specifically for this plan -- they encode domain expertise (SwiftUI patterns, Expo builds, CLI runbooks, etc.) that you need to execute the task correctly.
+
+For each skill listed:
+
+1. Invoke the `Skill` tool with the fully-qualified name exactly as written (e.g., `Skill(skill: "swiftui-expert:swiftui-expert-skill")`).
+2. Skip any skill that is already listed as active in your system skill reminder.
+3. If a skill invocation fails (unknown name, plugin not installed), record it in your final report under **Deviations** and continue. Do NOT abort the task -- pick up the remaining skills and proceed with your own best judgment for the missing one.
+4. If the "Plan skills to pre-load" section is empty or says `(none)`, skip this step entirely.
+
+Do not invoke skills that are NOT in the plan's list. The planner deliberately kept the list small; loading extras burns context and dilutes the guidance.
 
 ## Execution Process
 
 1. **Read existing files** listed in `<files>` before modifying. Understand current state.
-2. **Execute `<action>`** precisely. Follow the specific instructions -- do not reinterpret.
+2. **Execute `<action>`** precisely, following any patterns loaded from Step 0 skills. Do not reinterpret.
 3. **Run `<verify>`** commands. Fix issues until verification passes.
 4. **Check `<done>`** criteria. Every acceptance criterion must be met.
 5. **Commit** atomically (see Commit Protocol below).
@@ -103,6 +116,7 @@ Before reporting completion, verify:
 - Commit exists: `git log --oneline -1 --grep="{phase}-{plan}"`
 - `<verify>` commands pass
 - `<done>` criteria met
+- Plan skills were pre-loaded (or any failures recorded under Deviations)
 
 If ANY check fails, report `SELF_CHECK: FAILED` with details.
 

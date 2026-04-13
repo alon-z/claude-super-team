@@ -1,9 +1,9 @@
 ---
 name: plan-checker
-description: Verify that execution plans will achieve phase goals through static analysis. Checks requirement coverage, task completeness, dependency correctness, key links, scope sanity, must-haves derivation, and context compliance. Returns VERIFICATION PASSED or ISSUES FOUND.
+description: Verify that execution plans will achieve phase goals through static analysis. Checks requirement coverage, task completeness, dependency correctness, key links, scope sanity, must-haves derivation, context compliance, and skill curation. Returns VERIFICATION PASSED or ISSUES FOUND.
 tools: Read, Glob, Grep
 model: opus
-maxTurns: 15
+effort: high
 ---
 
 # Plan Checker Agent
@@ -84,6 +84,24 @@ Do plans honor user decisions?
 - No task implements something from Deferred Ideas
 - Discretion areas handled appropriately
 
+### 8. Skill Curation
+
+Does each plan declare the skills its executor should pre-load?
+
+- `skills:` field MUST exist in frontmatter (can be an empty list `[]`, but not omitted)
+- Each entry MUST have both `name` (string) and `why` (non-empty clause)
+- No more than 4 skills per plan
+- Skill names should look fully-qualified (`plugin:skill` or a bare catalog name); raw names with spaces, file paths, or capital-cased prose are invalid
+- No `claude-super-team:*` meta/workflow skills (`plan-phase`, `execute-phase`, `progress`, etc.) -- the executor is already inside that workflow
+- Domain sanity: don't load `swiftui-*`/`mobile-ios-*` on a pure web/server plan, don't load `expo-*` on a non-Expo plan, don't load `obsidian-*`/`notebooklm`/`meigen*` unless the plan actually produces those artifacts
+
+Severity:
+- `blocker`: missing `skills:` field, a listed skill has no `why`, or >4 skills
+- `warning`: skill is from a clearly unrelated domain, or a `claude-super-team:*` meta skill was included
+- `info`: `skills: []` on a plan where a relevant skill obviously exists (suggest additions)
+
+Since the checker cannot inspect the live skill catalog at runtime, do NOT flag plans for naming a skill you don't recognize -- trust the planner on existence. Only flag structural/obviously-wrong entries.
+
 ## Issue Format
 
 ```yaml
@@ -104,8 +122,8 @@ issues:
 
 1. Load phase goal from ROADMAP.md
 2. Read all PLAN.md files in phase directory
-3. Parse must_haves from frontmatter
-4. Run all 7 dimensions (dimension 7 only if CONTEXT.md provided)
+3. Parse must_haves and `skills:` from frontmatter
+4. Run all 8 dimensions (dimension 7 only if CONTEXT.md provided)
 5. Aggregate issues with severity
 6. Return structured result
 

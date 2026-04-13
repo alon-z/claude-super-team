@@ -497,6 +497,7 @@ After context compaction, the skill's hooks automatically re-inject `EXEC-PROGRE
 - [ ] Phase directory with PLAN.md files found
 - [ ] Plans grouped by wave correctly
 - [ ] Each task routed to appropriate agent with full context
+- [ ] Each spawn prompt includes the plan's `skills:` list (or `(none)`) so executors can pre-load them
 - [ ] Tasks within plans execute sequentially
 - [ ] Plans within waves execute in parallel
 - [ ] Code-simplifier spawned after each plan's tasks complete

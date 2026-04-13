@@ -6,6 +6,8 @@ For each plan in this wave, parse the `<tasks>` section. Extract each `<task>`:
 - `<name>`, `<files>`, `<action>`, `<verify>`, `<done>`
 - Task type attribute (`auto`, `checkpoint:human-verify`, `checkpoint:decision`)
 
+Also parse the plan's `skills:` frontmatter list. Each entry has `name` and `why`. This list must be passed through verbatim to the executor/teammate prompt (see Phase 5c) so it can pre-load each skill before touching code. If the plan omits the field or uses `skills: []`, pass `(none)` in the prompt.
+
 #### 5b. Route Tasks to Agents
 
 For each task, infer the best agent type using these heuristics:
@@ -36,9 +38,10 @@ Read `references/task-execution-guide.md`. Build the agent prompt by embedding:
 1. The task execution guide
 2. The specific task details (`<name>`, `<files>`, `<action>`, `<verify>`, `<done>`)
 3. Plan objective and must_haves (from plan frontmatter)
-4. Prior task results from same plan (if task 2+, include task 1's report)
-5. Project context: PROJECT.md content (abbreviated if large)
-6. Codebase context: relevant files from `.planning/codebase/` (if exist)
+4. **Plan skills to pre-load** (the `skills:` list from plan frontmatter, formatted as a bulleted list of `name -- why`; render `(none)` if empty)
+5. Prior task results from same plan (if task 2+, include task 1's report)
+6. Project context: PROJECT.md content (abbreviated if large)
+7. Codebase context: relevant files from `.planning/codebase/` (if exist)
 
 ##### Task Mode (EXEC_MODE=task)
 
@@ -50,6 +53,8 @@ Task(
   model: "{routed_model}"
   description: "Execute {phase}-{plan} Task {N}"
   prompt: """
+  ultrathink
+
   {task_execution_guide_content}
 
   ---
@@ -57,6 +62,9 @@ Task(
   Plan: {phase}-{plan}
   Plan objective: {objective}
   Plan must_haves: {must_haves}
+
+  Plan skills to pre-load (invoke the Skill tool for each before reading task files; see Step 0 of the task execution guide):
+  {plan_skills_bulleted or "(none)"}
 
   Your task:
 
@@ -80,6 +88,13 @@ Task(
 )
 ```
 
+Format `{plan_skills_bulleted}` like:
+
+```
+- swiftui-expert:swiftui-expert-skill -- Task 1 writes new SwiftUI views; enforces state/composition best practices.
+- xcodebuildmcp-cli -- Task 2 builds and runs the iOS simulator for <verify>.
+```
+
 ##### Teams Mode (EXEC_MODE=team)
 
 Spawn one teammate per plan in the wave. Each teammate owns all tasks in its plan (executed sequentially within the teammate's context). Cross-plan parallelism happens naturally because teammates run concurrently.
@@ -94,6 +109,8 @@ Task(
   name: "plan-{plan}"
   description: "Execute {phase}-{plan}"
   prompt: """
+  ultrathink
+
   You are a teammate executing plan {phase}-{plan}. Execute ALL tasks in this plan sequentially.
 
   {task_execution_guide_content}
@@ -103,6 +120,9 @@ Task(
   Plan: {phase}-{plan}
   Plan objective: {objective}
   Plan must_haves: {must_haves}
+
+  Plan skills to pre-load (invoke the Skill tool for each ONCE before starting Task 1; see Step 0 of the task execution guide):
+  {plan_skills_bulleted or "(none)"}
 
   Tasks to execute (in order):
   {all_tasks_in_plan_xml}
@@ -116,10 +136,11 @@ Task(
   ---
 
   Instructions:
+  - Pre-load the plan skills above exactly once at the start, then execute each task in order. Do NOT re-load skills between tasks.
   - Execute each task in order. Task 2 may depend on task 1's output.
   - After each task, evaluate if any directory you created or heavily modified needs a CLAUDE.md (see task execution guide for rules -- only when something non-obvious and critical exists, max 3-5 lines, most dirs do NOT need one).
   - If simplifier is enabled ($SIMPLIFIER_PREF = enabled): After completing ALL tasks, run the code-simplifier agent on all created/modified files:
-    Task(subagent_type: "code-simplifier:code-simplifier", model: "opus", description: "Simplify {phase}-{plan} code", prompt: "Simplify and refine the recently modified files for clarity, consistency, and maintainability. Preserve ALL functionality. Files: {all created/modified files from task results}")
+    Task(subagent_type: "code-simplifier:code-simplifier", model: "opus", description: "Simplify {phase}-{plan} code", prompt: "ultrathink\n\nSimplify and refine the recently modified files for clarity, consistency, and maintainability. Preserve ALL functionality. Files: {all created/modified files from task results}")
   - If simplifier is disabled: Skip the code-simplifier step and proceed directly to writing SUMMARY.md.
   - After simplification (or skipping it), write the plan SUMMARY.md to: {phase_dir}/{phase}-{plan}-SUMMARY.md
   - Use the summary template: {summary_template_content}
@@ -210,6 +231,8 @@ Task(
   model: "opus"
   description: "Simplify {phase}-{plan} code"
   prompt: """
+  ultrathink
+
   Simplify and refine the code in the following files that were just written as part of plan {phase}-{plan}.
 
   Focus on:
