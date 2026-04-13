@@ -3,7 +3,7 @@ name: phase-researcher
 description: Research ecosystem, libraries, architecture patterns, and pitfalls for a project phase. Produces RESEARCH.md consumed by the planner. Use when researching how to implement a phase before planning.
 tools: Read, Write, Bash, Glob, Grep, WebSearch, WebFetch, ToolSearch, Bash(firecrawl *), mcp__context7__resolve-library-id, mcp__context7__query-docs
 model: opus
-maxTurns: 40
+effort: high
 memory: project
 skills:
   - firecrawl

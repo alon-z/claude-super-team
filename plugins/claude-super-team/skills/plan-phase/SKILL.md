@@ -19,12 +19,12 @@ Parse the output sections (PROJECT, ROADMAP, STATE, PHASE_STATUS, ROADMAP_PHASES
 
 ## Objective
 
-Create executable PLAN.md files for a roadmap phase by spawning a planner agent, then verifying plans with a checker agent.
+Create executable PLAN.md files for a roadmap phase by spawning the custom `phase-planner` agent, then verifying plans with the `plan-checker` agent.
 
-**Flow:** Load context -> Spawn planner (with built-in pre-flight checklist) -> Done
-**Flow (with --verify):** Load context -> Spawn planner -> Verify plans -> Revision loop (if needed) -> Done
+**Flow:** Load context -> Spawn phase-planner (with built-in pre-flight checklist) -> Done
+**Flow (with --verify):** Load context -> Spawn phase-planner -> Spawn plan-checker -> Revision loop (if needed) -> Done
 
-**Why agents:** Planning burns context fast. The planner gets a fresh context with all project files + methodology. The checker gets fresh context with just the plans. Main context stays lean.
+**Why custom agents:** Planning burns context fast. The `phase-planner` agent definition embeds the full methodology, PLAN.md template, and mode handling -- this SKILL.md only passes dynamic context. The `plan-checker` agent gets fresh context with just the plans. Main context stays lean.
 
 **Reads:** `.planning/ROADMAP.md`, `.planning/PROJECT.md`, `.planning/STATE.md`, phase CONTEXT.md and RESEARCH.md (if exist), `.planning/codebase/` docs (if exist)
 **Creates:** `.planning/phases/{phase}-{name}/{phase}-{NN}-PLAN.md` files
@@ -127,39 +127,20 @@ On "Plan without research": Continue to Phase 5.
 
 ### Phase 5: Spawn Planner Agent
 
-Read `${CLAUDE_SKILL_DIR}/references/planner-guide.md` and `${CLAUDE_SKILL_DIR}/assets/plan-template.md`. Build the planner prompt by embedding:
-
-1. The full planner guide content
-2. The plan template
-3. Pre-assembled context from gather-data.sh (ROADMAP_TRIMMED, STATE_TRIMMED, CODEBASE_DOCS, PHASE_CONTEXT, PHASE_RESEARCH, PHASE_REQUIREMENTS) -- already trimmed and ready to embed
-4. PROJECT.md content from Step 0
-5. The phase number, name, and goal from ROADMAP_TRIMMED's phase detail
-6. Mode: `standard`, `gap_closure` (if --gaps), or `refinement` (if refining existing plans)
-
-Spawn via Task tool:
+Spawn the custom `phase-planner` agent via Task tool. The agent definition already contains the full planner methodology, PLAN.md template, pre-flight checklist, mode handling (standard/refinement/gap_closure/revision), and structured return formats. Only pass dynamic per-invocation context:
 
 ```
 Task(
-  subagent_type: "general-purpose"
-  model: "opus"
+  subagent_type: "phase-planner"
   description: "Plan Phase {N}"
   prompt: """
   ultrathink
 
-  You are a planner agent. Follow these instructions:
-
-  {planner_guide_content}
-
-  ---
-
-  PLAN.md template to use:
-
-  {plan_template_content}
-
-  ---
-
   Phase: {phase_number} - {phase_name}
   Mode: {standard | gap_closure | refinement}
+  Phase directory: {phase_dir}
+
+  ---
 
   Project context:
   {project_md_content}
@@ -196,13 +177,17 @@ Task(
   {prior_plans_index}
   Use this index for setting correct depends_on references to plans from earlier phases.
 
+  ---
+
   Write PLAN.md files to: {phase_dir}/
-  Return PLANNING COMPLETE or REVISION COMPLETE or REFINEMENT COMPLETE when done.
+  Return PLANNING COMPLETE, REFINEMENT COMPLETE, REVISION COMPLETE, or PLANNING BLOCKED when done.
   """
 )
 ```
 
-**Refinement mode:** When `PLAN_MODE=refinement`, set Mode to `refinement` and include the full contents of all existing `*-PLAN.md` files under "Existing plans". The planner will surgically update existing plans based on new context rather than creating plans from scratch. See "Refinement Mode" in planner-guide.md.
+**Why custom agent:** The `phase-planner` agent definition embeds the full planning methodology, PLAN.md template, pre-flight checklist, and mode handling. This SKILL.md only passes dynamic per-invocation context.
+
+**Refinement mode:** When `PLAN_MODE=refinement`, set Mode to `refinement` and include the full contents of all existing `*-PLAN.md` files under "Existing plans". The planner will surgically update existing plans based on new context rather than creating plans from scratch. See the Refinement Mode section in the `phase-planner` agent definition.
 
 ### Phase 6: Handle Planner Return
 
@@ -272,9 +257,9 @@ Read `${CLAUDE_SKILL_DIR}/references/all-phases-mode.md` for the combined summar
 - [ ] Phase validated against roadmap
 - [ ] Phase directory created
 - [ ] All available context loaded and embedded in agent prompts
-- [ ] Planner agent spawned with full context + planner guide + plan template
+- [ ] Custom `phase-planner` agent spawned with dynamic context (methodology + template live in the agent definition)
 - [ ] PLAN.md files created in phase directory
-- [ ] Plan checker spawned (if --verify)
+- [ ] `plan-checker` agent spawned (if --verify)
 - [ ] Verification passed OR user override OR max iterations with user decision
 - [ ] User sees clear completion summary with wave structure
 - [ ] User told how to commit (never auto-commit)

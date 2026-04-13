@@ -2,6 +2,15 @@
 
 All notable changes to the claude-super-team marketplace are documented in this file.
 
+## [1.0.59] - 2026-04-13
+
+### claude-super-team
+- Add custom `phase-planner` subagent (`agents/phase-planner.md`) mirroring the `phase-researcher` pattern. Embeds the full planner methodology, PLAN.md template, pre-flight checklist, and mode handling (standard/refinement/gap_closure/revision)
+- Update `/plan-phase` SKILL.md to spawn `subagent_type: "phase-planner"` with only dynamic per-invocation context instead of embedding the planner guide inline in the prompt
+- Delete now-redundant `skills/plan-phase/references/planner-guide.md` and `skills/plan-phase/assets/plan-template.md` (and empty `assets/` directory) -- content is authoritative in the `phase-planner` agent definition
+- Refine `plan-checker`, `progress`, `phase-researcher`, and `cst-help` agent definitions
+- Update `/code`, `/execute-phase`, `/progress` skills and execute-phase reference guides (task-execution, wave-execution)
+
 ## [1.0.58] - 2026-03-29
 
 ### claude-super-team

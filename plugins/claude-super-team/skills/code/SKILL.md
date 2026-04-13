@@ -1,8 +1,8 @@
 ---
 name: code
-description: Interactive coding session with project context. Applies changes through direct conversation and tracks modifications in a session log. Use for ad-hoc coding, phase refinement, or any work you want to do conversationally without pre-planning.
+description: Interactive coding session with project context. Applies changes through direct conversation and tracks modifications in a session log. Pre-loads relevant skills from the catalog for each new user request. Use for ad-hoc coding, phase refinement, or any work you want to do conversationally without pre-planning.
 argument-hint: "[phase number] [description of what to work on]"
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *), Bash(date *), Bash(bash *gather-data.sh)
+allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Skill, Bash(test *), Bash(ls *), Bash(npm *), Bash(npx *), Bash(bun *), Bash(pnpm *), Bash(yarn *), Bash(git diff *), Bash(git status), Bash(mkdir *), Bash(date *), Bash(bash *gather-data.sh)
 ---
 
 ## Step 0: Load Context
@@ -143,27 +143,39 @@ Do not use AskUserQuestion here. Let the user drive from this point.
 
 This phase is behavioral -- it defines how to handle each user request during the session.
 
+**Session skill tracking:** Maintain an in-memory list of skills you have already loaded during this session (call it `loaded_skills`). It starts empty at Phase 5 and grows as you pre-load skills in step 2 below. Never re-invoke a skill that is already in `loaded_skills` -- the Skill tool's description warns that invoking an already-running skill is a no-op and wastes context.
+
 **For each change the user requests:**
 
 1. **Understand** -- Clarify if needed using AskUserQuestion, but default to acting. Bias toward doing, not asking.
-2. **Implement** -- Use Read, Edit, Write, Glob, Grep to make changes. Read files before editing.
-3. **Verify** -- Run relevant tests or builds when the change warrants it:
+2. **Select & pre-load skills** -- Before touching files, decide which skills from the live catalog are relevant to THIS request:
+   - Look at the "skills are available for use with the Skill tool" system reminder. That list is your source of truth -- do not invent or guess skill names.
+   - Pick 0-3 skills that directly match the request's domain (iOS + `swiftui-expert:swiftui-expert-skill`, Expo + `expo-app-design:building-native-ui`, Neon + `neon-postgres`, Fly + `fly`, etc.), or the tool/CLI the task will actually invoke (`xcodebuildmcp-cli`, `vercel-cli`, `firecrawl-scrape`, `playwright-cli`).
+   - Exclude: skills already in `loaded_skills`; `claude-super-team:*` meta/workflow skills; skills from unrelated domains; pure research/image/notebook skills unless the task explicitly needs them.
+   - For each chosen skill, invoke it: `Skill(skill: "{fully-qualified-name}")` -- use the exact name from the catalog. Then append it to `loaded_skills`.
+   - If the request is trivial (rename a variable, fix a typo, tweak copy) and no skill is a clear match, skip this step entirely. Over-loading skills is worse than loading none.
+   - If a skill invocation fails (unknown name, plugin missing), note it in the session log's change entry under a `- **Skill miss:**` line and continue with your own judgment.
+3. **Implement** -- Use Read, Edit, Write, Glob, Grep to make changes, following any patterns loaded in step 2. Read files before editing.
+4. **Verify** -- Run relevant tests or builds when the change warrants it:
    - `Bash(test *)` for test suites
    - `Bash(npm *)`, `Bash(bun *)`, etc. for builds
    - `Bash(git diff *)` to show what changed
-4. **Log** -- Run `date "+%H:%M"` then append an entry to the session log:
+5. **Log** -- Run `date "+%H:%M"` then append an entry to the session log:
    ```markdown
    ### {HH:MM from date command} - {brief description}
    - **Files:** {list of modified files}
+   - **Skills loaded:** {new skills loaded this turn, or "none"}
    - **What:** {1-2 sentence summary}
    ```
-5. **Report** -- Tell the user what was done. Show key changes, test results. Keep it brief.
+6. **Report** -- Tell the user what was done. Show key changes, test results. Keep it brief. If you loaded skills, mention them in one short clause so the user can see your reasoning.
 
 **Guidelines:**
 - Apply changes directly. Do not ask "should I proceed?" for straightforward requests.
 - If a change is ambiguous or has multiple valid approaches, ask once with AskUserQuestion then act.
 - Run tests after changes that could break things, not after every edit.
 - Keep session log entries concise -- they're for reference, not documentation.
+- Skills persist across turns within this session. Load once, reuse.
+- When the user's focus shifts to a new domain mid-session (e.g., switches from backend to SwiftUI views), re-run step 2 against the new request -- do not assume earlier-loaded skills still cover the new work.
 
 ### Phase 7: Session End
 
@@ -226,6 +238,8 @@ Each session creates its own log file and REFINEMENT.md is overwritten (latest r
 - [ ] Session mode correctly detected
 - [ ] Phase context loaded (phase-linked) or project context loaded (free-form)
 - [ ] Session log created and maintained throughout
+- [ ] For every non-trivial user request, relevant skills were selected from the live catalog and pre-loaded before making changes (or deliberately skipped for trivial edits)
+- [ ] No skill was re-loaded within the same session (`loaded_skills` dedup respected)
 - [ ] Changes applied as requested
 - [ ] REFINEMENT.md created (phase-linked) or summary appended (free-form)
 - [ ] Commit command suggested with relevant files

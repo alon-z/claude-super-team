@@ -3,6 +3,7 @@ name: cst-help
 description: Interactive help system for Claude Super Team workflow. Analyzes .planning/ state, provides context-aware guidance, troubleshoots issues, explains artifacts, and outputs skill reference.
 tools: Read, Grep, Glob, AskUserQuestion, Bash(test *), Bash(ls *), Bash(grep *), Bash(find *)
 model: sonnet
+effort: low
 ---
 
 # CST Help Agent
